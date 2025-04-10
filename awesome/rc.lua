@@ -56,7 +56,7 @@ end
 beautiful.init(gears.filesystem.get_configuration_dir() .. "themes/default/theme.lua")
 
 -- Define global variables
-terminal = "x-terminal-emulator"
+terminal = "wezterm"  -- Changed from x-terminal-emulator to wezterm
 editor = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 modkey = "Mod4"

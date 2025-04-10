@@ -119,8 +119,13 @@ M.globalkeys = gears.table.join(
     awful.key({ modkey }, "p", function() menubar.show() end,
               {description = "show the menubar", group = "launcher"}),
 
+    -- Terminal applications
+    awful.key({ modkey }, "Return", function() awful.spawn("wezterm") end,
+              {description = "open wezterm", group = "applications"}),
+    awful.key({ modkey, "Shift" }, "Return", function() awful.spawn("tilix --quake") end,
+              {description = "open tilix in quake mode", group = "applications"}),
+              
     -- Application shortcuts
-    app_key("Return", terminal, "open terminal"),
     app_key("e", "geany", "open geany"),
     app_key("b", "firefox-esr", "open firefox"),
     app_key("f", "thunar", "open file manager"),
@@ -129,7 +134,7 @@ M.globalkeys = gears.table.join(
 
 -- Client keybindings
 M.clientkeys = gears.table.join(
-    -- Close window with Super+q (as per your original configuration)
+    -- Close window with Super+q
     awful.key({ modkey }, "q", function(c) c:kill() end,
               {description = "close", group = "client"}),
               

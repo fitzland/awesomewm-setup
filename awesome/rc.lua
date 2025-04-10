@@ -108,72 +108,74 @@ menubar.utils.terminal = terminal
 --------------------------------------------------------------------------------
 -- Screen Setup: Wallpaper, Tags, and Wibar (Top Panel)
 --------------------------------------------------------------------------------
+-- Define your taglist_buttons if not already defined:
+local taglist_buttons = gears.table.join(
+    awful.button({ }, 1, function(t) t:view_only() end),
+    awful.button({ modkey }, 1, function(t)
+        if client.focus then
+            client.focus:move_to_tag(t)
+        end
+    end),
+    awful.button({ }, 3, awful.tag.viewtoggle)
+)
+
+-- Additional widget definitions:
+local cpu_widget = wibox.widget.textbox()
+vicious.register(cpu_widget, vicious.widgets.cpu, " CPU: $1% ", 2)
+
+local mem_widget = wibox.widget.textbox()
+vicious.register(mem_widget, vicious.widgets.mem, " RAM: $1% ", 15)
+
+local date_time_widget = wibox.widget.textclock("%a %b %d, %I:%M %p", 60)
+
+-- Create a wibar for each screen and add it:
 awful.screen.connect_for_each_screen(function(s)
-    -- Wallpaper: set if defined in theme
+    -- Wallpaper setup (if defined in your theme)
     if beautiful.wallpaper then
         local wallpaper = beautiful.wallpaper
         if type(wallpaper) == "function" then wallpaper = wallpaper(s) end
         gears.wallpaper.maximized(wallpaper, s, true)
     end
 
-    -- Define tags (workspaces). Adjust the number and names as needed.
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }, s, awful.layout.layouts[1])
+    -- Define tags. Adjust the number/names as desired.
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
-    -- Create a prompt box for each screen
+    -- Create a prompt box for each screen.
     s.mypromptbox = awful.widget.prompt()
 
-    -- Create a layout box that shows the current layout icon
+    -- Create a taglist widget with spacing.
+    s.mytaglist = awful.widget.taglist {
+        screen  = s,
+        filter  = awful.widget.taglist.filter.all,
+        layout = {
+            spacing = 12,  -- Adjust this value to control spacing between tags
+            layout = wibox.layout.fixed.horizontal,
+        },
+        buttons = taglist_buttons
+    }
+
+    -- Create a layout box widget that shows the current layout icon.
     s.mylayoutbox = awful.widget.layoutbox(s)
     s.mylayoutbox:buttons(gears.table.join(
         awful.button({ }, 1, function() awful.layout.inc(1) end),
         awful.button({ }, 3, function() awful.layout.inc(-1) end)
     ))
 
-    -- Create a taglist widget for workspace navigation
-    s.mytaglist = awful.widget.taglist {
-        screen  = s,
-        filter  = awful.widget.taglist.filter.all,
-        buttons = gears.table.join(
-            awful.button({ }, 1, function(t) t:view_only() end),
-            awful.button({ modkey }, 1, function(t)
-                if client.focus then client.focus:move_to_tag(t) end
-            end),
-            awful.button({ }, 3, awful.tag.viewtoggle)
-        )
-    }
-
-    -- Create a tasklist widget showing the focused client's tasks only
-    s.mytasklist = awful.widget.tasklist {
-        screen  = s,
-        filter  = function(c) return c == client.focus end,
-        buttons = gears.table.join(
-            awful.button({ }, 1, function(c)
-                if c == client.focus then
-                    c.minimized = true
-                else
-                    c:emit_signal("request::activate", "tasklist", {raise = true})
-                end
-            end),
-            awful.button({ }, 3, function()
-                awful.menu.client_list({ theme = { width = 250 } })
-            end)
-        )
-    }
-
-    -- Create the wibar (top panel) and add widgets
+    -- Create the wibar. Notice that we do not include the launcher in the left section.
     s.mywibox = awful.wibar({ position = "top", screen = s })
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
-        {   -- Left widgets: Launcher, Taglist, Promptbox
+        {   -- Left widgets: only taglist and promptbox.
             layout = wibox.layout.fixed.horizontal,
-            mylauncher,
             s.mytaglist,
             s.mypromptbox,
         },
-        s.mytasklist,  -- Middle widget: Tasklist
-        {   -- Right widgets: Keyboard layout, Systray, Layoutbox
+        nil,  -- Middle: (optionally, you could add a tasklist here)
+        {   -- Right widgets: CPU, Memory, Date/Time, Systray, Layoutbox.
             layout = wibox.layout.fixed.horizontal,
-            awful.widget.keyboardlayout(),
+            cpu_widget,
+            mem_widget,
+            date_time_widget,
             wibox.widget.systray(),
             s.mylayoutbox,
         },

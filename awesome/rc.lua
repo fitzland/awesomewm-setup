@@ -73,6 +73,7 @@ _G.modkey = modkey
 local layouts = require("modules.layouts")
 local menu = require("modules.menu")
 local keybindings = require("modules.keybindings")
+root.keys(keybindings.globalkeys)
 local rules = require("modules.rules")
 local signals = require("modules.signals")
 local wibar = require("modules.wibar")

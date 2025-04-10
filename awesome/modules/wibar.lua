@@ -56,20 +56,22 @@ local function only_focused_clients(c, screen)
 end
 
 -- Create tags for a screen
-function M.create_tags(s)
+function M.create_tags(s, default_layout)
     -- Create tags 1-12
-    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }, s, awful.layout.layouts[1])
+    local tags = awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }, s, default_layout or awful.layout.suit.tile)
     
-    -- Apply specific layouts to tags if layouts module is available
-    if layouts and layouts.set_layouts_per_tag then
-        layouts.set_layouts_per_tag(s)
-    end
+    return tags
 end
 
 -- Setup function that will be called for each screen
-function M.setup_wibar(s, mylauncher)
+function M.setup_wibar(s, mylauncher, layouts_module)
     -- Create tags for this screen
-    M.create_tags(s)
+    M.create_tags(s, awful.layout.layouts[1])
+    
+    -- Apply specific layouts to tags if layouts module is provided
+    if layouts_module and layouts_module.set_layouts_per_tag then
+        layouts_module.set_layouts_per_tag(s)
+    end
     
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()

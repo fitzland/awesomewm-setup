@@ -23,14 +23,6 @@ local menubar = require("menubar")
 local hotkeys_popup = require("awful.hotkeys_popup")
 require("awful.hotkeys_popup.keys")
 
--- Load modules
-local layouts = require("modules.layouts")
-local menu = require("modules.menu")
-local keybindings = require("modules.keybindings")
-local rules = require("modules.rules")
-local signals = require("modules.signals")
-local wibar = require("modules.wibar")
-
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to another config
 if awesome.startup_errors then
@@ -74,9 +66,19 @@ _G.terminal = terminal
 _G.editor = editor
 _G.editor_cmd = editor_cmd
 _G.modkey = modkey
+-- }}}
+
+-- Load modules (after defining global variables they might need)
+local layouts = require("modules.layouts")
+local menu = require("modules.menu")
+local keybindings = require("modules.keybindings")
+local rules = require("modules.rules")
+local signals = require("modules.signals")
+local wibar = require("modules.wibar")
+
+-- Make module exports available to other modules that might need them
 _G.clientkeys = keybindings.clientkeys
 _G.clientbuttons = keybindings.clientbuttons
--- }}}
 
 -- {{{ Configure layouts
 awful.layout.layouts = layouts.layouts
@@ -99,7 +101,7 @@ menubar.utils.terminal = terminal
 -- {{{ Wibar/Tags setup
 -- Set up wibar and tags for each screen
 awful.screen.connect_for_each_screen(function(s)
-    wibar.setup_wibar(s, mylauncher)
+    wibar.setup_wibar(s, mylauncher, layouts)
 end)
 -- }}}
 

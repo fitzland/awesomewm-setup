@@ -6,12 +6,6 @@ local menubar = require("menubar")
 local M = {}
 local modkey = "Mod4"
 
--- Helper function to create keybindings for applications
-local function app_key(key, app, description)
-    return awful.key({ modkey }, key, function() awful.spawn(app) end,
-              {description = description, group = "applications"})
-end
-
 -- Global keybindings
 M.globalkeys = gears.table.join(
     -- Awesome controls
@@ -21,7 +15,7 @@ M.globalkeys = gears.table.join(
               {description = "quit awesome", group = "awesome"}),
     awful.key({ modkey,           }, "s", hotkeys_popup.show_help,
               {description = "show help", group = "awesome"}),
-    awful.key({ modkey }, "w", function() mymainmenu:show() end,
+    awful.key({ modkey,           }, "w", function() mymainmenu:show() end,
               {description = "show main menu", group = "awesome"}),
 
     -- Tag navigation
@@ -29,6 +23,17 @@ M.globalkeys = gears.table.join(
               {description = "view previous", group = "tag"}),
     awful.key({ modkey,           }, "Right", awful.tag.viewnext,
               {description = "view next", group = "tag"}),
+    -- Add window switching with Super+Shift+Left/Right
+    awful.key({ modkey, "Shift"   }, "Left", function() 
+                                                awful.client.focus.byidx(-1)
+                                                if client.focus then client.focus:raise() end
+                                             end,
+              {description = "focus previous window", group = "client"}),
+    awful.key({ modkey, "Shift"   }, "Right", function() 
+                                                awful.client.focus.byidx(1)
+                                                if client.focus then client.focus:raise() end
+                                              end,
+              {description = "focus next window", group = "client"}),
     awful.key({ modkey,           }, "Escape", awful.tag.history.restore,
               {description = "go back", group = "tag"}),
 
@@ -126,10 +131,14 @@ M.globalkeys = gears.table.join(
               {description = "open tilix in quake mode", group = "applications"}),
               
     -- Application shortcuts
-    app_key("e", "geany", "open geany"),
-    app_key("b", "firefox-esr", "open firefox"),
-    app_key("f", "thunar", "open file manager"),
-    app_key("d", "discord", "open discord")
+    awful.key({ modkey }, "e", function() awful.spawn("geany") end,
+              {description = "open geany", group = "applications"}),
+    awful.key({ modkey }, "b", function() awful.spawn("firefox-esr") end,
+              {description = "open firefox", group = "applications"}),
+    awful.key({ modkey }, "f", function() awful.spawn("thunar") end,
+              {description = "open file manager", group = "applications"}),
+    awful.key({ modkey }, "d", function() awful.spawn("discord") end,
+              {description = "open discord", group = "applications"})
 )
 
 -- Client keybindings

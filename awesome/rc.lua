@@ -27,6 +27,7 @@ local vicious = require("vicious")
 
 -- Theme handling library
 local beautiful = require("beautiful")
+local lain = require("lain")
 
 -- Notification and utility libraries
 local naughty = require("naughty")
@@ -186,8 +187,6 @@ get_kernel_version(function(kernel)
     ))
 end)
 
-local lain = require("lain")
-local beautiful = require("beautiful")
 
 -- CPU Widget using Lain
 local cpu_widget = lain.widget.cpu({

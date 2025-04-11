@@ -265,68 +265,63 @@ local function only_focused_clients(c, screen)
     return c == client.focus
 end
 
-local dpi = beautiful.xresources.apply_dpi
-
+-- Configure each screen
 awful.screen.connect_for_each_screen(function(s)
-    -- Set wallpaper as before (if defined in your theme)
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        if type(wallpaper) == "function" then wallpaper = wallpaper(s) end
-        gears.wallpaper.maximized(wallpaper, s, true)
-    end
+    -- Set wallpaper
+    set_wallpaper(s)
     
     -- Each screen has its own tag table (12 tags)
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }, s, awful.layout.layouts[1])
     
-
+    -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
-
-    s.mytaglist = awful.widget.taglist {
-        screen = s,
-        filter = awful.widget.taglist.filter.all,
-        layout = {
-            spacing = dpi(20),
-            layout = wibox.layout.fixed.horizontal,
-        },
-        buttons = taglist_buttons,
-    }
-
+    
+    -- Create a layoutbox widget
     s.mylayoutbox = awful.widget.layoutbox(s)
     s.mylayoutbox:buttons(gears.table.join(
-        awful.button({ }, 1, function() awful.layout.inc(1) end),
-        awful.button({ }, 3, function() awful.layout.inc(-1) end)
+        awful.button({ }, 1, function () awful.layout.inc( 1) end),
+        awful.button({ }, 3, function () awful.layout.inc(-1) end),
+        awful.button({ }, 4, function () awful.layout.inc( 1) end),
+        awful.button({ }, 5, function () awful.layout.inc(-1) end)
     ))
-    local small_layoutbox = wibox.container.constraint(s.mylayoutbox, "exact", dpi(24), dpi(24))
     
-    -- Define a spacer widget with a forced width
-    local spacer = wibox.widget {
-        forced_width = dpi(10),
-        layout = wibox.layout.fixed.horizontal,
+    -- Create a taglist widget
+    s.mytaglist = awful.widget.taglist {
+        screen  = s,
+        filter  = awful.widget.taglist.filter.all,
+        layout = {
+            spacing = 12,
+            layout = wibox.layout.fixed.horizontal
+        },
+        buttons = taglist_buttons
     }
-
-    s.mywibox = awful.wibar({
-        position = "top",
-        screen = s,
-        height = dpi(40),
-        bg = beautiful.bg_normal,
-        opacity = 0.9
-    })
-
+    
+    -- Create a tasklist widget (shows only focused client)
+    s.mytasklist = awful.widget.tasklist {
+        screen  = s,
+        filter  = only_focused_clients,
+        buttons = tasklist_buttons
+    }
+    
+    -- Create the wibar (top panel)
+    s.mywibox = awful.wibar({ position = "top", screen = s })
+    
+    -- Add widgets to the wibar
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
-        {   -- Left: layout box, spacer, taglist, spacer, promptbox.
+        { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            small_layoutbox,
-            spacer,
+            s.mylayoutbox,
             s.mytaglist,
-            spacer,
             s.mypromptbox,
         },
-        nil,  -- Middle: empty for minimal look.
-        {   -- Right: system tray and clock.
+        s.mytasklist, -- Middle widget
+        { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
+            cpu_widget,
+            mem_widget,
+            date_time_widget,
             wibox.widget.systray(),
-            awful.widget.textclock("%H:%M", 60)
         },
     }
 end)

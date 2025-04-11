@@ -186,17 +186,21 @@ get_kernel_version(function(kernel)
     ))
 end)
 
--- CPU usage widget
-local cpu_widget = wibox.widget.textbox()
-vicious.register(cpu_widget, vicious.widgets.cpu, 
-    function (widget, args)
-        return string.format(
-            "<span foreground='%s'> CPU:</span> <span foreground='%s'>%d%%</span>", 
-            label_color, info_color, args[1]
-        ) 
-    end, 
-    2  -- Update every 2 seconds
-)
+local lain = require("lain")
+local beautiful = require("beautiful")
+
+-- CPU Widget using Lain
+local cpu_widget = lain.widget.cpu({
+    settings = function()
+        -- Format the CPU usage output.
+        -- You can adjust the markup and colors to match your theme.
+        local usage = cpu_now.usage  -- cpu_now table provided by lain
+        local markup = string.format("<span color='%s'>CPU:</span> %d%%", beautiful.fg_focus or "#ffffff", usage)
+        widget:set_markup(markup)
+    end
+})
+
+return cpu_widget
 
 -- Memory usage widget
 local mem_widget = wibox.widget.textbox()

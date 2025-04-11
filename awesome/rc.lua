@@ -267,8 +267,12 @@ end
 
 -- Configure each screen
 awful.screen.connect_for_each_screen(function(s)
-    -- ... other setup code ...
-    local fancy_taglist = require("fancy_taglist")
+    -- Set wallpaper
+    set_wallpaper(s)
+    
+    -- Each screen has its own tag table (12 tags)
+    awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }, s, awful.layout.layouts[1])
+        local fancy_taglist = require("fancy_taglist")
     s.mytaglist = fancy_taglist.new({
         screen = s,
         taglist = { buttons = mytagbuttons },         -- define your taglist buttons earlier

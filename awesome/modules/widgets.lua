@@ -2,26 +2,37 @@
 
 -- Load required libraries
 local wibox = require("wibox")
-local vicious = require("vicious")
 local variables = require("modules.variables")
+
+-- Try to load vicious with error handling
+local vicious, vicious_error
+local status, err = pcall(function() 
+    vicious = require("vicious") 
+end)
+if not status then
+    vicious_error = err
+    print("Error loading vicious: " .. tostring(err))
+end
 
 -- Create widget table
 local widgets = {}
 
 -- Create basic widgets
-widgets.cpu_widget = wibox.widget.textbox()
-widgets.mem_widget = wibox.widget.textbox()
+widgets.cpu_widget = wibox.widget.textbox(" CPU: ? ")
+widgets.mem_widget = wibox.widget.textbox(" RAM: ? ")
 widgets.date_widget = wibox.widget.textclock(" %a %b %-d ", 60)
 widgets.time_widget = wibox.widget.textclock("%l:%M %p ", 1)
 widgets.systray = wibox.widget.systray()
 
--- Register widgets with Vicious
-vicious.register(widgets.cpu_widget, vicious.widgets.cpu, " CPU: $1% ", 2)
-vicious.register(widgets.mem_widget, vicious.widgets.mem, " RAM: $1% ", 15)
-
 -- Function to initialize any widgets that need special setup
 local function init()
-    -- Any additional widget initialization can go here
+    -- Only register with vicious if it loaded successfully
+    if vicious then
+        pcall(function()
+            vicious.register(widgets.cpu_widget, vicious.widgets.cpu, " CPU: $1% ", 2)
+            vicious.register(widgets.mem_widget, vicious.widgets.mem, " RAM: $1% ", 15)
+        end)
+    end
 end
 
 -- Return the widgets and init function

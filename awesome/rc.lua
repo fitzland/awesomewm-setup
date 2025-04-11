@@ -27,7 +27,6 @@ local vicious = require("vicious")
 
 -- Theme handling library
 local beautiful = require("beautiful")
-local lain = require("lain")
 
 -- Notification and utility libraries
 local naughty = require("naughty")
@@ -187,20 +186,6 @@ get_kernel_version(function(kernel)
     ))
 end)
 
-
--- CPU Widget using Lain
-local cpu_widget = lain.widget.cpu({
-    settings = function()
-        -- Format the CPU usage output.
-        -- You can adjust the markup and colors to match your theme.
-        local usage = cpu_now.usage  -- cpu_now table provided by lain
-        local markup = string.format("<span color='%s'>CPU:</span> %d%%", beautiful.fg_focus or "#ffffff", usage)
-        widget:set_markup(markup)
-    end
-})
-
-return cpu_widget
-
 -- Memory usage widget
 local mem_widget = wibox.widget.textbox()
 vicious.register(mem_widget, vicious.widgets.mem, 
@@ -268,6 +253,7 @@ local function only_focused_clients(c, screen)
     return c == client.focus
 end
 
+local cpu_widget = require("widgets.cpu_widget")
 -- Configure each screen
 awful.screen.connect_for_each_screen(function(s)
     -- Set wallpaper

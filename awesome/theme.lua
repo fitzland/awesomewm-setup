@@ -40,13 +40,15 @@ theme.border_width  = dpi(4)      -- Border width for windows
 theme.border_normal = "#1a1a1a"   -- Border color for inactive windows
 theme.border_focus  = "#4FC3F7"   -- Border color for focused windows
 theme.border_marked = "#4FC3F7"   -- Border color for marked windows
+theme.border_radius = dpi(4)
+
 
 --------------------------------------------------------------------------------
 -- Taglist Squares (small icons for workspaces)
 --------------------------------------------------------------------------------
-local taglist_square_size = dpi(4)
-theme.taglist_squares_sel   = theme_assets.taglist_squares_sel(taglist_square_size, theme.fg_normal)
-theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(taglist_square_size, theme.fg_normal)
+theme.taglist_shape = function(cr, w, h)
+    return gears.shape.rounded_rect(cr, w, h, theme.border_radius)
+end
 
 --------------------------------------------------------------------------------
 -- Menu Settings

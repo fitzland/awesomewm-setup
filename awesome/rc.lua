@@ -278,11 +278,9 @@ awful.screen.connect_for_each_screen(function(s)
     -- Each screen has its own tag table (12 tags)
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }, s, awful.layout.layouts[1])
     
-    -- Create a promptbox for each screen
-    s.mypromptbox = awful.widget.prompt()
-    
 
-    -- Create the taglist (assuming taglist_buttons is defined elsewhere)
+    s.mypromptbox = awful.widget.prompt()
+
     s.mytaglist = awful.widget.taglist {
         screen = s,
         filter = awful.widget.taglist.filter.all,
@@ -293,16 +291,19 @@ awful.screen.connect_for_each_screen(function(s)
         buttons = taglist_buttons,
     }
 
-    -- Create the layout box widget (for current layout indicator)
     s.mylayoutbox = awful.widget.layoutbox(s)
     s.mylayoutbox:buttons(gears.table.join(
         awful.button({ }, 1, function() awful.layout.inc(1) end),
         awful.button({ }, 3, function() awful.layout.inc(-1) end)
     ))
-    -- Constrain the layout box to a smaller size.
     local small_layoutbox = wibox.container.constraint(s.mylayoutbox, "exact", dpi(24), dpi(24))
     
-    -- Create the wibar with a fixed height and slight transparency.
+    -- Define a spacer widget with a forced width
+    local spacer = wibox.widget {
+        forced_width = dpi(10),
+        layout = wibox.layout.fixed.horizontal,
+    }
+
     s.mywibox = awful.wibar({
         position = "top",
         screen = s,
@@ -313,16 +314,16 @@ awful.screen.connect_for_each_screen(function(s)
 
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
-        {   -- Left section: Layout box, then spacing, then taglist, then prompt box.
+        {   -- Left: layout box, spacer, taglist, spacer, promptbox.
             layout = wibox.layout.fixed.horizontal,
             small_layoutbox,
-            wibox.widget.spacing(dpi(10)),
+            spacer,
             s.mytaglist,
-            wibox.widget.spacing(dpi(10)),
+            spacer,
             s.mypromptbox,
         },
-        nil,  -- Middle section: can be left empty for a minimal look.
-        {   -- Right section: system tray and clock.
+        nil,  -- Middle: empty for minimal look.
+        {   -- Right: system tray and clock.
             layout = wibox.layout.fixed.horizontal,
             wibox.widget.systray(),
             awful.widget.textclock("%H:%M", 60)

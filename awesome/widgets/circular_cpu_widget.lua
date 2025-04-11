@@ -26,29 +26,36 @@ local arc_color = beautiful.cpu_arc_color or beautiful.fg_cpu or "#ff79c6"
 
 -- The draw function using cairo
 function widget:draw(_, cr, width, height)
+    -- Clear the entire drawing area by painting it transparent.
+    cr:set_source_rgba(0, 0, 0, 0)
+    cr:paint()
+
     local radius = math.min(width, height) / 2 - dpi(4)
     local cx, cy = width / 2, height / 2
 
     local line_width = dpi(4)
     cr:set_line_width(line_width)
 
-    -- Draw background circle (dim the arc_color for background).
-    local color = gears.color.parse_color(arc_color)
+    -- Set the arc color from your theme (you should have defined beautiful.cpu_arc_color in your theme.lua).
+    local arc_color = beautiful.cpu_arc_color or beautiful.fg_cpu or "#ff79c6"
+    
+    -- Draw the background ring using a dimmed version of the arc color.
+    local c = gears.color.parse_color(arc_color)
     local dim_factor = 0.3
-    local dim_r = color.r * dim_factor
-    local dim_g = color.g * dim_factor
-    local dim_b = color.b * dim_factor
+    local dim_r = c.r * dim_factor
+    local dim_g = c.g * dim_factor
+    local dim_b = c.b * dim_factor
     cr:set_source_rgba(dim_r, dim_g, dim_b, 1)
     cr:arc(cx, cy, radius, 0, 2 * math.pi)
     cr:stroke()
 
-    -- Draw usage arc from -90°.
+    -- Draw the CPU usage arc.
     cr:set_source(gears.color(arc_color))
     local usage_angle = 2 * math.pi * (cpu_usage / 100)
     cr:arc(cx, cy, radius, -math.pi/2, -math.pi/2 + usage_angle)
     cr:stroke()
 
-    -- Draw percentage text in the center.
+    -- Draw the percentage text in the center.
     local percent_text = math.floor(cpu_usage) .. "%"
     cr:set_font_size(dpi(14))
     local extents = cr:text_extents(percent_text)
@@ -56,6 +63,7 @@ function widget:draw(_, cr, width, height)
     cr:set_source(gears.color(arc_color))
     cr:show_text(percent_text)
 end
+
 
 -- Update the widget every 2 seconds by reading /proc/stat.
 awful.widget.watch("bash -c \"cat /proc/stat | grep '^cpu '\"", 2, 

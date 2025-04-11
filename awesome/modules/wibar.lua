@@ -91,45 +91,28 @@ local function setup_new_screen(s)
         end
     })
     
-    -- Create a background with gradient
-    local bg_widget = wibox.container.background()
-    bg_widget.bg = {
-        type = "linear",
-        from = { 0, 0 },
-        to = { s.geometry.width, 0 },
-        stops = { 
-            { 0, beautiful.bg_normal .. "ee" },  -- slightly transparent
-            { 0.5, "#112233ee" }, 
-            { 1, beautiful.bg_normal .. "ee" }
-        }
-    }
-
-    -- Add widgets to the wibox
+    -- Add widgets to the wibox - simplified approach
     s.mywibox:setup {
-        bg_widget,
-        {
-            layout = wibox.layout.align.horizontal,
-            { -- Left widgets
-                layout = wibox.layout.fixed.horizontal,
-                menu.launcher,
-                mytaglist,
-                separator,
-                s.mypromptbox or wibox.widget.textbox(""),
-            },
-            mytasklist, -- Middle widget
-            { -- Right widgets
-                layout = wibox.layout.fixed.horizontal,
-                widgets.cpu_widget,
-                separator,
-                widgets.mem_widget,
-                separator,
-                widgets.date_widget,
-                widgets.time_widget,
-                separator,
-                wibox.widget.systray(),
-            },
+        layout = wibox.layout.align.horizontal,
+        { -- Left widgets
+            layout = wibox.layout.fixed.horizontal,
+            menu.launcher,
+            mytaglist,
+            separator,
+            s.mypromptbox or wibox.widget.textbox(""),
         },
-        widget = wibox.container.background
+        mytasklist, -- Middle widget
+        { -- Right widgets
+            layout = wibox.layout.fixed.horizontal,
+            widgets.cpu_widget,
+            separator,
+            widgets.mem_widget,
+            separator,
+            widgets.date_widget,
+            widgets.time_widget,
+            separator,
+            wibox.widget.systray(),
+        },
     }
     
     -- Store the widgets for later access

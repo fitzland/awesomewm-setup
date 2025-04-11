@@ -1,16 +1,14 @@
--- cpu_widget.lua: An image-based CPU widget with theme colors.
-local awful   = require("awful")
-local wibox   = require("wibox")
-local gears   = require("gears")
+local awful     = require("awful")
+local wibox     = require("wibox")
+local gears     = require("gears")
 local beautiful = require("beautiful")
 
-local dpi = beautiful.xresources.apply_dpi
+local dpi       = beautiful.xresources.apply_dpi
 
--- Create an imagebox for the CPU icon.
-local cpu_icon = wibox.widget.imagebox()
--- Use the icon provided by your theme (set this in your theme.lua as, for example,
--- theme.cpu_icon = "/path/to/your/cpu_icon.png"). Otherwise, the imagebox will be empty.
-cpu_icon.image = beautiful.cpu_icon or gears.filesystem.get_configuration_dir() .. "icons/cpu.png"
+-- Create a textbox for the CPU icon using a glyph.
+local cpu_icon = wibox.widget.textbox()
+cpu_icon.font = beautiful.widget_icon or "Roboto Mono Nerd Font 14"
+cpu_icon.markup = "<span color='" .. (beautiful.fg_cpu or "#bc8cff") .. "'></span>"
 
 -- Create a progress bar for CPU usage.
 local cpu_bar = wibox.widget {
@@ -22,13 +20,11 @@ local cpu_bar = wibox.widget {
     widget        = wibox.widget.progressbar,
 }
 
--- Set colors from your theme.
 cpu_bar.border_width      = dpi(1)
 cpu_bar.border_color      = beautiful.fg_normal or "#ffffff"
 cpu_bar.background_color  = beautiful.bg_normal or "#000000"
-cpu_bar.color             = beautiful.fg_cpu or "#4FC3F7"
+cpu_bar.color             = beautiful.fg_cpu or "#bc8cff"  -- use the theme color
 
--- Combine the icon and the progress bar horizontally.
 local cpu_widget = wibox.widget {
     cpu_icon,
     {
@@ -40,17 +36,16 @@ local cpu_widget = wibox.widget {
     layout = wibox.layout.fixed.horizontal
 }
 
--- Variables to store previous CPU totals.
 local total_prev = 0
 local idle_prev  = 0
 
--- Update the CPU progress bar every 2 seconds.
 awful.widget.watch("bash -c \"cat /proc/stat | grep '^cpu '\"", 2, 
     function(_, stdout, _, _, exit_code)
         if exit_code ~= 0 then
             cpu_bar.value = 0
             return
         end
+
         local user, nice, system, idle = stdout:match("(%d+)%s+(%d+)%s+(%d+)%s+(%d+)")
         if not (user and nice and system and idle) then
             cpu_bar.value = 0

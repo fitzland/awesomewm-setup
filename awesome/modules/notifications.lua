@@ -1,33 +1,28 @@
 -- modules/notifications.lua
--- Use Naughty only for AwesomeWM errors, Dunst for everything else
+-- Disable AwesomeWM notifications since we're using Dunst
 
 local naughty = require("naughty")
 
 local notifications = {}
 
 function notifications.init()
-    -- Set Naughty defaults for AwesomeWM internal errors
-    naughty.config.defaults.timeout  = 0
-    naughty.config.defaults.position = "top_right"
-    naughty.config.defaults.ontop    = true
-
-    -- Only display notifications that come from Awesome itself
-    awesome.connect_signal("debug::error", function(err)
-        naughty.notify({
-            preset = naughty.config.presets.critical,
-            title  = "Oops, an error happened!",
-            text   = tostring(err),
-        })
-    end)
-
-    -- Block all other notifications unless app_name == "awesome"
-    naughty.connect_signal("request::display", function(n)
-        if n.app_name == "awesome" or n.title == "Oops, an error happened!" then
-            naughty.layout.box { notification = n }
+    -- Disable AwesomeWM's notification system
+    if naughty.destroy then
+        -- For newer versions of AwesomeWM
+        naughty.destroy_all_notifications()
+        
+        if naughty.connect_signal then
+            naughty.connect_signal("request::display", function(n)
+                -- Do nothing, effectively disabling notifications
+            end)
         end
-        -- Dunst will handle the rest via D-Bus
-    end)
+    else
+        -- For older versions, we can't completely disable it
+        -- but we can set a very short timeout
+        naughty.config.defaults.timeout = 0.1
+    end
+    
+    print("AwesomeWM notifications disabled (using external notification daemon)")
 end
 
 return notifications
-

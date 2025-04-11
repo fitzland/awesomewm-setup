@@ -6,7 +6,7 @@ local beautiful = require("beautiful")
 local variables = require("modules.variables")
 
 -- Get client keys and buttons from keys module
-local keys = require("modules.keys")
+local keys = require("modules.keybindings")
 local clientkeys = keys.clientkeys
 local clientbuttons = keys.clientbuttons
 

@@ -19,7 +19,7 @@ local gh = {
   gh_highlight  = "#4DFFDA",
   gh_caret      = "#58a6ff",
   gh_invisibles = "#2f363d",
-  theme.fg_cpu = "#bc8cff"  -- for example, using gh_magenta
+  theme.fg_cpu = "#bc8cff",  -- for example, using gh_magenta
 }
 
 local theme_assets = require("beautiful.theme_assets")

@@ -51,11 +51,14 @@ end
 local function setup_new_screen(s)
     -- Create a taglist widget
     s.mytaglist = awful.widget.taglist {
-        screen = s,
-        filter = awful.widget.taglist.filter.all,
-        buttons = taglist_buttons()
+    screen = s,
+    filter = awful.widget.taglist.filter.all,
+    buttons = taglist_buttons(),
+    layout = {
+        spacing = 8,
+        layout = wibox.layout.fixed.horizontal
     }
-    
+}
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist {
         screen = s,

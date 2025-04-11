@@ -266,33 +266,63 @@ local function only_focused_clients(c, screen)
 end
 
 -- Configure each screen
-local fancy_taglist = require("fancy_taglist")
 awful.screen.connect_for_each_screen(function(s)
     -- Set wallpaper
     set_wallpaper(s)
     
     -- Each screen has its own tag table (12 tags)
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }, s, awful.layout.layouts[1])
-
-    s.mytaglist = fancy_taglist.new({
-        screen = s,
-        taglist = { buttons = mytagbuttons },         -- define your taglist buttons earlier
-        tasklist  = { buttons = mytasklistbuttons }      -- define your tasklist buttons as needed
-    })
-    -- then add s.mytaglist to your wibar definition
+    
+    -- Create a promptbox for each screen
+    s.mypromptbox = awful.widget.prompt()
+    
+    -- Create a layoutbox widget
+    s.mylayoutbox = awful.widget.layoutbox(s)
+    s.mylayoutbox:buttons(gears.table.join(
+        awful.button({ }, 1, function () awful.layout.inc( 1) end),
+        awful.button({ }, 3, function () awful.layout.inc(-1) end),
+        awful.button({ }, 4, function () awful.layout.inc( 1) end),
+        awful.button({ }, 5, function () awful.layout.inc(-1) end)
+    ))
+    
+    -- Create a taglist widget
+    s.mytaglist = awful.widget.taglist {
+        screen  = s,
+        filter  = awful.widget.taglist.filter.all,
+        layout = {
+            spacing = 12,
+            layout = wibox.layout.fixed.horizontal
+        },
+        buttons = taglist_buttons
+    }
+    
+    -- Create a tasklist widget (shows only focused client)
+    s.mytasklist = awful.widget.tasklist {
+        screen  = s,
+        filter  = only_focused_clients,
+        buttons = tasklist_buttons
+    }
+    
+    -- Create the wibar (top panel)
+    s.mywibox = awful.wibar({ position = "top", screen = s })
+    
+    -- Add widgets to the wibar
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
-        { -- Left widgets; replace the previous taglist with your fancy one:
+        { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            s.mytaglist
-            -- optionally other widgets, like a prompt
+            s.mytaglist,
+            s.mypromptbox,
         },
-        nil,
-        { -- Right widgets (systray, clock, etc.)
+        s.mytasklist, -- Middle widget
+        { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
+            cpu_widget,
+            mem_widget,
+            date_time_widget,
+            s.mylayoutbox,
             wibox.widget.systray(),
-            awful.widget.layoutbox(s)
-        }
+        },
     }
 end)
 

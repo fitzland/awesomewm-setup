@@ -8,7 +8,7 @@ local dpi       = beautiful.xresources.apply_dpi
 
 -- Create a textbox for the CPU label ("CPU:") using theme colors.
 local cpu_label = wibox.widget.textbox()
-cpu_label.font = beautiful.widget_icon or "Roboto Mono Nerd Font 14"
+cpu_label.font = beautiful.widget_icon or "Roboto Mono Nerd Font 12"
 cpu_label.markup = "<span color='" .. (beautiful.fg_cpu or "#bc8cff") .. "'>CPU:</span>"
 
 -- Create a progress bar for CPU usage with a shorter readout.

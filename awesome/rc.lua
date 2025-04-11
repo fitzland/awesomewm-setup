@@ -1,10 +1,6 @@
 --------------------------------------------------------------------------------
 -- Awesome WM Streamlined Configuration
--- A self-contained configuration that is easier to read and tweak.
---
--- This file handles error reporting, initializes your theme, sets default 
--- applications, creates a simple menu and wibar (panel), defines keybindings,
--- rules, and client signals in one place.
+-- A self-contained configuration that is easier to read, tweak, and maintain.
 --------------------------------------------------------------------------------
 
 -- Load LuaRocks if available
@@ -25,7 +21,6 @@ require("awful.hotkeys_popup.keys")
 --------------------------------------------------------------------------------
 -- Error Handling
 --------------------------------------------------------------------------------
--- Capture startup errors (if any) and notify
 if awesome.startup_errors then
     naughty.notify({
         preset = naughty.config.presets.critical,
@@ -34,7 +29,6 @@ if awesome.startup_errors then
     })
 end
 
--- Handle runtime errors after startup
 do
     local in_error = false
     awesome.connect_signal("debug::error", function(err)
@@ -52,25 +46,27 @@ end
 --------------------------------------------------------------------------------
 -- Variable Definitions & Theme Initialization
 --------------------------------------------------------------------------------
--- Initialize your theme (modify the path to your theme.lua if needed)
-beautiful.init("~/.config/awesome/theme.lua")
+beautiful.init(gears.filesystem.get_configuration_dir() .. "themes/default/theme.lua")
 
--- Define default applications and global modifier key
-terminal   = "tilix"                -- your preferred terminal
+terminal   = "tilix"   -- Set your preferred terminal here
 editor     = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
-modkey     = "Mod4"                 -- typically the Windows/Super key
+modkey     = "Mod4"   -- Typically the Windows/Super key
+
+-- Make these global so that modules (if any) can use them
+_G.terminal    = terminal
+_G.editor      = editor
+_G.editor_cmd  = editor_cmd
+_G.modkey      = modkey
 
 --------------------------------------------------------------------------------
 -- Autostart Applications
 --------------------------------------------------------------------------------
--- Run an external autorun script (ensure the path is correct)
-awful.spawn.with_shell("~/.config/awesome/autorun.sh")
+awful.spawn.with_shell(gears.filesystem.get_configuration_dir() .. "autorun.sh")
 
 --------------------------------------------------------------------------------
 -- Layouts
 --------------------------------------------------------------------------------
--- Define available layouts for your workspace.
 awful.layout.layouts = {
     awful.layout.suit.tile,
     awful.layout.suit.tile.left,
@@ -82,7 +78,6 @@ awful.layout.layouts = {
 --------------------------------------------------------------------------------
 -- Menu & Launcher
 --------------------------------------------------------------------------------
--- Create a main menu for Awesome WM
 local myawesomemenu = {
     { "Hotkeys", function() hotkeys_popup.show_help(nil, awful.screen.focused()) end },
     { "Manual", terminal .. " -e man awesome" },
@@ -90,36 +85,29 @@ local myawesomemenu = {
     { "Restart", awesome.restart },
     { "Quit", function() awesome.quit() end },
 }
--- Build the main menu; you can extend this as required
-local mymainmenu = awful.menu({
-    items = {
-        { "Awesome", myawesomemenu, beautiful.awesome_icon },
-        { "Open Terminal", terminal }
-    }
-})
--- Create a launcher widget that shows the main menu on click
+local mymainmenu = awful.menu({ items = {
+    { "Awesome", myawesomemenu, beautiful.awesome_icon },
+    { "Open Terminal", terminal }
+} })
 mylauncher = awful.widget.launcher({
     image = beautiful.awesome_icon,
     menu  = mymainmenu
 })
--- Set terminal for the menubar utility
 menubar.utils.terminal = terminal
 
 --------------------------------------------------------------------------------
--- Screen Setup: Wallpaper, Tags, and Wibar (Top Panel)
+-- Screen Setup: Wallpaper, Tags, and Wibar
 --------------------------------------------------------------------------------
--- Define your taglist_buttons if not already defined:
+-- Define taglist buttons
 local taglist_buttons = gears.table.join(
     awful.button({ }, 1, function(t) t:view_only() end),
     awful.button({ modkey }, 1, function(t)
-        if client.focus then
-            client.focus:move_to_tag(t)
-        end
+        if client.focus then client.focus:move_to_tag(t) end
     end),
     awful.button({ }, 3, awful.tag.viewtoggle)
 )
 
--- Additional widget definitions:
+-- Example widgets (using vicious)
 local cpu_widget = wibox.widget.textbox()
 vicious.register(cpu_widget, vicious.widgets.cpu, " CPU: $1% ", 2)
 
@@ -128,50 +116,44 @@ vicious.register(mem_widget, vicious.widgets.mem, " RAM: $1% ", 15)
 
 local date_time_widget = wibox.widget.textclock("%a %b %d, %I:%M %p", 60)
 
--- Create a wibar for each screen and add it:
 awful.screen.connect_for_each_screen(function(s)
-    -- Wallpaper setup (if defined in your theme)
+    -- Wallpaper (if defined in your theme)
     if beautiful.wallpaper then
         local wallpaper = beautiful.wallpaper
         if type(wallpaper) == "function" then wallpaper = wallpaper(s) end
         gears.wallpaper.maximized(wallpaper, s, true)
     end
 
-    -- Define tags. Adjust the number/names as desired.
+    -- Define tags (adjust names/number as desired)
     awful.tag({ "1", "2", "3", "4", "5", "6", "7", "8", "9" }, s, awful.layout.layouts[1])
 
-    -- Create a prompt box for each screen.
     s.mypromptbox = awful.widget.prompt()
-
-    -- Create a taglist widget with spacing.
-    s.mytaglist = awful.widget.taglist {
+    s.mytaglist   = awful.widget.taglist {
         screen  = s,
         filter  = awful.widget.taglist.filter.all,
         layout = {
-            spacing = 12,  -- Adjust this value to control spacing between tags
+            spacing = 12,  -- Increase spacing between tags
             layout = wibox.layout.fixed.horizontal,
         },
         buttons = taglist_buttons
     }
 
-    -- Create a layout box widget that shows the current layout icon.
     s.mylayoutbox = awful.widget.layoutbox(s)
     s.mylayoutbox:buttons(gears.table.join(
         awful.button({ }, 1, function() awful.layout.inc(1) end),
         awful.button({ }, 3, function() awful.layout.inc(-1) end)
     ))
 
-    -- Create the wibar. Notice that we do not include the launcher in the left section.
     s.mywibox = awful.wibar({ position = "top", screen = s })
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
-        {   -- Left widgets: only taglist and promptbox.
+        { -- Left: taglist and promptbox (launcher removed)
             layout = wibox.layout.fixed.horizontal,
             s.mytaglist,
             s.mypromptbox,
         },
-        nil,  -- Middle: (optionally, you could add a tasklist here)
-        {   -- Right widgets: CPU, Memory, Date/Time, Systray, Layoutbox.
+        nil, -- Middle: (optional tasklist could be added here)
+        { -- Right: CPU, Memory, Date/Time, Systray, Layoutbox
             layout = wibox.layout.fixed.horizontal,
             cpu_widget,
             mem_widget,
@@ -187,7 +169,8 @@ end)
 --------------------------------------------------------------------------------
 -- Global Keybindings
 globalkeys = gears.table.join(
-    awful.key({ modkey }, "s", hotkeys_popup.show_help,
+    -- Changed help key to Mod+h (original behavior)
+    awful.key({ modkey }, "h", hotkeys_popup.show_help,
         {description = "show help", group = "awesome"}),
     awful.key({ modkey }, "Escape", awful.tag.history.restore,
         {description = "restore previous tag", group = "tag"}),
@@ -229,7 +212,7 @@ globalkeys = gears.table.join(
         {description = "show the menubar", group = "launcher"})
 )
 
--- Client Keybindings (for individual windows)
+-- Client Keybindings for individual windows
 clientkeys = gears.table.join(
     awful.key({ modkey }, "f", function(c)
          c.fullscreen = not c.fullscreen
@@ -250,6 +233,7 @@ clientkeys = gears.table.join(
          c:swap(awful.client.getmaster())
     end, {description = "move to master", group = "client"}),
 
+    -- "o" already moves client to a screen by default
     awful.key({ modkey }, "o", function(c) c:move_to_screen() end,
         {description = "move to screen", group = "client"}),
 
@@ -262,7 +246,27 @@ clientkeys = gears.table.join(
     awful.key({ modkey }, "m", function(c)
          c.maximized = not c.maximized
          c:raise()
-    end, {description = "toggle maximize", group = "client"})
+    end, {description = "toggle maximize", group = "client"}),
+
+    -- Move client to next screen with Super+Shift+Right
+    awful.key({ modkey, "Shift" }, "Right", function(c)
+         if c then
+            local s = c.screen
+            local next_screen = (s.index < screen.count()) and screen[s.index + 1] or screen[1]
+            c:move_to_screen(next_screen)
+            c:raise()
+         end
+    end, {description = "move client to next screen", group = "client"}),
+
+    -- Move client to previous screen with Super+Shift+Left
+    awful.key({ modkey, "Shift" }, "Left", function(c)
+         if c then
+            local s = c.screen
+            local prev_screen = (s.index > 1) and screen[s.index - 1] or screen[screen.count()]
+            c:move_to_screen(prev_screen)
+            c:raise()
+         end
+    end, {description = "move client to previous screen", group = "client"})
 )
 
 -- Bind numeric keys to tags 1 through 9
@@ -283,13 +287,11 @@ for i = 1, 9 do
     )
 end
 
--- Apply the global keybindings
 root.keys(globalkeys)
 
 --------------------------------------------------------------------------------
 -- Rules
 --------------------------------------------------------------------------------
--- Define rules to apply properties to new clients
 awful.rules.rules = {
     {
         rule = { },
@@ -340,7 +342,6 @@ awful.rules.rules = {
 --------------------------------------------------------------------------------
 -- Signals
 --------------------------------------------------------------------------------
--- When a new client appears, set it as a slave (non-master) if needed
 client.connect_signal("manage", function(c)
     if not awesome.startup then awful.client.setslave(c) end
     if awesome.startup and not c.size_hints.user_position and not c.size_hints.program_position then
@@ -348,21 +349,22 @@ client.connect_signal("manage", function(c)
     end
 end)
 
--- Add titlebars on request (if enabled in rules)
 client.connect_signal("request::titlebars", function(c)
     local buttons = gears.table.join(
-        awful.button({ }, 1, function() 
+        awful.button({ }, 1, function()
             c:emit_signal("request::activate", "titlebar", {raise = true})
             awful.mouse.client.move(c)
         end),
-        awful.button({ }, 3, function() 
+        awful.button({ }, 3, function()
             c:emit_signal("request::activate", "titlebar", {raise = true})
             awful.mouse.client.resize(c)
         end)
     )
+
     awful.titlebar(c) : setup {
         { awful.titlebar.widget.iconwidget(c), buttons = buttons, layout = wibox.layout.fixed.horizontal },
-        { { align = "center", widget = awful.titlebar.widget.titlewidget(c) }, buttons = buttons, layout = wibox.layout.flex.horizontal },
+        { { align = "center", widget = awful.titlebar.widget.titlewidget(c) },
+          buttons = buttons, layout = wibox.layout.flex.horizontal },
         { awful.titlebar.widget.floatingbutton(c),
           awful.titlebar.widget.maximizedbutton(c),
           awful.titlebar.widget.stickybutton(c),
@@ -373,14 +375,23 @@ client.connect_signal("request::titlebars", function(c)
     }
 end)
 
--- Enable sloppy focus: focus follows mouse
 client.connect_signal("mouse::enter", function(c)
     c:emit_signal("request::activate", "mouse_enter", {raise = false})
 end)
 
--- Change border colors on focus/unfocus
 client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+--------------------------------------------------------------------------------
+-- Garbage Collection
+--------------------------------------------------------------------------------
+collectgarbage("setpause", 110)
+collectgarbage("setstepmul", 1000)
+gears.timer({
+    timeout = 30,
+    autostart = true,
+    callback = function() collectgarbage() end
+})
 
 --------------------------------------------------------------------------------
 -- End of Configuration

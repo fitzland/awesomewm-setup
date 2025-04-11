@@ -6,18 +6,28 @@ local naughty = require("naughty")
 local notifications = {}
 
 function notifications.init()
-    -- Configure Naughty for error reporting
-    naughty.config.defaults.timeout = 0  -- Errors should stay until dismissed
+    -- Set Naughty defaults for AwesomeWM internal errors
+    naughty.config.defaults.timeout  = 0
     naughty.config.defaults.position = "top_right"
-    
-    -- Only show AwesomeWM's own error notifications
+    naughty.config.defaults.ontop    = true
+
+    -- Only display notifications that come from Awesome itself
+    awesome.connect_signal("debug::error", function(err)
+        naughty.notify({
+            preset = naughty.config.presets.critical,
+            title  = "Oops, an error happened!",
+            text   = tostring(err),
+        })
+    end)
+
+    -- Block all other notifications unless app_name == "awesome"
     naughty.connect_signal("request::display", function(n)
-        -- Only display notifications that come from awesome itself
-        if n.app_name == "awesome" then
+        if n.app_name == "awesome" or n.title == "Oops, an error happened!" then
             naughty.layout.box { notification = n }
         end
-        -- All other notifications will be handled by Dunst
+        -- Dunst will handle the rest via D-Bus
     end)
 end
 
 return notifications
+

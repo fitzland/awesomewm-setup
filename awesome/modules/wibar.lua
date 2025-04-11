@@ -48,53 +48,55 @@ local function tasklist_buttons()
 end
 
 -- Setup for newly connected screens
-local function setup_screens()
-    -- Connect to the screen signal for any new screens added later
-    screen.connect_signal("request::desktop_decoration", function(s)
-        -- Create tags
+local function setup_new_screen(s)
+    -- Check if this screen already has tags created
+    if #s.tags == 0 then
+        -- Create tags only if they don't already exist
         awful.tag(variables.tags, s, variables.default_layout)
-        
-        -- Create a taglist widget
-        s.mytaglist = awful.widget.taglist {
-            screen = s,
-            filter = awful.widget.taglist.filter.all,
-            buttons = taglist_buttons()
-        }
-        
-        -- Create a tasklist widget
-        s.mytasklist = awful.widget.tasklist {
-            screen = s,
-            filter = awful.widget.tasklist.filter.currenttags,
-            buttons = tasklist_buttons()
-        }
-        
-        -- Create the wibox
-        s.mywibox = awful.wibar({ 
-            position = "top", 
-            screen = s,
-            height = 24,
-            bg = beautiful.bg_normal
-        })
-        
-        -- Add widgets to the wibox
-        s.mywibox:setup {
-            layout = wibox.layout.align.horizontal,
-            { -- Left widgets
-                layout = wibox.layout.fixed.horizontal,
-                menu.launcher,
-                s.mytaglist,
-            },
-            s.mytasklist, -- Middle widget
-            { -- Right widgets
-                layout = wibox.layout.fixed.horizontal,
-                widgets.cpu_widget,
-                widgets.mem_widget,
-                widgets.date_widget,
-                widgets.time_widget,
-                widgets.systray,
-            },
-        }
-    end)
+    end
+    
+    -- Create a taglist widget
+    s.mytaglist = awful.widget.taglist {
+        screen = s,
+        filter = awful.widget.taglist.filter.all,
+        buttons = taglist_buttons()
+    }
+    
+    -- Create a tasklist widget
+    s.mytasklist = awful.widget.tasklist {
+        screen = s,
+        filter = awful.widget.tasklist.filter.currenttags,
+        buttons = tasklist_buttons()
+    }
+    
+    -- Create the wibox with explicit settings
+    s.mywibox = awful.wibar({ 
+        position = "top", 
+        screen = s,
+        height = 24,
+        bg = beautiful.bg_normal
+    })
+    
+    -- Add widgets to the wibox
+    s.mywibox:setup {
+        layout = wibox.layout.align.horizontal,
+        { -- Left widgets
+            layout = wibox.layout.fixed.horizontal,
+            menu.launcher,
+            s.mytaglist,
+        },
+        s.mytasklist, -- Middle widget
+        { -- Right widgets
+            layout = wibox.layout.fixed.horizontal,
+            widgets.cpu_widget,
+            widgets.mem_widget,
+            widgets.date_widget,
+            widgets.time_widget,
+            widgets.systray,
+        },
+    }
+    
+    print("Wibar set up on screen " .. s.index)
 end
 
 -- Initialize function
@@ -106,56 +108,13 @@ local function init()
 
     -- Setup existing screens directly
     for s in screen do
-        -- Create tags
-        awful.tag(variables.tags, s, variables.default_layout)
-        
-        -- Create a taglist widget
-        s.mytaglist = awful.widget.taglist {
-            screen = s,
-            filter = awful.widget.taglist.filter.all,
-            buttons = taglist_buttons()
-        }
-        
-        -- Create a tasklist widget
-        s.mytasklist = awful.widget.tasklist {
-            screen = s,
-            filter = awful.widget.tasklist.filter.currenttags,
-            buttons = tasklist_buttons()
-        }
-        
-        -- Create the wibox with explicit settings
-        s.mywibox = awful.wibar({ 
-            position = "top", 
-            screen = s,
-            height = 24,
-            bg = beautiful.bg_normal
-        })
-        
-        -- Add widgets to the wibox
-        s.mywibox:setup {
-            layout = wibox.layout.align.horizontal,
-            { -- Left widgets
-                layout = wibox.layout.fixed.horizontal,
-                menu.launcher,
-                s.mytaglist,
-            },
-            s.mytasklist, -- Middle widget
-            { -- Right widgets
-                layout = wibox.layout.fixed.horizontal,
-                widgets.cpu_widget,
-                widgets.mem_widget,
-                widgets.date_widget,
-                widgets.time_widget,
-                widgets.systray,
-            },
-        }
-        
-        -- Debug output
-        print("Created wibar on screen " .. s.index)
+        setup_new_screen(s)
     end
     
     -- Also setup signal handler for any future screens
-    setup_screens()
+    screen.connect_signal("request::desktop_decoration", function(s)
+        setup_new_screen(s)
+    end)
 end
 
 -- Return the module

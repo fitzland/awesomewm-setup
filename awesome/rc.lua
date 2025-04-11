@@ -186,6 +186,18 @@ get_kernel_version(function(kernel)
     ))
 end)
 
+-- CPU usage widget
+local cpu_widget = wibox.widget.textbox()
+vicious.register(cpu_widget, vicious.widgets.cpu, 
+    function (widget, args)
+        return string.format(
+            "<span foreground='%s'> CPU:</span> <span foreground='%s'>%d%%</span>", 
+            label_color, info_color, args[1]
+        ) 
+    end, 
+    2  -- Update every 2 seconds
+)
+
 -- Memory usage widget
 local mem_widget = wibox.widget.textbox()
 vicious.register(mem_widget, vicious.widgets.mem, 
@@ -252,7 +264,7 @@ screen.connect_signal("property::geometry", set_wallpaper)
 local function only_focused_clients(c, screen)
     return c == client.focus
 end
-local cpu_widget = require("widgets.cpu_widget")
+
 -- Configure each screen
 awful.screen.connect_for_each_screen(function(s)
     -- Set wallpaper
@@ -299,7 +311,6 @@ awful.screen.connect_for_each_screen(function(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            s.mylayoutbox,
             s.mytaglist,
             s.mypromptbox,
         },
@@ -309,6 +320,7 @@ awful.screen.connect_for_each_screen(function(s)
             cpu_widget,
             mem_widget,
             date_time_widget,
+            s.mylayoutbox,
             wibox.widget.systray(),
         },
     }

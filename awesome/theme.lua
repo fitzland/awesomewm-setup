@@ -4,24 +4,6 @@
 -- fonts, colors, borders, gaps, icons, and more.
 --------------------------------------------------------------------------------
 
--- WezTerm Colors from your configuration:
-local gh = {
-  gh_fg         = "#d0d7de",
-  gh_bg         = "#0d1117",
-  gh_comment    = "#8b949e",
-  gh_red        = "#ff7b72",
-  gh_green      = "#3fb950",
-  gh_yellow     = "#d29922",
-  gh_blue       = "#539bf5",
-  gh_magenta    = "#bc8cff",
-  gh_cyan       = "#39c5cf",
-  gh_selection  = "#415555",
-  gh_highlight  = "#4DFFDA",
-  gh_caret      = "#58a6ff",
-  gh_invisibles = "#2f363d",
-  fg_cpu = "#bc8cff",  -- for example, using gh_magenta
-}
-
 local theme_assets = require("beautiful.theme_assets")
 local xresources   = require("beautiful.xresources")
 local dpi          = xresources.apply_dpi
@@ -37,37 +19,34 @@ local theme = {}
 --------------------------------------------------------------------------------
 theme.font          = "Roboto Mono Nerd Font 12"
 
--- Use our WezTerm colors:
-theme.bg_normal     = gh.gh_bg         -- "#0d1117"
-theme.fg_normal     = gh.gh_fg         -- "#d0d7de"
+-- Background colors for different UI elements
+theme.bg_normal     = "#00141D"   -- Normal background
+theme.bg_focus      = "#4FC3F7"   -- Focused elements
+theme.bg_urgent     = "#ff0000"   -- Urgent (alert) background
+theme.bg_minimize   = "#40474A"   -- Minimized window background
+theme.bg_systray    = theme.bg_normal
 
--- For focused elements, we choose a bright highlight for the background and
--- a dark text color for contrast.
-theme.bg_focus      = gh.gh_blue  	   -- "#539bf5"
-theme.fg_focus      = gh.gh_bg         -- "#0d1117"
-
-theme.bg_urgent     = gh.gh_red        -- "#ff7b72"
-theme.fg_urgent     = "#ffffff"        -- white for urgency
-theme.bg_minimize   = gh.gh_comment    -- "#8b949e"
-theme.fg_minimize   = gh.gh_fg         -- "#d0d7de"
-theme.bg_systray    = gh.gh_bg
+-- Foreground colors for text
+theme.fg_normal     = "#d3dae3"   -- Normal text color
+theme.fg_focus      = "#1a1a1a"   -- Focused text color
+theme.fg_urgent     = "#ffffff"   -- Urgent text color
+theme.fg_minimize   = "#9AABB3"   -- Minimized text color
 
 --------------------------------------------------------------------------------
 -- Window Borders and Gaps
 --------------------------------------------------------------------------------
-theme.useless_gap   = dpi(8)
-theme.border_width  = dpi(4)
-theme.border_normal = "#1a1a1a"   -- you might change this to gh.gh_invisibles if preferred
-theme.border_focus  = gh.gh_blue
-theme.border_marked = gh.gh_blue
+theme.useless_gap   = dpi(8)      -- Gap between windows
+theme.border_width  = dpi(4)      -- Border width for windows
+theme.border_normal = "#1a1a1a"   -- Border color for inactive windows
+theme.border_focus  = "#4FC3F7"   -- Border color for focused windows
+theme.border_marked = "#4FC3F7"   -- Border color for marked windows
 
 --------------------------------------------------------------------------------
--- Taglist Shape (Rounded corners for tag items)
+-- Taglist Squares (small icons for workspaces)
 --------------------------------------------------------------------------------
-theme.border_radius = dpi(4)
-theme.taglist_shape = function(cr, w, h)
-    return gears.shape.rounded_rect(cr, w, h, theme.border_radius)
-end
+local taglist_square_size = dpi(4)
+theme.taglist_squares_sel   = theme_assets.taglist_squares_sel(taglist_square_size, theme.fg_normal)
+theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(taglist_square_size, theme.fg_normal)
 
 --------------------------------------------------------------------------------
 -- Menu Settings
@@ -134,11 +113,13 @@ theme.layout_cornerse      = themes_path.."default/layouts/cornersew.png"
 --------------------------------------------------------------------------------
 -- Awesome Icon
 --------------------------------------------------------------------------------
+-- Generate a default Awesome icon for the menu. You can customize the size or colors.
 theme.awesome_icon = theme_assets.awesome_icon(theme.menu_height, theme.bg_focus, theme.fg_focus)
 
 --------------------------------------------------------------------------------
 -- Application Icon Theme
 --------------------------------------------------------------------------------
+-- Specify an icon theme for your applications (set to nil to use system defaults)
 theme.icon_theme = nil
 
 return theme

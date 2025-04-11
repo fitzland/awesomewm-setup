@@ -47,14 +47,8 @@ local function tasklist_buttons()
     )
 end
 
--- Setup for newly connected screens
+-- Setup for newly connected screens (WITHOUT tag creation)
 local function setup_new_screen(s)
-    -- Check if this screen already has tags created
-    if #s.tags == 0 then
-        -- Create tags only if they don't already exist
-        awful.tag(variables.tags, s, variables.default_layout)
-    end
-    
     -- Create a taglist widget
     s.mytaglist = awful.widget.taglist {
         screen = s,

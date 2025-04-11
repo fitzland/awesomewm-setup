@@ -253,7 +253,7 @@ local function only_focused_clients(c, screen)
     return c == client.focus
 end
 
-local cpu_widget = require("widgets.cpu_widget")
+local circular_cpu_widget = require("widgets.circular_cpu_widget")
 -- Configure each screen
 awful.screen.connect_for_each_screen(function(s)
     -- Set wallpaper
@@ -307,7 +307,7 @@ awful.screen.connect_for_each_screen(function(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            cpu_widget,
+            cirular_cpu_widget,
             mem_widget,
             date_time_widget,
             wibox.widget.systray(),

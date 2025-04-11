@@ -1,15 +1,87 @@
--- modules/keys.lua
--- Keyboard shortcuts for AwesomeWM
-
+-- modules/keybindings.lua
 local awful = require("awful")
 local gears = require("gears")
 local hotkeys_popup = require("awful.hotkeys_popup")
 local variables = require("modules.variables")
 
-local keys = {}
+local keybindings = {}
+
+-- Define client keybindings at the module level so they're accessible to rules.lua
+keybindings.clientkeys = gears.table.join(
+    -- Close window with Super+Q
+    awful.key({ variables.modkey }, "q", function(c) c:kill() end,
+              {description = "close", group = "client"}),
+    
+    -- Toggle fullscreen
+    awful.key({ variables.modkey, "Control" }, "f", function(c) 
+        c.fullscreen = not c.fullscreen
+        c:raise()
+    end, {description = "toggle fullscreen", group = "client"}),
+    
+    -- Toggle floating and center the window
+    awful.key({ variables.modkey, "Shift" }, "space", function(c)
+        c.floating = not c.floating
+        if c.floating then
+            awful.placement.centered(c, {honor_workarea = true})
+        end
+    end, {description = "toggle floating", group = "client"}),
+    
+    -- Move window to master position
+    awful.key({ variables.modkey, "Control" }, "Return", function(c) 
+        c:swap(awful.client.getmaster()) 
+    end, {description = "move to master", group = "client"}),
+    
+    -- Move window to another screen
+    awful.key({ variables.modkey }, "o", function(c) 
+        c:move_to_screen() 
+    end, {description = "move to screen", group = "client"}),
+    
+    -- Toggle "keep on top"
+    awful.key({ variables.modkey }, "t", function(c) 
+        c.ontop = not c.ontop 
+    end, {description = "toggle keep on top", group = "client"}),
+    
+    -- Minimize window
+    awful.key({ variables.modkey }, "n", function(c) 
+        c.minimized = true 
+    end, {description = "minimize", group = "client"}),
+    
+    -- Maximize window
+    awful.key({ variables.modkey }, "m", function(c) 
+        c.maximized = not c.maximized
+        c:raise()
+    end, {description = "(un)maximize", group = "client"}),
+    
+    -- Maximize vertically
+    awful.key({ variables.modkey, "Control" }, "m", function(c) 
+        c.maximized_vertical = not c.maximized_vertical
+        c:raise()
+    end, {description = "(un)maximize vertically", group = "client"}),
+    
+    -- Maximize horizontally
+    awful.key({ variables.modkey, "Shift" }, "m", function(c) 
+        c.maximized_horizontal = not c.maximized_horizontal
+        c:raise()
+    end, {description = "(un)maximize horizontally", group = "client"})
+)
+
+-- Define client mouse bindings
+keybindings.clientbuttons = gears.table.join(
+    awful.button({}, 1, function(c) 
+        c:emit_signal("request::activate", "mouse_click", {raise = true}) 
+    end),
+    awful.button({ variables.modkey }, 1, function(c) 
+        c:emit_signal("request::activate", "mouse_click", {raise = true})
+        awful.mouse.client.move(c)
+    end),
+    awful.button({ variables.modkey }, 3, function(c) 
+        c:emit_signal("request::activate", "mouse_click", {raise = true})
+        awful.mouse.client.resize(c)
+    end)
+)
 
 -- Initialize keybindings
-function keys.init()
+function keybindings.init()
     -- Define modkey from variables
     local modkey = variables.modkey
     
@@ -110,39 +182,6 @@ function keys.init()
     
     -- Set keys
     root.keys(globalkeys)
-    
-    -- Client keybindings
-    keys.clientkeys = gears.table.join(
-        awful.key({ modkey, "Control" }, "f", function(c) c.fullscreen = not c.fullscreen; c:raise() end, 
-                  {description = "toggle fullscreen", group = "client"}),
-        awful.key({ modkey }, "q", function(c) c:kill() end, 
-                  {description = "close", group = "client"}),
-        awful.key({ modkey, "Shift" }, "space", function(c)
-            c.floating = not c.floating
-            if c.floating then awful.placement.centered(c, {honor_workarea = true}) end
-        end, {description = "toggle floating", group = "client"}),
-        awful.key({ modkey, "Control" }, "Return", function(c) c:swap(awful.client.getmaster()) end, 
-                  {description = "swap with master", group = "client"}),
-        awful.key({ modkey }, "o", function(c) c:move_to_screen() end, 
-                  {description = "move to screen", group = "client"}),
-        awful.key({ modkey }, "t", function(c) c.ontop = not c.ontop end, 
-                  {description = "toggle keep on top", group = "client"}),
-        awful.key({ modkey }, "n", function(c) c.minimized = true end, 
-                  {description = "minimize", group = "client"}),
-        awful.key({ modkey }, "m", function(c) c.maximized = not c.maximized; c:raise() end, 
-                  {description = "(un)maximize", group = "client"}),
-        awful.key({ modkey, "Control" }, "m", function(c) c.maximized_vertical = not c.maximized_vertical; c:raise() end, 
-                  {description = "(un)maximize vertically", group = "client"}),
-        awful.key({ modkey, "Shift" }, "m", function(c) c.maximized_horizontal = not c.maximized_horizontal; c:raise() end, 
-                  {description = "(un)maximize horizontally", group = "client"})
-    )
-    
-    -- Client mouse bindings
-    keys.clientbuttons = gears.table.join(
-        awful.button({}, 1, function(c) c:emit_signal("request::activate", "mouse_click", {raise = true}) end),
-        awful.button({ modkey }, 1, function(c) c:emit_signal("request::activate", "mouse_click", {raise = true}); awful.mouse.client.move(c) end),
-        awful.button({ modkey }, 3, function(c) c:emit_signal("request::activate", "mouse_click", {raise = true}); awful.mouse.client.resize(c) end)
-    )
 end
 
-return keys
+return keybindings

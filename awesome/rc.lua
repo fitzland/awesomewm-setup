@@ -80,7 +80,7 @@ beautiful.init("~/.config/awesome/theme.lua")
 awful.spawn.with_shell("~/.config/awesome/autorun.sh")
 
 -- Default applications
-terminal = "tilix"
+terminal = "wezterm"
 editor = os.getenv("EDITOR") or "editor"
 editor_cmd = terminal .. " -e " .. editor
 
@@ -414,6 +414,10 @@ globalkeys = gears.table.join(
     -- ----------------
     -- APPLICATION START SHORTCUTS
     -- ----------------
+    awful.key({ modkey }, "Return", function () awful.util.spawn(terminal) end,
+              {description = "open terminal", group = "launcher"}),
+    awful.key({ modkey, "Shift" }, "Return", function () awful.util.spawn("tilix --quake") end,
+              {description = "open Tilix --quake mode", group = "launcher"}),
     awful.key({ modkey }, "b", function () awful.util.spawn("firefox-esr") end,
               {description = "open Firefox", group = "launcher"}),
     awful.key({ modkey }, "f", function () awful.util.spawn("thunar") end,
@@ -649,7 +653,7 @@ awful.rules.rules = {
           "Galculator",
           "Lxappearance",
           "Pavucontrol",
-          "Terminator",
+          "Tilix",
         },
         name = {
           "Event Tester",  -- xev

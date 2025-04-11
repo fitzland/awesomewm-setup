@@ -42,7 +42,7 @@ theme.fg_normal     = gh.gh_fg         -- "#d0d7de"
 
 -- For focused elements, we choose a bright highlight for the background and
 -- a dark text color for contrast.
-theme.bg_focus      = gh.gh_highlight  -- "#4DFFDA"
+theme.bg_focus      = gh.gh_blue  	   -- "#539bf5"
 theme.fg_focus      = gh.gh_bg         -- "#0d1117"
 
 theme.bg_urgent     = gh.gh_red        -- "#ff7b72"
@@ -57,8 +57,8 @@ theme.bg_systray    = gh.gh_bg
 theme.useless_gap   = dpi(8)
 theme.border_width  = dpi(4)
 theme.border_normal = "#1a1a1a"   -- you might change this to gh.gh_invisibles if preferred
-theme.border_focus  = gh.gh_highlight
-theme.border_marked = gh.gh_highlight
+theme.border_focus  = gh.gh_blue
+theme.border_marked = gh.gh_blue
 
 --------------------------------------------------------------------------------
 -- Taglist Shape (Rounded corners for tag items)

@@ -386,27 +386,56 @@ function widgets.create_taglist(s)
                     },
                     layout = wibox.layout.fixed.horizontal
                 },
+                -- Add indicator dot at the top
+                {
+                    {
+                        id = "indicator",
+                        forced_width = 8,    -- Size of indicator
+                        forced_height = 8,   -- Size of indicator
+                        shape = gears.shape.circle,  -- Make it a circle
+                        bg = "#ff0000",      -- Bright red color (very visible)
+                        widget = wibox.container.background
+                    },
+                    halign = "center",      -- Center horizontally 
+                    valign = "top",         -- Align to top
+                    widget = wibox.container.place
+                },
                 left = 10,
                 right = 10,
-                top = 6,
+                top = 6, 
                 bottom = 6,
-                widget = wibox.container.margin
+                layout = wibox.layout.stack  -- Stack text and indicator
             },
             id = 'background_role',
             shape = rounded_shape,
-            widget = wibox.container.background
-        },
-        -- Add a custom coloring function
-        update_callback = function(widget, tag, index, tags)
-            if #tag:clients() > 0 then
-                -- Make occupied tags very distinct with bright colors
-                widget:get_children_by_id('background_role')[1].bg = "#444444"
-                widget:get_children_by_id('background_role')[1].fg = "#ffffff"
-                -- Add a border for extra visibility
-                widget:get_children_by_id('background_role')[1].border_width = 1
-                widget:get_children_by_id('background_role')[1].border_color = "#ff5555"
+            widget = wibox.container.background,
+            
+            create_callback = function(self, tag, index, tags)
+                -- Update indicator visibility based on tag occupancy
+                self.update_indicator = function()
+                    local indicator = self:get_children_by_id('indicator')[1]
+                    indicator.visible = #tag:clients() > 0
+                end
+                
+                -- Initial update
+                self.update_indicator()
+                
+                -- Update when clients change
+                tag:connect_signal("property::clients", self.update_indicator)
+            end,
+            
+            update_callback = function(self, tag, index, tags)
+                if self.update_indicator then
+                    self.update_indicator()
+                end
+            end,
+            
+            remove_callback = function(self, tag, index, tags)
+                if self.update_indicator then
+                    tag:disconnect_signal("property::clients", self.update_indicator)
+                end
             end
-        end
+        }
     }
 end
 

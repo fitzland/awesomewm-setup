@@ -422,48 +422,62 @@ function widgets.create_taglist(s)
                 right = 10,
                 top = 6,
                 bottom = 6,
+                id = 'margin_role',
                 widget = wibox.container.margin
             },
             id = 'background_role',
             shape = rounded_shape,
             widget = wibox.container.background,
             
+            -- Add these callbacks to create an indicator
             create_callback = function(self, tag, index, tags)
-                -- Update function for the background
-                self.update_bg = function()
-                    if #tag:clients() > 0 then
-                        -- Occupied tag - use a distinct background
-                        self.bg = beautiful.taglist_bg_occupied or "#3a5e8a"
-                    elseif tag.selected then
-                        -- Selected empty tag
-                        self.bg = beautiful.taglist_bg_focus or "#5294e2"
-                    else
-                        -- Unselected empty tag
-                        self.bg = beautiful.taglist_bg_empty or "#2c3545"
-                    end
+                -- Create a small square indicator for occupied tags
+                local indicator = wibox.widget {
+                    forced_width = 8,
+                    forced_height = 8,
+                    bg = beautiful.fg_normal,
+                    shape = gears.shape.rectangle,
+                    widget = wibox.container.background
+                }
+                
+                -- Place indicator in top-left corner
+                self.indicator_container = wibox.widget {
+                    indicator,
+                    valign = "top",
+                    halign = "left",
+                    widget = wibox.container.place
+                }
+                
+                -- Add indicator to the margin widget
+                local margin = self:get_children_by_id('margin_role')[1]
+                margin.widget = wibox.widget {
+                    self:get_children_by_id('text_role')[1],
+                    self.indicator_container,
+                    layout = wibox.layout.stack
+                }
+                
+                -- Update indicator visibility
+                self.update_indicator = function()
+                    indicator.visible = #tag:clients() > 0
                 end
+                self.update_indicator()
                 
-                -- Initial update
-                self.update_bg()
-                
-                -- Connect to client changes
-                tag:connect_signal("property::clients", self.update_bg)
-                tag:connect_signal("property::selected", self.update_bg)
+                -- Connect to tag clients property
+                tag:connect_signal("property::clients", self.update_indicator)
             end,
             
             update_callback = function(self, tag, index, tags)
-                -- Update background when tag state changes
-                if self.update_bg then
-                    self.update_bg()
+                -- Update indicator when tag properties change
+                if self.update_indicator then
+                    self.update_indicator()
                 end
             end,
             
             remove_callback = function(self, tag, index, tags)
-                -- Clean up signals
-                if self.update_bg then
-                    tag:disconnect_signal("property::clients", self.update_bg)
-                    tag:disconnect_signal("property::selected", self.update_bg)
-                    self.update_bg = nil
+                -- Clean up signal handlers
+                if self.update_indicator then
+                    tag:disconnect_signal("property::clients", self.update_indicator)
+                    self.update_indicator = nil
                 end
             end
         }

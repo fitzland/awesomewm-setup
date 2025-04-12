@@ -5,7 +5,6 @@ local awful = require("awful")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local widgets = require("modules.widgets")
-local enhanced_taglist = require("modules.enhanced_taglist")
 
 -- Create wibar table
 local wibar = {}
@@ -20,7 +19,7 @@ local config = {
 -- Setup wibar for each screen
 local function setup_wibar(s)
     -- Create taglist for this screen
-   local taglist = enhanced_taglist.create_enhanced_taglist(s)
+    local taglist = widgets.create_taglist(s)
     
     -- Create layoutbox for this screen
     local layoutbox = widgets.create_layoutbox(s)

@@ -194,8 +194,7 @@ end, {description = "swap with client below", group = "client"})
         awful.key({ modkey }, "space", function() awful.util.spawn("rofi -show drun -modi drun -line-padding 4 -hide-scrollbar -show-icons") end,
                   {description = "rofi menu", group = "launcher"}),
                   
-        awful.key({}, "Print", function() awful.util.spawn(variables.screenshot_cmd) end,
-                  {description = "screenshot", group = "launcher"}),
+        -- Removed default Print binding as it's now defined below
                   
         -- Added keybindings
         awful.key({ modkey }, "e", function() awful.util.spawn("geany") end,
@@ -205,7 +204,33 @@ end, {description = "swap with client below", group = "client"})
                   {description = "open tilix in quake mode", group = "launcher"}),
                   
         awful.key({ modkey, "Shift" }, "b", function() awful.util.spawn("firefox --private-window") end,
-                  {description = "open firefox in private mode", group = "launcher"})
+                  {description = "open firefox in private mode", group = "launcher"}),
+        
+        -- Volume control
+        awful.key({ modkey }, "Insert", function() awful.spawn.with_shell("~/.config/awesome/scripts/changevolume up") end,
+                  {description = "increase volume", group = "media"}),
+                  
+        awful.key({ modkey }, "Delete", function() awful.spawn.with_shell("~/.config/awesome/scripts/changevolume down") end,
+                  {description = "decrease volume", group = "media"}),
+                  
+        -- Note: Super + m is already used for maximize, so I'm using Super + End for mute
+        awful.key({ modkey }, "End", function() awful.spawn.with_shell("~/.config/awesome/scripts/changevolume mute") end,
+                  {description = "mute volume", group = "media"}),
+                  
+        -- Screenshots
+        awful.key({ modkey }, "Print", function() awful.spawn.with_shell("flameshot gui --path ~/Screenshots/") end,
+                  {description = "screenshot region", group = "media"}),
+                  
+        -- Replacing your existing Print binding with this one
+        awful.key({}, "Print", function() awful.spawn.with_shell("flameshot full --path ~/Screenshots/") end,
+                  {description = "screenshot fullscreen", group = "media"}),
+                  
+        -- Redshift controls
+        awful.key({ modkey, "Mod1" }, "r", function() awful.spawn.with_shell("~/.config/awesome/scripts/redshift-on") end,
+                  {description = "enable redshift", group = "system"}),
+                  
+        awful.key({ modkey, "Mod1" }, "b", function() awful.spawn.with_shell("~/.config/awesome/scripts/redshift-off") end,
+                  {description = "disable redshift", group = "system"})
     )
     
     -- Set keys

@@ -3,22 +3,22 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create a visual volume bar (thinner style)
-    bar_length=30
+    # Create a visual volume bar with full blocks
+    bar_length=20  # Using fewer blocks since they're wider
     filled_length=$(( $volume * $bar_length / 100 ))
     
     # Create the Lua code that will generate a colored slider directly in Lua
     lua_command="
     local naughty = require('naughty')
     local volume = ${volume}
-    local bar_length = 30
+    local bar_length = 20
     local filled_length = math.floor(volume * bar_length / 100)
     
-    -- Create the bar string
+    -- Create the bar string with full blocks
     local bar = '['
     for i = 1, bar_length do
         if i <= filled_length then
-            bar = bar .. '─'
+            bar = bar .. '█'
         else
             bar = bar .. ' '
         end
@@ -40,7 +40,7 @@ function send_notification() {
         timeout = 2,
         id = volume_notification_id,
         bg = '#0d1117',
-        fg = '#539bf5'  -- Use GitHub blue for the entire text
+        fg = '#39c5cf'  -- Use GitHub cyan color
     })
     
     -- Update the global ID for next time

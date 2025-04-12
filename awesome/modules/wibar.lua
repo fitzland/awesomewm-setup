@@ -21,6 +21,17 @@ local function setup_wibar(s)
     -- Create taglist for this screen
     local taglist = widgets.create_taglist(s)
     
+    -- Create layoutbox for this screen
+    local layoutbox = widgets.create_layoutbox(s)
+    
+    -- Create a separator widget
+    local separator = wibox.widget {
+        markup = '<span color="' .. beautiful.bg_minimize .. '">|</span>',
+        align = "center",
+        valign = "center",
+        widget = wibox.widget.textbox
+    }
+    
     -- Create the wibar
     s.mywibar = awful.wibar({
         position = config.position,
@@ -35,11 +46,16 @@ local function setup_wibar(s)
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
             spacing = 6,
-            widgets.window_title,
+            layoutbox,
+            separator,
+            taglist,
         },
         { -- Middle widget
-            layout = wibox.layout.fixed.horizontal,
-            taglist,
+            layout = wibox.layout.align.horizontal,
+            expand = "none",
+            nil,
+            widgets.window_title,
+            nil,
         },
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,

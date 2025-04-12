@@ -69,7 +69,26 @@ end
 -- =====================================================
 -- Basic widgets (retained from original)
 -- =====================================================
-widgets.systray = wibox.widget.systray()
+-- Create a properly sized and centered systray
+local systray = wibox.widget.systray()
+systray.base_size = 22 -- Slightly larger icons
+
+widgets.systray = wibox.widget {
+    {
+        {
+            systray,
+            layout = wibox.layout.fixed.horizontal
+        },
+        top = 2, -- Adjust this for vertical centering
+        bottom = 2,
+        left = 8,
+        right = 8, 
+        widget = wibox.container.margin
+    },
+    bg = beautiful.bg_minimize .. config.bg_opacity,
+    shape = rounded_shape,
+    widget = wibox.container.background
+}
 
 -- =====================================================
 -- Clock widgets
@@ -578,9 +597,6 @@ end
 -- Initialize all widgets
 -- =====================================================
 function widgets.init()
-    -- Configure system tray icon size to match other widgets
-    wibox.widget.systray.set_base_size(18)  -- Adjust this value to match your icons
-    
     -- Start timers for widget updates
     gears.timer {
         timeout = config.update_interval.cpu,

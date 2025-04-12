@@ -443,8 +443,8 @@ function widgets.create_taglist(s)
                 -- Place indicator in top-left corner
                 self.indicator_container = wibox.widget {
                     indicator,
-                    valign = "top",
-                    halign = "left",
+                    valign = "center",
+                    halign = "right",
                     widget = wibox.container.place
                 }
                 

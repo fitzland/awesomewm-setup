@@ -3,7 +3,6 @@
 local naughty = require("naughty")
 local beautiful = require("beautiful")
 local dpi = beautiful.xresources.apply_dpi
-local gears = require("gears")
 local notifications = {}
 
 function notifications.init()
@@ -18,6 +17,31 @@ function notifications.init()
         "/usr/share/icons/Papirus/96x96/apps/"
     }
     naughty.config.icon_formats = { "png", "svg" }
+    
+    -- Configure the presets first
+    naughty.config.presets = {
+        low = {
+            bg = "#161616",
+            fg = "#888888",
+            timeout = 10,
+            border_width = dpi(2),
+            border_color = "#DBC704"
+        },
+        normal = {
+            bg = "#161616",
+            fg = "#ffffff",
+            timeout = 10,
+            border_width = dpi(2),
+            border_color = "#DBC704"
+        },
+        critical = {
+            bg = "#900000",
+            fg = "#ffffff",
+            timeout = 0,
+            border_width = dpi(2),
+            border_color = "#ff0000"
+        }
+    }
     
     -- Default settings based on Dunst config
     naughty.config.defaults = {
@@ -35,35 +59,13 @@ function notifications.init()
         fg = "#ffffff",
         bg = "#161616",
         
-        -- Shape for rounded corners
-        shape = function(cr, width, height)
-            gears.shape.rounded_rect(cr, width, height, dpi(15))
-        end,
+        -- Removed the shape setting for now as it's causing errors
+        -- Will need to use a different approach for rounded corners
         
         opacity = 0.8  -- Based on Dunst transparency of 20
     }
     
-    -- Configure urgency presets
-    naughty.config.presets = {
-        low = {
-            bg = "#161616",
-            fg = "#888888",
-            timeout = 10
-        },
-        normal = {
-            bg = "#161616",
-            fg = "#ffffff",
-            timeout = 10
-        },
-        critical = {
-            bg = "#900000",
-            fg = "#ffffff",
-            border_color = "#ff0000",
-            timeout = 0  -- No timeout for critical notifications
-        }
-    }
-    
-    print("Naughty configured to look like Dunst")
+    print("Naughty configured to look like Dunst (simplified version)")
 end
 
 return notifications

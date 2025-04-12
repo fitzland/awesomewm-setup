@@ -1,77 +1,79 @@
 -- modules/notifications.lua
--- Complete solution to disable naughty notifications and start Dunst
+-- Configure naughty to look exactly like Dunst
 
 local naughty = require("naughty")
-local awful = require("awful")
-local gears = require("gears")
+local beautiful = require("beautiful")
+local dpi = beautiful.xresources.apply_dpi
 local notifications = {}
 
 function notifications.init()
-    -- Save critical notification functionality before completely disabling naughty
-    local notify_critical = function(args)
-        -- Create a minimal version of naughty.notify that only shows critical errors
-        -- This won't interfere with Dunst for regular notifications
-        local preset = naughty.config.presets.critical or {
+    -- Kill any running dunst instances to avoid conflicts
+    os.execute("killall dunst 2>/dev/null")
+
+    -- Configure naughty to match Dunst styling
+    naughty.config.padding = dpi(20)
+    naughty.config.spacing = dpi(5)
+    naughty.config.icon_dirs = {
+        "/usr/share/icons/Papirus/96x96/devices/",
+        "/usr/share/icons/Papirus/48x48/status/",
+        "/usr/share/icons/Papirus/96x96/apps/"
+    }
+    naughty.config.icon_formats = { "png", "svg" }
+    
+    -- Set defaults based on Dunst config
+    naughty.config.defaults = {
+        timeout = 10,
+        screen = 1,
+        position = "top_right",
+        margin = dpi(15),
+        gap = dpi(1),
+        ontop = true,
+        font = "JetBrainsMono Nerd Font 11",
+        icon_size = dpi(32),
+        border_width = dpi(2),
+        border_color = "#DBC704",
+        width = dpi(500),
+        height = dpi(300),
+        shape = function(cr, width, height)
+            -- Corner radius of 15px like in Dunst
+            local radius = dpi(15)
+            require("gears").shape.rounded_rect(cr, width, height, radius)
+        end
+    }
+
+    -- Configure different urgency levels
+    naughty.config.presets = {
+        low = {
+            bg = "#161616",
+            fg = "#888888",
+            timeout = 10
+        },
+        normal = {
+            bg = "#161616",
+            fg = "#ffffff",
+            timeout = 10
+        },
+        critical = {
             bg = "#900000",
             fg = "#ffffff",
             timeout = 0,
-            border_width = 2,
             border_color = "#ff0000"
         }
-        
-        -- Actually display the notification using the original naughty system
-        return awful.spawn.with_line_callback(
-            string.format(
-                "notify-send -u critical 'AwesomeWM Error' '%s'",
-                args.text:gsub("'", "'\\''") -- Escape single quotes
-            ),
-            {}
-        )
-    end
-    
-    -- Replace naughty.notify with our custom function that only processes critical errors
-    naughty.notify = function(args)
-        if args and args.preset == naughty.config.presets.critical then
-            return notify_critical(args)
-        end
-        -- Silently drop non-critical notifications
-        return nil
-    end
-    
-    -- Completely disable notification display for newer awesome versions
-    if naughty.connect_signal then
-        naughty.connect_signal("request::display", function(n)
-            -- Ignore ALL notifications - critical ones are handled by our custom function
-            n.ignore = true
-        end)
-    end
-    
-    -- For older versions, override default notifications settings to effectively disable them
-    naughty.config.defaults.timeout = 0
-    naughty.config.defaults.screen = nil
-    naughty.config.defaults.position = "top_right"
-    naughty.config.defaults.height = 0
-    naughty.config.defaults.width = 0
-    naughty.config.defaults.opacity = 0
-    
-    -- Kill any existing dunst instances
-    awful.spawn.with_shell("killall dunst || true")
-    
-    -- Start dunst with the custom config
-    gears.timer {
-        timeout = 1,
-        autostart = true,
-        single_shot = true,
-        callback = function()
-            awful.spawn.with_shell("dunst -config ~/.config/awesome/dunst/dunstrc")
-            print("Dunst started with custom configuration")
-        end
     }
-    
-    -- Wait a moment to ensure any startup notifications are finished
-    awful.spawn.with_shell("sleep 0.5 && killall -q awesome-notification-daemon || true")
-    
-    print("Naughty notification system disabled, error handling preserved, Dunst will handle all notifications")
+
+    -- Set key bindings similar to Dunst
+    -- You may need to adjust these according to your keybindings module
+    local awful = require("awful")
+    awful.keyboard.append_global_keybindings({
+        awful.key({ "Control" }, "space", function() naughty.destroy(naughty.get_displayed()[1]) end,
+                {description = "close notification", group = "notifications"}),
+        awful.key({ "Control", "Shift" }, "space", function() naughty.destroy_all_notifications() end,
+                {description = "close all notifications", group = "notifications"}),
+        awful.key({ "Control" }, "grave", function() naughty.toggle() end,
+                {description = "toggle notifications", group = "notifications"})
+    })
+
+    print("Naughty configured to look like Dunst")
 end
 
 return notifications

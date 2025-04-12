@@ -6,6 +6,9 @@ local awful = require("awful")
 local notifications = {}
 
 function notifications.init()
+    -- First, make absolutely sure naughty isn't owning the notifications bus
+    awful.spawn.with_shell("dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ReleaseName string:org.freedesktop.Notifications >/dev/null 2>&1 || true")
+    
     -- For newer versions of AwesomeWM (4.0+)
     if naughty.connect_signal then
         naughty.connect_signal("request::display", function(n)
@@ -19,9 +22,11 @@ function notifications.init()
         end)
     end
     
-    -- Start Dunst
+    -- Kill any existing Dunst
     awful.spawn.with_shell("killall dunst 2>/dev/null || true")
-    awful.spawn.with_shell("dunst -config ~/.config/awesome/dunst/dunstrc &")
+    
+    -- Start Dunst with a small delay to ensure D-Bus is released
+    awful.spawn.with_shell("sleep 1 && dunst -config $HOME/.config/awesome/dunst/dunstrc &")
     
     print("AwesomeWM notifications configured: critical errors shown, regular notifications handled by Dunst")
 end

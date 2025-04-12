@@ -1,6 +1,7 @@
 -- rc.lua
 -- AwesomeWM modular configuration
-os.execute("killall -q notification-daemon 2>/dev/null")
+-- Release naughty's hold on notifications D-Bus interface
+os.execute("dbus-send --session --dest=org.freedesktop.DBus --type=method_call --print-reply /org/freedesktop/DBus org.freedesktop.DBus.ReleaseName string:org.freedesktop.Notifications >/dev/null 2>&1 || true")
 
 -- Error handling should be loaded first
 local error_handling = require("modules.error_handling")

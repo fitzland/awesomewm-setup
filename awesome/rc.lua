@@ -42,7 +42,7 @@ local mousebindings = require("modules.mousebindings")
 mousebindings.init()
 
 -- local notifications = require("modules.notifications")
--- notifications.init()
+-- firstnotifications.init()
 
 -- User applications and startup
 local autostart = require("modules.autostart")

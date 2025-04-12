@@ -80,19 +80,34 @@ widgets.time_widget = wibox.widget.textclock("%l:%M %p ", 1)
 -- Create a formatted clock widget with icon
 local clock_text = wibox.widget {
     {
-        markup = '<span foreground="' .. beautiful.gh_blue .. '"> </span>',
+        markup = '<span foreground="' .. beautiful.gh_caret .. '"> </span>',
         font = config.font,
         widget = wibox.widget.textbox,
     },
     {
         format = "%I:%M %a %d",
         font = config.font,
+        fg = beautiful.gh_bg,
         widget = wibox.widget.textclock,
     },
     layout = wibox.layout.fixed.horizontal
 }
 
-widgets.clock_widget = create_widget_container(clock_text)
+-- Custom container with caret background for clock
+widgets.clock_widget = wibox.widget {
+    {
+        clock_text,
+        left = 8,
+        right = 8,
+        top = 4,
+        bottom = 4,
+        widget = wibox.container.margin
+    },
+    bg = beautiful.gh_caret,
+    fg = beautiful.gh_bg,
+    shape = rounded_shape,
+    widget = wibox.container.background
+}
 
 -- =====================================================
 -- CPU widget

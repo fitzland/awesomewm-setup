@@ -45,12 +45,11 @@ local function setup_wibar(s)
             layout = wibox.layout.fixed.horizontal,
             spacing = 6,
             widgets.systray,
-            widgets.idle_inhibitor_widget,
             widgets.cpu_widget,
             widgets.mem_widget,
             widgets.clock_widget,
             widgets.volume_widget,
-            widgets.bluetooth_widget,   
+            widgets.bluetooth_widget,
         },
     }
 end

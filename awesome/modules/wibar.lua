@@ -35,13 +35,11 @@ local function setup_wibar(s)
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
             spacing = 6,
-            wibox.layout.fixed.horizontal,
-            taglist,
             widgets.window_title,
         },
         { -- Middle widget
-        --    layout = wibox.layout.fixed.horizontal,
-        --    taglist,
+            layout = wibox.layout.fixed.horizontal,
+            taglist,
         },
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,

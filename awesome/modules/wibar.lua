@@ -62,10 +62,11 @@ local rightRoundedRectangle = function(cr, width, height)
     gears.shape.partially_rounded_rect(cr, width, height, false, true, true, false, cornerRadius)
 end
 
--- Create a textclock widget
-local mytextclock = wibox.widget.textclock("%a %b %d, %H:%M")
+-- Create a textclock widget with consistent font size
+local mytextclock = wibox.widget.textclock()
+mytextclock.font = "Roboto Mono Nerd Font 10"
 
--- Create volume widget
+-- Create volume widget with scroll interaction
 local create_volume_widget = function()
     local text_volume = wibox.widget{
         font = "Roboto Mono Nerd Font 10",
@@ -101,7 +102,7 @@ local create_volume_widget = function()
         end
     }
 
-    return {
+    local volume_widget = {
         {
             {
                 {
@@ -135,39 +136,89 @@ local create_volume_widget = function()
         spacing = 0,  -- Remove spacing between parts
         layout = wibox.layout.fixed.horizontal
     }
+    
+    -- Add scroll functionality to change volume
+    volume_widget:buttons(gears.table.join(
+        awful.button({ }, 4, function() -- Scroll up
+            awful.spawn.with_shell("pamixer -i 5")
+        end),
+        awful.button({ }, 5, function() -- Scroll down
+            awful.spawn.with_shell("pamixer -d 5")
+        end),
+        awful.button({ }, 3, function() -- Right click to toggle mute
+            awful.spawn.with_shell("pamixer -t")
+        end)
+    ))
+    
+    return volume_widget
 end
 
--- Create wifi widget
-local create_wifi_widget = function()
-    local wifi_icon = wibox.widget{
-        font = "Roboto Mono Nerd Font 12",
-        text = "󰖩",
+-- Create CPU usage widget
+local create_cpu_widget = function()
+    local cpu_icon = wibox.widget{
+        font = "Roboto Mono Nerd Font 10",
+        text = "󰘚",  -- CPU icon
         widget = wibox.widget.textbox
     }
-
-    -- Update icon based on connection status
+    
+    local cpu_text = wibox.widget{
+        font = "Roboto Mono Nerd Font 10",
+        widget = wibox.widget.textbox
+    }
+    
+    -- Store CPU usage history for calculation
+    local cpu_usage = {}
+    local cpu_total = {}
+    
+    -- Update CPU usage
     gears.timer {
-        timeout = 10,
+        timeout = 2,
         call_now = true,
         autostart = true,
         callback = function()
-            awful.spawn.easy_async("iwgetid -r 2>/dev/null || echo ''", function(stdout)
-                local wifi = stdout:gsub("\n", "")
-                if wifi == "" then
-                    wifi_icon.text = "󰖪"  -- Disconnected
-                    wifi_icon.fg = beautiful.fg_minimize
-                else
-                    wifi_icon.text = "󰖩"  -- Connected
-                    wifi_icon.fg = beautiful.fg_normal
+            -- Read /proc/stat to get CPU usage
+            awful.spawn.easy_async("cat /proc/stat | grep '^cpu '", function(stdout)
+                -- Parse CPU stats
+                local user, nice, system, idle, iowait, irq, softirq = stdout:match("cpu%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)%s+(%d+)")
+                
+                -- Convert to numbers
+                user, nice, system, idle, iowait, irq, softirq = tonumber(user), tonumber(nice), tonumber(system), tonumber(idle), tonumber(iowait), tonumber(irq), tonumber(softirq)
+                
+                -- Calculate total CPU time
+                local idle_total = idle + iowait
+                local non_idle = user + nice + system + irq + softirq
+                local total = idle_total + non_idle
+                
+                -- Calculate CPU usage if history exists
+                if cpu_total[1] then
+                    local diff_idle = idle_total - cpu_usage[1]
+                    local diff_total = total - cpu_total[1]
+                    local diff_usage = (1000 * (diff_total - diff_idle) / diff_total + 5) / 10
+                    
+                    -- Update the text
+                    cpu_text.text = string.format("%d%%", math.floor(diff_usage))
                 end
+                
+                -- Store current values for next iteration
+                cpu_usage[1] = idle_total
+                cpu_total[1] = total
             end)
         end
     }
-
+    
+    -- Return the combined widget
     return {
         {
             {
-                wifi_icon,
+                {
+                    {
+                        cpu_icon,
+                        right = 4,
+                        widget = wibox.container.margin,
+                    },
+                    cpu_text,
+                    layout = wibox.layout.fixed.horizontal
+                },
                 margins = 4,
                 widget = wibox.container.margin,
             },
@@ -179,45 +230,57 @@ local create_wifi_widget = function()
     }
 end
 
--- Create bluetooth widget
-local create_bluetooth_widget = function()
-    local bt_icon = wibox.widget{
-        font = "Roboto Mono Nerd Font 12",
-        text = "󰂯",
+-- Create RAM usage widget
+local create_ram_widget = function()
+    local ram_icon = wibox.widget{
+        font = "Roboto Mono Nerd Font 10",
+        text = "󰍛",  -- RAM icon
         widget = wibox.widget.textbox
     }
-
-    -- Update icon based on connection status
+    
+    local ram_text = wibox.widget{
+        font = "Roboto Mono Nerd Font 10",
+        widget = wibox.widget.textbox
+    }
+    
+    -- Update RAM usage
     gears.timer {
-        timeout = 10,
+        timeout = 5,
         call_now = true,
         autostart = true,
         callback = function()
-            awful.spawn.easy_async("bluetoothctl show | grep 'Powered: yes' 2>/dev/null || echo ''", function(stdout)
-                local bt_powered = stdout:gsub("\n", "")
-                if bt_powered == "" then
-                    bt_icon.text = "󰂲"  -- Bluetooth off
-                    bt_icon.fg = beautiful.fg_minimize
-                else
-                    -- Check if connected to any devices
-                    awful.spawn.easy_async("bluetoothctl info | grep 'Name' 2>/dev/null || echo ''", function(dev_stdout)
-                        if dev_stdout:gsub("\n", "") == "" then
-                            bt_icon.text = "󰂯"  -- Bluetooth on but not connected
-                            bt_icon.fg = beautiful.fg_normal
-                        else
-                            bt_icon.text = "󰂱"  -- Bluetooth connected
-                            bt_icon.fg = beautiful.bg_focus
-                        end
-                    end)
-                end
+            -- Get memory information from /proc/meminfo
+            awful.spawn.easy_async("grep -E 'MemTotal|MemFree|Buffers|Cached' /proc/meminfo", function(stdout)
+                -- Parse memory stats
+                local total = stdout:match("MemTotal:%s+(%d+)")
+                local free = stdout:match("MemFree:%s+(%d+)")
+                local buffers = stdout:match("Buffers:%s+(%d+)")
+                local cached = stdout:match("Cached:%s+(%d+)")
+                
+                -- Calculate used memory percentage
+                total, free, buffers, cached = tonumber(total), tonumber(free), tonumber(buffers), tonumber(cached)
+                local used = total - free - buffers - cached
+                local percentage = math.floor(used / total * 100)
+                
+                -- Update the text
+                ram_text.text = string.format("%d%%", percentage)
             end)
         end
     }
-
+    
+    -- Return the combined widget
     return {
         {
             {
-                bt_icon,
+                {
+                    {
+                        ram_icon,
+                        right = 4,
+                        widget = wibox.container.margin,
+                    },
+                    ram_text,
+                    layout = wibox.layout.fixed.horizontal
+                },
                 margins = 4,
                 widget = wibox.container.margin,
             },
@@ -353,8 +416,8 @@ local function setup_new_screen(s)
             layout = wibox.layout.fixed.horizontal,
             spacing = 8,  -- Add spacing between all right widgets
             create_volume_widget(),
-            create_bluetooth_widget(),
-            create_wifi_widget(),
+            create_cpu_widget(),  -- CPU widget instead of Bluetooth
+            create_ram_widget(),  -- RAM widget instead of WiFi
             systray_container,
             layoutbox_container,
         },

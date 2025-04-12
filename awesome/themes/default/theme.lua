@@ -19,34 +19,49 @@ local theme = {}
 --------------------------------------------------------------------------------
 theme.font          = "Roboto Mono Nerd Font 12"
 
--- Background colors for different UI elements
-theme.bg_normal     = "#00141D"   -- Normal background
-theme.bg_focus      = "#4FC3F7"   -- Focused elements
-theme.bg_urgent     = "#ff0000"   -- Urgent (alert) background
-theme.bg_minimize   = "#40474A"   -- Minimized window background
-theme.bg_systray    = theme.bg_normal
+-- GitHub theme colors
+theme.gh_fg        = "#d0d7de"   -- Foreground text
+theme.gh_bg        = "#0d1117"   -- Background
+theme.gh_comment   = "#8b949e"   -- Comments/muted text
+theme.gh_red       = "#ff7b72"   -- Error, deletion
+theme.gh_green     = "#3fb950"   -- Success, addition
+theme.gh_yellow    = "#d29922"   -- Warning, modified
+theme.gh_blue      = "#539bf5"   -- Info, links
+theme.gh_magenta   = "#bc8cff"   -- Variables, prop names
+theme.gh_cyan      = "#39c5cf"   -- Tags, tokens
+theme.gh_selection = "#415555"   -- Selection background
+theme.gh_highlight = "#4DFFDA"   -- Highlighted text
+theme.gh_caret     = "#58a6ff"   -- Cursor/caret color
+theme.gh_invisibles = "#2f363d"  -- Invisible characters
 
--- Foreground colors for text
-theme.fg_normal     = "#d3dae3"   -- Normal text color
-theme.fg_focus      = "#1a1a1a"   -- Focused text color
-theme.fg_urgent     = "#ffffff"   -- Urgent text color
-theme.fg_minimize   = "#9AABB3"   -- Minimized text color
+-- Background colors for different UI elements (using GitHub colors)
+theme.bg_normal     = theme.gh_bg        -- Normal background
+theme.bg_focus      = theme.gh_blue      -- Focused elements
+theme.bg_urgent     = theme.gh_red       -- Urgent (alert) background
+theme.bg_minimize   = theme.gh_invisibles -- Minimized window background
+theme.bg_systray    = theme.gh_bg        -- System tray background
+
+-- Foreground colors for text (using GitHub colors)
+theme.fg_normal     = theme.gh_fg        -- Normal text color
+theme.fg_focus      = theme.gh_bg        -- Focused text color
+theme.fg_urgent     = theme.gh_fg        -- Urgent text color
+theme.fg_minimize   = theme.gh_comment   -- Minimized text color
 
 --------------------------------------------------------------------------------
 -- Window Borders and Gaps
 --------------------------------------------------------------------------------
-theme.useless_gap   = dpi(8)      -- Gap between windows
-theme.border_width  = dpi(4)      -- Border width for windows
-theme.border_normal = "#1a1a1a"   -- Border color for inactive windows
-theme.border_focus  = "#4FC3F7"   -- Border color for focused windows
-theme.border_marked = "#4FC3F7"   -- Border color for marked windows
+theme.useless_gap   = dpi(8)             -- Gap between windows
+theme.border_width  = dpi(4)             -- Border width for windows
+theme.border_normal = theme.gh_invisibles -- Border color for inactive windows
+theme.border_focus  = theme.gh_blue      -- Border color for focused windows
+theme.border_marked = theme.gh_magenta   -- Border color for marked windows
 
 --------------------------------------------------------------------------------
 -- Taglist Squares (small icons for workspaces)
 --------------------------------------------------------------------------------
 local taglist_square_size = dpi(4)
-theme.taglist_squares_sel   = theme_assets.taglist_squares_sel(taglist_square_size, theme.fg_normal)
-theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(taglist_square_size, theme.fg_normal)
+theme.taglist_squares_sel   = theme_assets.taglist_squares_sel(taglist_square_size, theme.gh_fg)
+theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(taglist_square_size, theme.gh_fg)
 
 --------------------------------------------------------------------------------
 -- Menu Settings
@@ -111,10 +126,15 @@ theme.layout_cornersw      = themes_path.."default/layouts/cornersww.png"
 theme.layout_cornerse      = themes_path.."default/layouts/cornersew.png"
 
 --------------------------------------------------------------------------------
+-- Systray Settings
+--------------------------------------------------------------------------------
+theme.systray_icon_spacing = 5
+
+--------------------------------------------------------------------------------
 -- Awesome Icon
 --------------------------------------------------------------------------------
--- Generate a default Awesome icon for the menu. You can customize the size or colors.
-theme.awesome_icon = theme_assets.awesome_icon(theme.menu_height, theme.bg_focus, theme.fg_focus)
+-- Generate a default Awesome icon for the menu using GitHub colors
+theme.awesome_icon = theme_assets.awesome_icon(theme.menu_height, theme.gh_blue, theme.gh_bg)
 
 --------------------------------------------------------------------------------
 -- Application Icon Theme

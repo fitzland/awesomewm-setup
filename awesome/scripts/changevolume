@@ -31,16 +31,17 @@ function send_notification() {
     end
     
     -- Create or update notification with colored text
+    -- Add a line break between title and bar for more spacing
     local notification = naughty.notify({
         title = 'Volume: ' .. volume .. '%',
-        text = bar,
+        text = '\\n' .. bar,  -- Add a line break for more spacing
         icon = 'volume-$1',
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,
         timeout = 2,
         id = volume_notification_id,
         bg = '#0d1117',
-        fg = '#bc8cff'  -- Use GitHub magenta color
+        fg = '#39c5cf'  -- Use GitHub cyan color
     })
     
     -- Update the global ID for next time
@@ -77,7 +78,7 @@ mute)
         -- Create or update notification
         local notification = naughty.notify({
             title = 'Volume',
-            text = 'Muted',
+            text = '\\nMuted',  -- Add a line break here too
             icon = 'volume-mute',
             preset = naughty.config.presets.low,
             replaces_id = volume_notification_id,

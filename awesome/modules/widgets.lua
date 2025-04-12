@@ -359,38 +359,6 @@ widgets.window_title = window_title
 -- =====================================================
 -- Layout box widget
 -- =====================================================
-function widgets.create_layoutbox(s)
-    local layoutbox = awful.widget.layoutbox(s)
-    
-    -- Add buttons to change layout
-    layoutbox:buttons(gears.table.join(
-        awful.button({ }, 1, function () awful.layout.inc( 1) end),
-        awful.button({ }, 3, function () awful.layout.inc(-1) end),
-        awful.button({ }, 4, function () awful.layout.inc( 1) end),
-        awful.button({ }, 5, function () awful.layout.inc(-1) end)
-    ))
-    
-    -- Create container with same styling as other widgets
-    local layoutbox_container = wibox.widget {
-        {
-            layoutbox,
-            left = 8,
-            right = 8,
-            top = 4,
-            bottom = 4,
-            widget = wibox.container.margin
-        },
-        bg = beautiful.bg_minimize .. config.bg_opacity,
-        shape = rounded_shape,
-        widget = wibox.container.background
-    }
-    
-    return layoutbox_container
-end
-
--- =====================================================
--- Tag list (workspaces)
--- =====================================================
 function widgets.create_taglist(s)
     return awful.widget.taglist {
         screen = s,
@@ -433,14 +401,14 @@ function widgets.create_taglist(s)
             create_callback = function(self, tag, index, tags)
                 -- Create a small square indicator for occupied tags
                 local indicator = wibox.widget {
-                    forced_width = 8,
-                    forced_height = 8,
-                    bg = beautiful.fg_normal,
+                    forced_width = 10,  -- Increased from 8 to 10
+                    forced_height = 10, -- Increased from 8 to 10
+                    bg = beautiful.gh_red or "#ff5555", -- Use theme's red color or fallback
                     shape = gears.shape.rectangle,
                     widget = wibox.container.background
                 }
                 
-                -- Place indicator in top-left corner
+                -- Place indicator in top-left corner with a little offset
                 self.indicator_container = wibox.widget {
                     indicator,
                     valign = "top",

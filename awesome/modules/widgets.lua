@@ -426,25 +426,29 @@ function widgets.create_taglist(s)
             shape = rounded_shape,
             widget = wibox.container.background,
             
-            create_callback = function(self, tag, index, tags)
-                -- Function to update based on occupancy
-                self.update_indicator = function()
-                    if #tag:clients() > 0 then
-                        -- Occupied tag - add a border
-                        self.border_width = 2
-                        self.border_color = "#ff5555"  -- Red border
-                    else
-                        -- Empty tag - no border
-                        self.border_width = 0
-                    end
-                end
-                
-                -- Initial update
-                self.update_indicator()
-                
-                -- Connect to client changes
-                tag:connect_signal("property::clients", self.update_indicator)
-            end,
+create_callback = function(self, tag, index, tags)
+    -- Function to update based on occupancy
+    self.update_indicator = function()
+        local bg = self:get_children_by_id('background_role')[1]
+        if #tag:clients() > 0 then
+            -- Occupied tag - distinct background
+            bg.bg = "#553333"  -- Dark red background
+        elseif tag.selected then
+            -- Selected tag
+            bg.bg = beautiful.bg_focus
+        else
+            -- Empty tag
+            bg.bg = beautiful.bg_normal
+        end
+    end
+    
+    -- Initial update
+    self.update_indicator()
+    
+    -- Connect to client changes
+    tag:connect_signal("property::clients", self.update_indicator)
+    tag:connect_signal("property::selected", self.update_indicator)
+end,
             
             update_callback = function(self, tag, index, tags)
                 if self.update_indicator then

@@ -60,12 +60,19 @@ local function setup_wibar(s)
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             spacing = 6,
-            widgets.systray,
+            {
+                widgets.systray,
+                top = 4,    -- Add top margin for vertical centering
+                bottom = 4, -- Add bottom margin for vertical centering
+                left = 8,   -- Add left padding
+                right = 8,  -- Add right padding
+                widget = wibox.container.margin
+            },
             widgets.cpu_widget,
             widgets.mem_widget,
-            widgets.clock_widget,
             widgets.volume_widget,
             widgets.bluetooth_widget,
+            widgets.clock_widget,
         },
     }
 end

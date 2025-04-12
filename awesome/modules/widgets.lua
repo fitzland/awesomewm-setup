@@ -69,6 +69,7 @@ end
 -- =====================================================
 -- Basic widgets (retained from original)
 -- =====================================================
+-- Simple systray without any special container
 widgets.systray = wibox.widget.systray()
 
 -- =====================================================
@@ -440,34 +441,6 @@ end
 widgets.bluetooth_widget = create_widget_container(bluetooth_text)
 
 -- =====================================================
--- Idle inhibitor widget
--- =====================================================
-local idle_inhibitor_text = wibox.widget {
-    font = config.font,
-    widget = wibox.widget.textbox
-}
-
-local idle_inhibitor_active = false
-
-local function toggle_idle_inhibitor()
-    idle_inhibitor_active = not idle_inhibitor_active
-    if idle_inhibitor_active then
-        awful.spawn.with_shell("xdg-screensaver suspend $(xdotool getwindowfocus)")
-        idle_inhibitor_text.markup = '<span foreground="' .. beautiful.gh_green .. '">󱠛</span>'
-    else
-        awful.spawn.with_shell("xdg-screensaver resume $(xdotool getwindowfocus)")
-        idle_inhibitor_text.markup = '<span foreground="' .. beautiful.gh_comment .. '">󱤱</span>'
-    end
-end
-
-widgets.idle_inhibitor_widget = create_widget_container(idle_inhibitor_text)
-
-idle_inhibitor_text.markup = '<span foreground="' .. beautiful.gh_comment .. '">󱤱</span>'
-widgets.idle_inhibitor_widget:buttons(gears.table.join(
-    awful.button({}, 1, function() toggle_idle_inhibitor() end)
-))
-
--- =====================================================
 -- Window title widget
 -- =====================================================
 local window_title_text = wibox.widget {
@@ -541,6 +514,10 @@ function widgets.create_layoutbox(s)
     
     return layoutbox_container
 end
+
+-- =====================================================
+-- Tag list (workspaces)
+-- =====================================================
 function widgets.create_taglist(s)
     return awful.widget.taglist {
         screen = s,
@@ -551,6 +528,13 @@ function widgets.create_taglist(s)
             awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
             awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
         ),
+        style = {
+            shape = rounded_shape
+        },
+        layout = {
+            spacing = 3,
+            layout = wibox.layout.fixed.horizontal
+        },
         widget_template = {
             {
                 {
@@ -572,15 +556,12 @@ function widgets.create_taglist(s)
             widget = wibox.container.background,
         },
     }
-end
+}
 
 -- =====================================================
 -- Initialize all widgets
 -- =====================================================
 function widgets.init()
-    -- Configure system tray icon size to match other widgets
-    wibox.widget.systray.set_base_size(18)  -- Adjust this value to match your icons
-    
     -- Start timers for widget updates
     gears.timer {
         timeout = config.update_interval.cpu,

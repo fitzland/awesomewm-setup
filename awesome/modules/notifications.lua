@@ -1,7 +1,8 @@
 -- modules/notifications.lua
--- Simple solution that just disables non-critical notifications
+-- Disable AwesomeWM notifications and ensure Dunst is running
 
 local naughty = require("naughty")
+local awful = require("awful")
 local notifications = {}
 
 function notifications.init()
@@ -16,19 +17,11 @@ function notifications.init()
             -- Ignore all other notifications so they're handled by Dunst
             n.ignore = true
         end)
-    else
-        -- For older versions, override default settings for non-critical notifications
-        local original_presets = naughty.config.presets
-        naughty.config.presets = {
-            critical = original_presets.critical -- Preserve only critical presets
-        }
-        
-        -- Set non-critical notifications to essentially disappear
-        naughty.config.defaults.timeout = 0.1
-        naughty.config.defaults.height = 1
-        naughty.config.defaults.width = 1
-        naughty.config.defaults.opacity = 0
     end
+    
+    -- Start Dunst
+    awful.spawn.with_shell("killall dunst 2>/dev/null || true")
+    awful.spawn.with_shell("dunst -config ~/.config/awesome/dunst/dunstrc &")
     
     print("AwesomeWM notifications configured: critical errors shown, regular notifications handled by Dunst")
 end

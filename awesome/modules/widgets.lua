@@ -394,29 +394,19 @@ function widgets.create_taglist(s)
             },
             id = 'background_role',
             shape = rounded_shape,
-            -- Change the default rendering using bg and fg colors to make occupancy more visible
-            update_callback = function(self, tag, index, tags)
-                if #tag:clients() > 0 then
-                    -- Occupied tag - make it much more distinct
-                    self.bg = beautiful.taglist_bg_occupied or "#555555"
-                    self.fg = beautiful.taglist_fg_occupied or "#ffffff"
-                    -- Could add a border for extra visibility
-                    self.border_width = 1
-                    self.border_color = "#ff0000" -- Bright red border
-                elseif tag.selected then
-                    -- Selected tag
-                    self.bg = beautiful.taglist_bg_focus or "#535d6c"
-                    self.fg = beautiful.taglist_fg_focus or "#ffffff"
-                    self.border_width = 0
-                else
-                    -- Empty tag
-                    self.bg = beautiful.taglist_bg_empty or "#222222"
-                    self.fg = beautiful.taglist_fg_empty or "#888888"
-                    self.border_width = 0
-                end
-            end,
             widget = wibox.container.background
-        }
+        },
+        -- Add a custom coloring function
+        update_callback = function(widget, tag, index, tags)
+            if #tag:clients() > 0 then
+                -- Make occupied tags very distinct with bright colors
+                widget:get_children_by_id('background_role')[1].bg = "#444444"
+                widget:get_children_by_id('background_role')[1].fg = "#ffffff"
+                -- Add a border for extra visibility
+                widget:get_children_by_id('background_role')[1].border_width = 1
+                widget:get_children_by_id('background_role')[1].border_color = "#ff5555"
+            end
+        end
     }
 end
 

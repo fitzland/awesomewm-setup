@@ -115,7 +115,8 @@ local create_volume_widget = function()
                 bottom = 2,
                 widget = wibox.container.margin,
             },
-            bg = beautiful.bg_normal,
+            bg = beautiful.bg_minimize .. "40",  -- Add subtle background with alpha
+            shape = leftRoundedRectangle,        -- Add rounded corners
             widget = wibox.container.background,
         },
         {
@@ -127,10 +128,11 @@ local create_volume_widget = function()
                 right = 8,
                 widget = wibox.container.margin,
             },
-            bg = beautiful.bg_normal,
+            bg = beautiful.bg_minimize .. "40",  -- Add subtle background with alpha
+            shape = rightRoundedRectangle,       -- Add rounded corners
             widget = wibox.container.background,
         },
-        spacing = 2,
+        spacing = 0,  -- Remove spacing between parts
         layout = wibox.layout.fixed.horizontal
     }
 end
@@ -169,7 +171,8 @@ local create_wifi_widget = function()
                 margins = 4,
                 widget = wibox.container.margin,
             },
-            bg = beautiful.bg_normal,
+            bg = beautiful.bg_minimize .. "40",  -- Add subtle background with alpha
+            shape = roundedRectangle,            -- Add rounded corners
             widget = wibox.container.background,
         },
         layout = wibox.layout.fixed.horizontal
@@ -218,7 +221,8 @@ local create_bluetooth_widget = function()
                 margins = 4,
                 widget = wibox.container.margin,
             },
-            bg = beautiful.bg_normal,
+            bg = beautiful.bg_minimize .. "40",  -- Add subtle background with alpha
+            shape = roundedRectangle,            -- Add rounded corners
             widget = wibox.container.background,
         },
         layout = wibox.layout.fixed.horizontal
@@ -270,9 +274,24 @@ local function setup_new_screen(s)
         buttons = tasklist_buttons()
     }
     
-    -- Create system tray widget
+    -- Create system tray widget with fixed spacing
     local systray = wibox.widget.systray()
-    systray.base_size = 20
+    systray.base_size = 16  -- Smaller size
+    
+    -- Wrap systray in a container with background and rounded corners
+    local systray_container = {
+        {
+            {
+                systray,
+                margins = 4,
+                widget = wibox.container.margin,
+            },
+            bg = beautiful.bg_minimize .. "40",  -- Add subtle background with alpha
+            shape = roundedRectangle,            -- Add rounded corners
+            widget = wibox.container.background,
+        },
+        layout = wibox.layout.fixed.horizontal
+    }
     
     -- Create styled textclock for center
     local textclock = {
@@ -281,14 +300,36 @@ local function setup_new_screen(s)
                 mytextclock,
                 left = 8,
                 right = 8,
+                top = 4,
+                bottom = 4,
                 widget = wibox.container.margin,
             },
-            bg = beautiful.bg_normal,
-            fg = beautiful.fg_normal,
+            bg = beautiful.bg_minimize .. "40",  -- Add subtle background with alpha
+            shape = roundedRectangle,            -- Add rounded corners
             widget = wibox.container.background,
         },
         halign = "center",
         widget = wibox.container.place
+    }
+    
+    -- Create layoutbox container with background and rounded corners
+    local layoutbox_container = {
+        {
+            {
+                {
+                    s.mylayoutbox,
+                    forced_height = 16,  -- Make layout icon smaller
+                    forced_width = 16,   -- Make layout icon smaller
+                    widget = wibox.container.constraint,
+                },
+                margins = 4,
+                widget = wibox.container.margin,
+            },
+            bg = beautiful.bg_minimize .. "40",  -- Add subtle background with alpha
+            shape = roundedRectangle,            -- Add rounded corners
+            widget = wibox.container.background,
+        },
+        layout = wibox.layout.fixed.horizontal
     }
     
     -- Create the wibar
@@ -310,12 +351,12 @@ local function setup_new_screen(s)
         textclock, -- Center widget is now the clock
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            spacing = 10,  -- Add spacing between all right widgets
+            spacing = 8,  -- Add spacing between all right widgets
             create_volume_widget(),
             create_bluetooth_widget(),
             create_wifi_widget(),
-            systray,
-            s.mylayoutbox,
+            systray_container,
+            layoutbox_container,
         },
     }
     

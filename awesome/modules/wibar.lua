@@ -35,12 +35,13 @@ local function setup_wibar(s)
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
             spacing = 6,
-            widgets.clock_widget,
+            wibox.layout.fixed.horizontal,
+            taglist,
             widgets.window_title,
         },
         { -- Middle widget
-            layout = wibox.layout.fixed.horizontal,
-            taglist,
+        --    layout = wibox.layout.fixed.horizontal,
+        --    taglist,
         },
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
@@ -48,11 +49,10 @@ local function setup_wibar(s)
             widgets.systray,
             widgets.idle_inhibitor_widget,
             widgets.cpu_widget,
-            widgets.temp_widget,
             widgets.mem_widget,
-            widgets.bluetooth_widget,
+            widgets.clock_widget,
             widgets.volume_widget,
-            widgets.battery_widget,
+            widgets.bluetooth_widget,   
         },
     }
 end

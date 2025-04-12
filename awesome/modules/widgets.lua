@@ -281,8 +281,8 @@ local vol_widget_content = wibox.widget {
         vol_bar,
         left = 4,
         right = 4,
-        top = 12,
-        bottom = 12,
+        top = 10,
+        bottom = 10,
         widget = wibox.container.margin
     },
     layout = wibox.layout.fixed.horizontal,

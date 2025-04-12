@@ -65,7 +65,6 @@ local function setup_wibar(s)
             widgets.mem_widget,
             widgets.clock_widget,
             widgets.volume_widget,
-            widgets.mic_widget,
             widgets.bluetooth_widget,
         },
     }

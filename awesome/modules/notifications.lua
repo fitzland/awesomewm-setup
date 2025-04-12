@@ -1,8 +1,10 @@
 -- modules/notifications.lua
--- Configure naughty with GitHub theme colors to match overall theme
+-- Configure naughty with GitHub theme colors and rounded corners
 
 local naughty = require("naughty")
 local beautiful = require("beautiful")
+local gears = require("gears")
+local dpi = beautiful.xresources.apply_dpi
 local notifications = {}
 
 function notifications.init()
@@ -20,12 +22,17 @@ function notifications.init()
     naughty.config.defaults.position = "top_right"
     naughty.config.defaults.bg = gh_bg
     naughty.config.defaults.fg = gh_fg
-    naughty.config.defaults.border_width = 2
+    naughty.config.defaults.border_width = 4  -- Thicker border
     naughty.config.defaults.border_color = gh_blue
     naughty.config.defaults.width = 500
     naughty.config.defaults.font = beautiful.font or "Roboto Mono Nerd Font 12"
     naughty.config.defaults.margin = 10
     naughty.config.defaults.padding = 20
+    
+    -- Add rounded corners properly for AwesomeWM
+    naughty.config.defaults.shape = function(cr, w, h)
+        gears.shape.rounded_rect(cr, w, h, dpi(15))  -- 15px corner radius
+    end
     
     -- Add icon paths
     naughty.config.icon_dirs = {
@@ -41,23 +48,32 @@ function notifications.init()
             bg = gh_bg,
             fg = gh_comment,
             border_color = gh_blue,
-            timeout = 10
+            timeout = 10,
+            shape = function(cr, w, h)
+                gears.shape.rounded_rect(cr, w, h, dpi(15))
+            end
         },
         normal = {
             bg = gh_bg,
             fg = gh_fg,
             border_color = gh_blue,
-            timeout = 10
+            timeout = 10,
+            shape = function(cr, w, h)
+                gears.shape.rounded_rect(cr, w, h, dpi(15))
+            end
         },
         critical = {
             bg = gh_bg,
             fg = gh_fg,
             border_color = gh_red,
-            timeout = 0
+            timeout = 0,
+            shape = function(cr, w, h)
+                gears.shape.rounded_rect(cr, w, h, dpi(15))
+            end
         }
     }
     
-    print("GitHub-themed notifications configuration applied")
+    print("GitHub-themed notifications with rounded corners applied")
 end
 
 return notifications

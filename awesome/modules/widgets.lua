@@ -418,10 +418,10 @@ function widgets.create_taglist(s)
                     },
                     layout = wibox.layout.fixed.horizontal
                 },
-                left = 10,
-                right = 10,
-                top = 6,
-                bottom = 6,
+                left = 8,
+                right = 8,
+                top = 4,
+                bottom = 4,
                 widget = wibox.container.margin
             },
             id = 'background_role',

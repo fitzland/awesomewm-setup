@@ -3,38 +3,44 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create a visual volume bar
-    bar_length=20
+    # Create a visual volume bar (thinner style)
+    bar_length=30
     filled_length=$(( $volume * $bar_length / 100 ))
-    bar=""
     
-    # Create the bar with Unicode block characters
-    for ((i=0; i<$bar_length; i++)); do
-        if [ $i -lt $filled_length ]; then
-            bar="${bar}█"
-        else
-            bar="${bar}░"
-        fi
-    done
-    
-    # Create a notification through awesome-client using naughty
+    # Create the Lua code that will generate a colored slider directly in Lua
     lua_command="
     local naughty = require('naughty')
+    local volume = ${volume}
+    local bar_length = 30
+    local filled_length = math.floor(volume * bar_length / 100)
+    
+    -- Create the bar string
+    local bar = '['
+    for i = 1, bar_length do
+        if i <= filled_length then
+            bar = bar .. '─'
+        else
+            bar = bar .. ' '
+        end
+    end
+    bar = bar .. ']'
     
     -- Always use the same notification ID to replace previous ones
     if not volume_notification_id then
         volume_notification_id = 9993
     end
     
-    -- Create or update notification
+    -- Create or update notification with colored text
     local notification = naughty.notify({
-        title = 'Volume: ${volume}%',
-        text = '${bar}',
+        title = 'Volume: ' .. volume .. '%',
+        text = bar,
         icon = 'volume-$1',
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,
         timeout = 2,
-        id = volume_notification_id
+        id = volume_notification_id,
+        bg = '#0d1117',
+        fg = '#539bf5'  -- Use GitHub blue for the entire text
     })
     
     -- Update the global ID for next time

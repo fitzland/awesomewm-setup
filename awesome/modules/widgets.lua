@@ -386,55 +386,36 @@ function widgets.create_taglist(s)
                     },
                     layout = wibox.layout.fixed.horizontal
                 },
-                -- Add indicator dot at the top
-                {
-                    {
-                        id = "indicator",
-                        forced_width = 8,    -- Size of indicator
-                        forced_height = 8,   -- Size of indicator
-                        shape = gears.shape.circle,  -- Make it a circle
-                        bg = "#ff0000",      -- Bright red color (very visible)
-                        widget = wibox.container.background
-                    },
-                    halign = "center",      -- Center horizontally 
-                    valign = "top",         -- Align to top
-                    widget = wibox.container.place
-                },
                 left = 10,
                 right = 10,
-                top = 6, 
+                top = 6,
                 bottom = 6,
-                layout = wibox.layout.stack  -- Stack text and indicator
+                widget = wibox.container.margin
             },
             id = 'background_role',
             shape = rounded_shape,
-            widget = wibox.container.background,
-            
-            create_callback = function(self, tag, index, tags)
-                -- Update indicator visibility based on tag occupancy
-                self.update_indicator = function()
-                    local indicator = self:get_children_by_id('indicator')[1]
-                    indicator.visible = #tag:clients() > 0
-                end
-                
-                -- Initial update
-                self.update_indicator()
-                
-                -- Update when clients change
-                tag:connect_signal("property::clients", self.update_indicator)
-            end,
-            
+            -- Change the default rendering using bg and fg colors to make occupancy more visible
             update_callback = function(self, tag, index, tags)
-                if self.update_indicator then
-                    self.update_indicator()
+                if #tag:clients() > 0 then
+                    -- Occupied tag - make it much more distinct
+                    self.bg = beautiful.taglist_bg_occupied or "#555555"
+                    self.fg = beautiful.taglist_fg_occupied or "#ffffff"
+                    -- Could add a border for extra visibility
+                    self.border_width = 1
+                    self.border_color = "#ff0000" -- Bright red border
+                elseif tag.selected then
+                    -- Selected tag
+                    self.bg = beautiful.taglist_bg_focus or "#535d6c"
+                    self.fg = beautiful.taglist_fg_focus or "#ffffff"
+                    self.border_width = 0
+                else
+                    -- Empty tag
+                    self.bg = beautiful.taglist_bg_empty or "#222222"
+                    self.fg = beautiful.taglist_fg_empty or "#888888"
+                    self.border_width = 0
                 end
             end,
-            
-            remove_callback = function(self, tag, index, tags)
-                if self.update_indicator then
-                    tag:disconnect_signal("property::clients", self.update_indicator)
-                end
-            end
+            widget = wibox.container.background
         }
     }
 end

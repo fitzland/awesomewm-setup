@@ -8,16 +8,15 @@ function send_notification() {
     filled_length=$(( $volume * $bar_length / 100 ))
     
     # Use thinner characters for a more slider-like appearance
-# Use thinner characters for a more slider-like appearance with color
-bar="["
-for ((i=0; i<$bar_length; i++)); do
-    if [ $i -lt $filled_length ]; then
-        bar="${bar}<span color='#539bf5'>─</span>"  # GitHub blue color
-    else
-        bar="${bar} "
-    fi
-done
-bar="${bar}]"
+    bar="["
+    for ((i=0; i<$bar_length; i++)); do
+        if [ $i -lt $filled_length ]; then
+            bar="${bar}─"
+        else
+            bar="${bar} "
+        fi
+    done
+    bar="${bar}]"
     
     # Create a notification through awesome-client using naughty
     lua_command="

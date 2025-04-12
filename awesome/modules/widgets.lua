@@ -556,6 +556,7 @@ function widgets.create_taglist(s)
             widget = wibox.container.background,
         },
     }
+end
 }
 
 -- =====================================================

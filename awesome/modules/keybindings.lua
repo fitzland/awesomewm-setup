@@ -195,7 +195,17 @@ end, {description = "swap with client below", group = "client"})
                   {description = "rofi menu", group = "launcher"}),
                   
         awful.key({}, "Print", function() awful.util.spawn(variables.screenshot_cmd) end,
-                  {description = "screenshot", group = "launcher"})
+                  {description = "screenshot", group = "launcher"}),
+                  
+        -- Added keybindings
+        awful.key({ modkey }, "e", function() awful.util.spawn("geany") end,
+                  {description = "open geany", group = "launcher"}),
+                  
+        awful.key({ modkey, "Shift" }, "Return", function() awful.util.spawn("tilix --quake") end,
+                  {description = "open tilix in quake mode", group = "launcher"}),
+                  
+        awful.key({ modkey, "Shift" }, "b", function() awful.util.spawn("firefox --private-window") end,
+                  {description = "open firefox in private mode", group = "launcher"})
     )
     
     -- Set keys

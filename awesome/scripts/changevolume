@@ -2,18 +2,45 @@
 
 function send_notification() {
     volume=$(pamixer --get-volume)
+    
+    # Create a visual volume bar
+    bar_length=20
+    filled_length=$(( $volume * $bar_length / 100 ))
+    bar=""
+    
+    # Create the bar with Unicode block characters
+    for ((i=0; i<$bar_length; i++)); do
+        if [ $i -lt $filled_length ]; then
+            bar="${bar}█"
+        else
+            bar="${bar}░"
+        fi
+    done
+    
     # Create a notification through awesome-client using naughty
     lua_command="
     local naughty = require('naughty')
-    naughty.notify({
-        title = 'Volume',
-        text = 'Volume: ${volume}%',
+    
+    -- Always use the same notification ID to replace previous ones
+    if not volume_notification_id then
+        volume_notification_id = 9993
+    end
+    
+    -- Create or update notification
+    local notification = naughty.notify({
+        title = 'Volume: ${volume}%',
+        text = '${bar}',
         icon = 'volume-$1',
         preset = naughty.config.presets.low,
-        replaces_id = 9993,
-        timeout = 2
+        replaces_id = volume_notification_id,
+        timeout = 2,
+        id = volume_notification_id
     })
+    
+    -- Update the global ID for next time
+    volume_notification_id = notification.id
     "
+    
     echo "$lua_command" | awesome-client
 }
 
@@ -22,12 +49,12 @@ up)
     # Set the volume on (if it was muted)
     pamixer -u
     pamixer -i 2 --allow-boost
-    send_notification $1
+    send_notification up
     ;;
 down)
     pamixer -u
     pamixer -d 2 --allow-boost
-    send_notification $1
+    send_notification down
     ;;
 mute)
     pamixer -t
@@ -35,14 +62,25 @@ mute)
         # Create a mute notification
         lua_command="
         local naughty = require('naughty')
-        naughty.notify({
+        
+        -- Always use the same notification ID to replace previous ones
+        if not volume_notification_id then
+            volume_notification_id = 9993
+        end
+        
+        -- Create or update notification
+        local notification = naughty.notify({
             title = 'Volume',
             text = 'Muted',
             icon = 'volume-mute',
             preset = naughty.config.presets.low,
-            replaces_id = 9993,
-            timeout = 2
+            replaces_id = volume_notification_id,
+            timeout = 2,
+            id = volume_notification_id
         })
+        
+        -- Update the global ID for next time
+        volume_notification_id = notification.id
         "
         echo "$lua_command" | awesome-client
     else

@@ -359,6 +359,38 @@ widgets.window_title = window_title
 -- =====================================================
 -- Layout box widget
 -- =====================================================
+function widgets.create_layoutbox(s)
+    local layoutbox = awful.widget.layoutbox(s)
+    
+    -- Add buttons to change layout
+    layoutbox:buttons(gears.table.join(
+        awful.button({ }, 1, function () awful.layout.inc( 1) end),
+        awful.button({ }, 3, function () awful.layout.inc(-1) end),
+        awful.button({ }, 4, function () awful.layout.inc( 1) end),
+        awful.button({ }, 5, function () awful.layout.inc(-1) end)
+    ))
+    
+    -- Create container with same styling as other widgets
+    local layoutbox_container = wibox.widget {
+        {
+            layoutbox,
+            left = 8,
+            right = 8,
+            top = 4,
+            bottom = 4,
+            widget = wibox.container.margin
+        },
+        bg = beautiful.bg_minimize .. config.bg_opacity,
+        shape = rounded_shape,
+        widget = wibox.container.background
+    }
+    
+    return layoutbox_container
+end
+
+-- =====================================================
+-- Tag list (workspaces)
+-- =====================================================
 function widgets.create_taglist(s)
     return awful.widget.taglist {
         screen = s,
@@ -390,62 +422,48 @@ function widgets.create_taglist(s)
                 right = 10,
                 top = 6,
                 bottom = 6,
-                id = 'margin_role',
                 widget = wibox.container.margin
             },
             id = 'background_role',
             shape = rounded_shape,
             widget = wibox.container.background,
             
-            -- Add these callbacks to create an indicator
             create_callback = function(self, tag, index, tags)
-                -- Create a small square indicator for occupied tags
-                local indicator = wibox.widget {
-                    forced_width = 10,  -- Increased from 8 to 10
-                    forced_height = 10, -- Increased from 8 to 10
-                    bg = beautiful.gh_red or "#ff5555", -- Use theme's red color or fallback
-                    shape = gears.shape.rectangle,
-                    widget = wibox.container.background
-                }
-                
-                -- Place indicator in top-left corner with a little offset
-                self.indicator_container = wibox.widget {
-                    indicator,
-                    valign = "top",
-                    halign = "left",
-                    widget = wibox.container.place
-                }
-                
-                -- Add indicator to the margin widget
-                local margin = self:get_children_by_id('margin_role')[1]
-                margin.widget = wibox.widget {
-                    self:get_children_by_id('text_role')[1],
-                    self.indicator_container,
-                    layout = wibox.layout.stack
-                }
-                
-                -- Update indicator visibility
-                self.update_indicator = function()
-                    indicator.visible = #tag:clients() > 0
+                -- Update function for the background
+                self.update_bg = function()
+                    if #tag:clients() > 0 then
+                        -- Occupied tag - use a distinct background
+                        self.bg = beautiful.taglist_bg_occupied or "#3a5e8a"
+                    elseif tag.selected then
+                        -- Selected empty tag
+                        self.bg = beautiful.taglist_bg_focus or "#5294e2"
+                    else
+                        -- Unselected empty tag
+                        self.bg = beautiful.taglist_bg_empty or "#2c3545"
+                    end
                 end
-                self.update_indicator()
                 
-                -- Connect to tag clients property
-                tag:connect_signal("property::clients", self.update_indicator)
+                -- Initial update
+                self.update_bg()
+                
+                -- Connect to client changes
+                tag:connect_signal("property::clients", self.update_bg)
+                tag:connect_signal("property::selected", self.update_bg)
             end,
             
             update_callback = function(self, tag, index, tags)
-                -- Update indicator when tag properties change
-                if self.update_indicator then
-                    self.update_indicator()
+                -- Update background when tag state changes
+                if self.update_bg then
+                    self.update_bg()
                 end
             end,
             
             remove_callback = function(self, tag, index, tags)
-                -- Clean up signal handlers
-                if self.update_indicator then
-                    tag:disconnect_signal("property::clients", self.update_indicator)
-                    self.update_indicator = nil
+                -- Clean up signals
+                if self.update_bg then
+                    tag:disconnect_signal("property::clients", self.update_bg)
+                    tag:disconnect_signal("property::selected", self.update_bg)
+                    self.update_bg = nil
                 end
             end
         }

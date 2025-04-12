@@ -3,15 +3,15 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create a visual volume bar (thinner style)
+    # Create a visual volume bar (thinner style with color)
     bar_length=30
     filled_length=$(( $volume * $bar_length / 100 ))
     
-    # Use thinner characters for a more slider-like appearance
+    # Use thinner characters with GitHub blue color for a more slider-like appearance
     bar="["
     for ((i=0; i<$bar_length; i++)); do
         if [ $i -lt $filled_length ]; then
-            bar="${bar}─"
+            bar="${bar}<span color='#539bf5'>─</span>"  # GitHub blue color
         else
             bar="${bar} "
         fi
@@ -35,7 +35,8 @@ function send_notification() {
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,
         timeout = 2,
-        id = volume_notification_id
+        id = volume_notification_id,
+        markup = 'pango'  -- Enable HTML/Pango markup
     })
     
     -- Update the global ID for next time

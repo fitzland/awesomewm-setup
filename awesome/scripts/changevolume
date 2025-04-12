@@ -3,24 +3,19 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create an XFCE4-style volume bar with Unicode block characters
-    # This creates a smoother, more modern-looking slider
+    # Create a visual volume bar
     bar_length=20
     filled_length=$(( $volume * $bar_length / 100 ))
+    bar=""
     
-    # Create a more stylized progress bar with background color
-    bar="<span color='#202020'>▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁</span>"
-    
-    # Create the filled part with GitHub blue
-    if [ $filled_length -gt 0 ]; then
-        filled=""
-        for ((i=0; i<$filled_length; i++)); do
-            filled="${filled}▁"
-        done
-        
-        # Insert the filled part at the beginning with color
-        bar="<span color='#539bf5'>${filled}</span>${bar:$((filled_length*24))}"
-    fi
+    # Create the bar with Unicode block characters
+    for ((i=0; i<$bar_length; i++)); do
+        if [ $i -lt $filled_length ]; then
+            bar="${bar}█"
+        else
+            bar="${bar}░"
+        fi
+    done
     
     # Create a notification through awesome-client using naughty
     lua_command="
@@ -39,8 +34,7 @@ function send_notification() {
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,
         timeout = 2,
-        id = volume_notification_id,
-        markup = 'pango'  -- Enable HTML/Pango markup
+        id = volume_notification_id
     })
     
     -- Update the global ID for next time

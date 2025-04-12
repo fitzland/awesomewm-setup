@@ -422,64 +422,11 @@ function widgets.create_taglist(s)
                 right = 10,
                 top = 6,
                 bottom = 6,
-                id = 'margin_role',
                 widget = wibox.container.margin
             },
             id = 'background_role',
             shape = rounded_shape,
-            widget = wibox.container.background,
-            
-            -- Add these callbacks to create an indicator
-            create_callback = function(self, tag, index, tags)
-                -- Create a small square indicator for occupied tags
-                local indicator = wibox.widget {
-                    forced_width = 8,
-                    forced_height = 8,
-                    bg = beautiful.fg_normal,
-                    shape = gears.shape.rectangle,
-                    widget = wibox.container.background
-                }
-                
-                -- Place indicator in top-left corner
-                self.indicator_container = wibox.widget {
-                    indicator,
-                    valign = "top",
-                    halign = "left",
-                    widget = wibox.container.place
-                }
-                
-                -- Add indicator to the margin widget
-                local margin = self:get_children_by_id('margin_role')[1]
-                margin.widget = wibox.widget {
-                    self:get_children_by_id('text_role')[1],
-                    self.indicator_container,
-                    layout = wibox.layout.stack
-                }
-                
-                -- Update indicator visibility
-                self.update_indicator = function()
-                    indicator.visible = #tag:clients() > 0
-                end
-                self.update_indicator()
-                
-                -- Connect to tag clients property
-                tag:connect_signal("property::clients", self.update_indicator)
-            end,
-            
-            update_callback = function(self, tag, index, tags)
-                -- Update indicator when tag properties change
-                if self.update_indicator then
-                    self.update_indicator()
-                end
-            end,
-            
-            remove_callback = function(self, tag, index, tags)
-                -- Clean up signal handlers
-                if self.update_indicator then
-                    tag:disconnect_signal("property::clients", self.update_indicator)
-                    self.update_indicator = nil
-                end
-            end
+            widget = wibox.container.background
         }
     }
 end

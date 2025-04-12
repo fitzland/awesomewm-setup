@@ -30,7 +30,7 @@ local rules = {
     {
         rule_any = {
             instance = { "DTA", "copyq", "pinentry" },
-            class = { "qimgv", "mpv", "st", "pulsemixer", "Galculator", "Lxappearance", "Pavucontrol", "Tilix" },
+            class = { "qimgv", "mpv", "st", "pulsemixer", "Galculator", "Lxappearance", "Pavucontrol", "Terminator" },
             name = { "Event Tester" },
             role = { "AlarmWindow", "ConfigManager", "pop-up" }
         },

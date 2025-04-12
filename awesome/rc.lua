@@ -1,8 +1,6 @@
 -- rc.lua
 -- AwesomeWM modular configuration
 
--- Now continue with the rest of rc.lua
--- AwesomeWM modular configuration
 -- Error handling should be loaded first
 local error_handling = require("modules.error_handling")
 error_handling.init()

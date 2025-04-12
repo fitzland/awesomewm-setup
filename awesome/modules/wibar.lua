@@ -47,19 +47,24 @@ local function tasklist_buttons()
     )
 end
 
--- Create a separator widget like in Polybar
-local function create_separator()
-    return wibox.widget {
-        markup = '<span foreground="' .. beautiful.fg_minimize .. '">|</span>',
-        align = "center",
-        valign = "center",
-        widget = wibox.widget.textbox
-    }
+-- Create custom shapes
+local cornerRadius = 10
+
+local roundedRectangle = function(cr, width, height)
+    gears.shape.rounded_rect(cr, width, height, cornerRadius)
+end
+
+local leftRoundedRectangle = function(cr, width, height)
+    gears.shape.partially_rounded_rect(cr, width, height, true, false, false, true, cornerRadius)
+end
+
+local rightRoundedRectangle = function(cr, width, height)
+    gears.shape.partially_rounded_rect(cr, width, height, false, true, true, false, cornerRadius)
 end
 
 -- Setup for newly connected screens
 local function setup_new_screen(s)
-    -- Create a taglist widget with spacing
+    -- Create a taglist widget
     s.mytaglist = awful.widget.taglist {
         screen = s,
         filter = awful.widget.taglist.filter.all,
@@ -77,43 +82,98 @@ local function setup_new_screen(s)
         buttons = tasklist_buttons()
     }
     
-    -- Create system tray
-    local systray = wibox.widget.systray()
+    -- Create the clock widget
+    local mytextclock = wibox.widget.textclock()
+    local clock_widget = {
+        {
+            {
+                {
+                    widget = mytextclock,
+                },
+                left = 6,
+                right = 6,
+                top = 0,
+                bottom = 0,
+                widget = wibox.container.margin,
+            },
+            shape = roundedRectangle,
+            fg = beautiful.fg_normal,
+            bg = beautiful.bg_minimize,
+            widget = wibox.container.background
+        },
+        left = 440,
+        top = 5,
+        bottom = 5,
+        halign = "center",
+        widget = wibox.container.margin,
+    }
     
-    -- Create the wibar with polybar-like styling
-    s.mywibox = awful.wibar({ 
-        position = "top", 
-        screen = s,
-        height = 32,
-        bg = beautiful.bg_normal,
-        fg = beautiful.fg_normal,
-        border_width = 2,
-        border_color = beautiful.border_normal
-    })
+    -- Create a system tray container
+    local systray_widget = {
+        {
+            {
+                wibox.widget.systray(),
+                left = 10,
+                right = 10,
+                top = 10,
+                bottom = 10,
+                widget = wibox.container.margin,
+            },
+            shape = roundedRectangle,
+            fg = beautiful.fg_normal,
+            bg = beautiful.bg_minimize,
+            widget = wibox.container.background,
+        },
+        top = 5,
+        bottom = 5,
+        widget = wibox.container.margin
+    }
+    
+    -- Create a layout box container
+    local layoutbox_widget = {
+        {
+            {
+                s.mylayoutbox,
+                left = 10,
+                right = 10,
+                top = 10,
+                bottom = 10,
+                widget = wibox.container.margin,
+            },
+            shape = roundedRectangle,
+            fg = beautiful.fg_normal,
+            bg = beautiful.bg_minimize,
+            widget = wibox.container.background,
+        },
+        top = 5,
+        bottom = 5,
+        right = 5,
+        widget = wibox.container.margin,
+    }
+    
+    -- Create the wibar
+    s.mywibox = awful.wibar({ position = "top", screen = s, height = 45 })
     
     -- Add widgets to the wibox
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            menu.launcher,
-            create_separator(),
-            s.mytasklist,
-        },
-        { -- Center widget
-            layout = wibox.layout.fixed.horizontal,
             s.mytaglist,
+        },
+        { -- Middle widget
+            layout = wibox.layout.fixed.horizontal,
+            clock_widget
         },
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             widgets.cpu_widget,
-            create_separator(),
             widgets.mem_widget,
-            create_separator(),
             widgets.date_widget,
             widgets.time_widget,
-            create_separator(),
-            systray,
+            systray_widget,
+            layoutbox_widget,
+            spacing = 5
         },
     }
     

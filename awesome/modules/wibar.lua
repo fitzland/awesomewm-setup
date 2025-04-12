@@ -63,10 +63,7 @@ local function setup_wibar(s)
             widgets.systray,
             widgets.cpu_widget,
             widgets.mem_widget,
-            widgets.mic_widget,
             widgets.clock_widget,
-            widgets.volume_widget,
-            widgets.bluetooth_widget,
         },
     }
 end

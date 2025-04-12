@@ -3,20 +3,24 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create a visual volume bar (thinner style with color)
-    bar_length=30
+    # Create an XFCE4-style volume bar with Unicode block characters
+    # This creates a smoother, more modern-looking slider
+    bar_length=20
     filled_length=$(( $volume * $bar_length / 100 ))
     
-    # Use thinner characters with GitHub blue color for a more slider-like appearance
-    bar="["
-    for ((i=0; i<$bar_length; i++)); do
-        if [ $i -lt $filled_length ]; then
-            bar="${bar}<span color='#539bf5'>─</span>"  # GitHub blue color
-        else
-            bar="${bar} "
-        fi
-    done
-    bar="${bar}]"
+    # Create a more stylized progress bar with background color
+    bar="<span color='#202020'>▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁</span>"
+    
+    # Create the filled part with GitHub blue
+    if [ $filled_length -gt 0 ]; then
+        filled=""
+        for ((i=0; i<$filled_length; i++)); do
+            filled="${filled}▁"
+        done
+        
+        # Insert the filled part at the beginning with color
+        bar="<span color='#539bf5'>${filled}</span>${bar:$((filled_length*24))}"
+    fi
     
     # Create a notification through awesome-client using naughty
     lua_command="

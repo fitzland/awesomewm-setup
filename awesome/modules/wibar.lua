@@ -26,6 +26,15 @@ local function rounded_shape(cr, width, height)
     gears.shape.rounded_rect(cr, width, height, config.corner_radius)
 end
 
+-- Custom partially rounded rect functions
+local function partially_rounded_rect_left(cr, width, height)
+    gears.shape.partially_rounded_rect(cr, width, height, true, false, false, true, config.corner_radius)
+end
+
+local function partially_rounded_rect_right(cr, width, height)
+    gears.shape.partially_rounded_rect(cr, width, height, false, true, true, false, config.corner_radius)
+end
+
 -- CPU widget
 local cpu_text = wibox.widget {
     font = config.font,
@@ -197,7 +206,7 @@ local vol_container = wibox.widget {
             widget = wibox.container.margin
         },
         bg = beautiful.bg_minimize .. config.bg_opacity,
-        shape = gears.shape.partially_rounded_rect(cr, w, h, true, false, false, true, config.corner_radius),
+        shape = partially_rounded_rect_left,
         widget = wibox.container.background
     },
     {
@@ -210,7 +219,7 @@ local vol_container = wibox.widget {
             widget = wibox.container.margin
         },
         bg = beautiful.bg_minimize .. config.bg_opacity,
-        shape = gears.shape.partially_rounded_rect(cr, w, h, false, true, true, false, config.corner_radius),
+        shape = partially_rounded_rect_right,
         widget = wibox.container.background
     },
     layout = wibox.layout.fixed.horizontal

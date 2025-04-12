@@ -1,29 +1,22 @@
--- Enhanced taglist with application icons
--- Add this to your wibar.lua or create a new module
+-- Enhanced taglist with multiple app icons
+-- Replace your current widgets.create_taglist function with this
 
-local awful = require("awful")
-local wibox = require("wibox")
-local beautiful = require("beautiful")
-local gears = require("gears")
-
--- Function to create the enhanced taglist
-local function create_enhanced_taglist(s)
-    -- Create a taglist widget
-    local taglist = awful.widget.taglist {
+function widgets.create_taglist(s)
+    return awful.widget.taglist {
         screen = s,
         filter = function(t) 
             -- Only show occupied tags and the active tag
             return #t:clients() > 0 or t.selected 
         end,
-        buttons = gears.table.join(
+        buttons = awful.button.join(
             awful.button({ }, 1, function(t) t:view_only() end),
-            awful.button({ modkey }, 1, function(t)
+            awful.button({ variables.modkey }, 1, function(t)
                 if client.focus then
                     client.focus:move_to_tag(t)
                 end
             end),
             awful.button({ }, 3, awful.tag.viewtoggle),
-            awful.button({ modkey }, 3, function(t)
+            awful.button({ variables.modkey }, 3, function(t)
                 if client.focus then
                     client.focus:toggle_tag(t)
                 end
@@ -34,69 +27,63 @@ local function create_enhanced_taglist(s)
         widget_template = {
             {
                 {
+                    -- Standard tag text
                     {
                         id = 'text_role',
                         widget = wibox.widget.textbox,
                     },
-                    layout = wibox.layout.fixed.horizontal,
+                    left = 7,
+                    right = 7,
+                    widget = wibox.container.margin
                 },
+                -- Container for app icons
                 {
                     id = 'app_icons',
                     layout = wibox.layout.fixed.horizontal,
                     spacing = 2,
                 },
-                layout = wibox.layout.fixed.vertical,
+                spacing = 4,
+                layout = wibox.layout.fixed.horizontal,
             },
             id = 'background_role',
             widget = wibox.container.background,
             
             -- Add app icons to the tag
             create_callback = function(self, tag, index, tags)
-                -- Update the tag text (usually the tag name/number)
-                local text_widget = self:get_children_by_id('text_role')[1]
-                text_widget:set_text(tag.name)
-                
                 -- This function updates the application icons
                 local update_app_icons = function()
-                    local app_icons = self:get_children_by_id('app_icons')[1]
-                    app_icons:reset()
+                    local icon_container = self:get_children_by_id('app_icons')[1]
+                    icon_container:reset()
                     
                     -- Get clients in the tag
                     local clients = tag:clients()
+                    local icon_size = 16  -- Icon size (adjust as needed)
                     
-                    -- Icon size limit (adjust as needed)
-                    local icon_size = 16
-                    local max_icons = 5  -- Show at most 5 icons per tag
-                    
-                    -- Add an icon for each client (up to max_icons)
-                    for i, c in ipairs(clients) do
-                        if i <= max_icons then
-                            local icon = wibox.widget.imagebox()
-                            icon.forced_width = icon_size
-                            icon.forced_height = icon_size
-                            
-                            -- Try to get client icon or use default
-                            local client_icon = c.icon or beautiful.awesome_icon
-                            if client_icon then
-                                icon:set_image(gears.surface(client_icon))
-                            end
-                            
-                            -- Add tooltip to show client name on hover
-                            local tooltip = awful.tooltip({ 
-                                objects = { icon },
-                                delay_show = 1,
-                            })
-                            tooltip:set_text(c.name or "Unknown")
-                            
-                            app_icons:add(icon)
+                    -- Add an icon for each client
+                    for _, c in ipairs(clients) do
+                        local icon = wibox.widget.imagebox()
+                        icon.forced_width = icon_size
+                        icon.forced_height = icon_size
+                        
+                        -- Try to get client icon or use default
+                        local client_icon = c.icon
+                        if client_icon then
+                            icon:set_image(gears.surface(client_icon))
+                        else
+                            -- Use a default icon if client icon is not available
+                            -- Commenting out default icon to avoid empty space
+                            -- icon:set_image(beautiful.awesome_icon)
+                            icon.forced_width = 0
                         end
-                    end
-                    
-                    -- If we have more clients than max_icons, add an ellipsis
-                    if #clients > max_icons then
-                        local more = wibox.widget.textbox("+" .. (#clients - max_icons))
-                        more.font = beautiful.font
-                        app_icons:add(more)
+                        
+                        -- Add tooltip to show client name on hover
+                        local tooltip = awful.tooltip({ 
+                            objects = { icon },
+                            delay_show = 1,
+                        })
+                        tooltip:set_text(c.name or "Unknown")
+                        
+                        icon_container:add(icon)
                     end
                 end
                 
@@ -111,16 +98,6 @@ local function create_enhanced_taglist(s)
             end,
             
             update_callback = function(self, tag, index, tags)
-                -- Update the background based on tag state
-                local bg_widget = self:get_children_by_id('background_role')[1]
-                if tag.selected then
-                    bg_widget.bg = beautiful.taglist_bg_focus or "#5294e2"
-                elseif #tag:clients() > 0 then
-                    bg_widget.bg = beautiful.taglist_bg_occupied or "#3e4451"
-                else
-                    bg_widget.bg = beautiful.taglist_bg_empty or "#2f343f"
-                end
-                
                 -- Update application icons
                 if self.update_app_icons then
                     self.update_app_icons()
@@ -129,41 +106,11 @@ local function create_enhanced_taglist(s)
             
             -- Clean up signals when widget is removed
             remove_callback = function(self, tag, index, tags)
-                tag:disconnect_signal("property::clients", self.update_app_icons)
-                self.update_app_icons = nil
+                if self.update_app_icons then
+                    tag:disconnect_signal("property::clients", self.update_app_icons)
+                    self.update_app_icons = nil
+                end
             end,
         },
     }
-    
-    return taglist
 end
-
--- Example usage in your wibar setup
-local function setup_enhanced_taglist(s)
-    -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s })
-    
-    -- Add widgets to the wibox
-    s.mywibox:setup {
-        layout = wibox.layout.align.horizontal,
-        { -- Left widgets
-            layout = wibox.layout.fixed.horizontal,
-            mylauncher,
-            create_enhanced_taglist(s),
-            s.mypromptbox,
-        },
-        s.mytasklist, -- Middle widget
-        { -- Right widgets
-            layout = wibox.layout.fixed.horizontal,
-            mykeyboardlayout,
-            wibox.widget.systray(),
-            mytextclock,
-            s.mylayoutbox,
-        },
-    }
-end
-
-return {
-    create_enhanced_taglist = create_enhanced_taglist,
-    setup_enhanced_taglist = setup_enhanced_taglist
-}

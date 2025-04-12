@@ -47,32 +47,148 @@ local function tasklist_buttons()
     )
 end
 
--- Setup for newly connected screens (WITHOUT tag creation)
+-- Create a separator widget like in Polybar
+local function create_separator()
+    return wibox.widget {
+        markup = '<span foreground="' .. beautiful.fg_minimize .. '">|</span>',
+        align = "center",
+        valign = "center",
+        widget = wibox.widget.textbox
+    }
+end
+
+-- Setup for newly connected screens
 local function setup_new_screen(s)
-    -- Create a taglist widget
+    -- Create styled taglist widget (center module in Polybar)
     s.mytaglist = awful.widget.taglist {
         screen = s,
         filter = awful.widget.taglist.filter.all,
         buttons = taglist_buttons(),
         layout = {
-            spacing = 8,  -- Added spacing between tags
+            spacing = 8,
             layout = wibox.layout.fixed.horizontal
-        }
+        },
+        widget_template = {
+            {
+                {
+                    id = 'text_role',
+                    widget = wibox.widget.textbox,
+                },
+                margins = 4,
+                widget = wibox.container.margin,
+            },
+            id = 'background_role',
+            widget = wibox.container.background,
+            -- Add underline for active workspace
+            create_callback = function(self, tag, index, _)
+                if tag.selected then
+                    self.bg = beautiful.bg_focus
+                    self:get_children_by_id('text_role')[1].markup = 
+                        '<span foreground="' .. beautiful.fg_focus .. '">' .. tag.name .. '</span>'
+                    self.shape = function(cr, w, h)
+                        gears.shape.rounded_rect(cr, w, h, 4)
+                    end
+                end
+            end,
+            update_callback = function(self, tag, index, _)
+                if tag.selected then
+                    self.bg = beautiful.bg_focus
+                    self:get_children_by_id('text_role')[1].markup = 
+                        '<span foreground="' .. beautiful.fg_focus .. '">' .. tag.name .. '</span>'
+                    self.shape = function(cr, w, h)
+                        gears.shape.rounded_rect(cr, w, h, 4)
+                    end
+                else
+                    self.bg = nil
+                    if #tag:clients() > 0 then
+                        self:get_children_by_id('text_role')[1].markup = 
+                            '<span foreground="' .. beautiful.fg_normal .. '">' .. tag.name .. '</span>'
+                    else
+                        self:get_children_by_id('text_role')[1].markup = 
+                            '<span foreground="' .. beautiful.fg_minimize .. '">' .. tag.name .. '</span>'
+                    end
+                    self.shape = nil
+                end
+            end
+        },
     }
     
-    -- Create a tasklist widget
+    -- Create a simple tasklist widget
     s.mytasklist = awful.widget.tasklist {
         screen = s,
         filter = awful.widget.tasklist.filter.currenttags,
-        buttons = tasklist_buttons()
+        buttons = tasklist_buttons(),
+        widget_template = {
+            {
+                {
+                    {
+                        {
+                            id = 'icon_role',
+                            widget = wibox.widget.imagebox,
+                        },
+                        margins = 2,
+                        widget = wibox.container.margin,
+                    },
+                    {
+                        id = 'text_role',
+                        widget = wibox.widget.textbox,
+                    },
+                    layout = wibox.layout.fixed.horizontal,
+                },
+                margins = 2,
+                widget = wibox.container.margin
+            },
+            id = 'background_role',
+            widget = wibox.container.background,
+        },
     }
     
-    -- Create the wibox with explicit settings
+    -- Create system tray
+    local systray = wibox.widget.systray()
+    systray.base_size = 16
+    
+    -- Create clock widget with Polybar styling
+    local clock_widget = wibox.widget {
+        {
+            markup = '<span foreground="' .. beautiful.bg_focus .. '">   </span>',
+            widget = wibox.widget.textbox,
+        },
+        {
+            format = '%H:%M',
+            widget = wibox.widget.textclock,
+            fg = beautiful.bg_focus
+        },
+        layout = wibox.layout.fixed.horizontal
+    }
+    
+    -- Create a custom arch icon widget (like in polybar)
+    local arch_widget = wibox.widget {
+        markup = '<span foreground="' .. beautiful.bg_focus .. '">󰣇</span>',
+        align = 'center',
+        valign = 'center',
+        widget = wibox.widget.textbox
+    }
+    arch_widget:buttons(gears.table.join(
+        awful.button({}, 1, function() 
+            awful.util.spawn("rofi -show drun")
+        end)
+    ))
+    
+    -- Create the wibar with polybar-like styling
     s.mywibox = awful.wibar({ 
         position = "top", 
         screen = s,
-        height = 24,
-        bg = beautiful.bg_normal
+        height = 32,
+        bg = beautiful.bg_normal,
+        fg = beautiful.fg_normal,
+        border_width = 2,
+        border_color = beautiful.border_normal,
+        shape = function(cr, width, height)
+            gears.shape.rounded_rect(cr, width, height, 8)
+        },
+        width = "99%",
+        x = 10,
+        y = 10
     })
     
     -- Add widgets to the wibox
@@ -80,21 +196,30 @@ local function setup_new_screen(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            menu.launcher,
+            arch_widget,
+            create_separator(),
+            clock_widget,
+            create_separator(),
+            s.mytasklist,
+        },
+        { -- Center widget
+            layout = wibox.layout.fixed.horizontal,
             s.mytaglist,
         },
-        s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             widgets.cpu_widget,
+            create_separator(),
             widgets.mem_widget,
+            create_separator(),
             widgets.date_widget,
             widgets.time_widget,
-            widgets.systray,
+            create_separator(),
+            systray,
         },
     }
     
-    print("Wibar set up on screen " .. s.index)
+    print("Polybar-style wibar set up on screen " .. s.index)
 end
 
 -- Initialize function

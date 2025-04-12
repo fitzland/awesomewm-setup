@@ -83,13 +83,13 @@ local clock_text = wibox.widget {
     {
         markup = '<span foreground="' .. beautiful.gh_caret .. '"> </span>',
         font = config.font,
-        widget = wibox.widget.textbox,
+        widget = wibox.widget.textbox
     },
     {
         format = "%I:%M %a %d",
         font = config.font,
         fg = beautiful.gh_bg,
-        widget = wibox.widget.textclock,
+        widget = wibox.widget.textclock
     },
     layout = wibox.layout.fixed.horizontal
 }
@@ -195,35 +195,6 @@ end
 widgets.mem_widget = create_widget_container(mem_text)
 
 -- =====================================================
--- Temperature widget
--- =====================================================
-local temp_text = wibox.widget {
-    font = config.font,
-    widget = wibox.widget.textbox
-}
-
-local function update_temperature()
-    awful.spawn.easy_async_with_shell(
-        "cat /sys/class/hwmon/hwmon*/temp*_input 2>/dev/null | head -n 1 || echo 0",
-        function(stdout)
-            local temp = tonumber(stdout:match("(%d+)")) or 0
-            temp = math.floor(temp / 1000)  -- Convert from millidegrees to degrees
-            
-            local color = beautiful.gh_magenta
-            if temp >= 80 then
-                color = beautiful.gh_red  -- Red for critical temperature
-            end
-            
-            -- Update widget text with colorized output
-            temp_text.markup = '<span foreground="' .. color .. '"> </span>' ..
-                               '<span foreground="' .. beautiful.fg_normal .. '">' .. temp .. '°C</span>'
-        end
-    )
-end
-
-widgets.temp_widget = create_widget_container(temp_text)
-
--- =====================================================
 -- Volume widget
 -- =====================================================
 local vol_text = wibox.widget {
@@ -300,104 +271,6 @@ widgets.volume_widget:buttons(gears.table.join(
 ))
 
 -- =====================================================
--- Microphone widget
--- =====================================================
-local mic_text = wibox.widget {
-    font = config.font,
-    widget = wibox.widget.textbox
-}
-
-local function update_microphone()
-    awful.spawn.easy_async_with_shell(
-        "pamixer --default-source --get-volume-human 2>/dev/null || amixer get Capture | grep -o '[0-9]\\+%\\|\\[on\\]\\|\\[off\\]' | tr '\\n' ' ' | awk '{print $1, $2}'",
-        function(stdout)
-            local volume = stdout:gsub("%%", ""):gsub("\n", "")
-            local level = tonumber(volume:match("%d+")) or 0
-            
-            local icon = ""  -- Default mic icon
-            local color = beautiful.gh_magenta
-            
-            if volume:find("off") or volume:find("muted") then
-                icon = ""   -- Muted mic icon
-                color = beautiful.gh_comment
-            end
-            
-            -- Update widget text with colorized output
-            mic_text.markup = '<span foreground="' .. color .. '">' .. icon .. '</span>'
-        end
-    )
-end
-
-widgets.mic_widget = create_widget_container(mic_text)
-
--- Add microphone toggle control
-widgets.mic_widget:buttons(gears.table.join(
-    awful.button({ }, 1, function() awful.spawn.with_shell("pamixer --default-source -t || amixer -q set Capture toggle") end)
-))
-
--- =====================================================
--- Battery widget
--- =====================================================
-local battery_text = wibox.widget {
-    font = config.font,
-    widget = wibox.widget.textbox
-}
-
-local function update_battery()
-    awful.spawn.easy_async_with_shell(
-        "acpi -b 2>/dev/null || echo 'Battery 0: Not present'",
-        function(stdout)
-            -- Default values if battery not found
-            local percentage = 0
-            local status = "Unknown"
-            
-            -- Try to parse battery info
-            local battery_info = stdout:match("Battery %d+: ([%a%s]+), (%d+)%%")
-            if battery_info then
-                status, percentage = stdout:match("Battery %d+: ([%a%s]+), (%d+)%%")
-                percentage = tonumber(percentage) or 0
-            end
-            
-            local icon = ""
-            local color = beautiful.gh_yellow
-            
-            if status:find("Charging") then
-                icon = "󰂄"
-                color = beautiful.gh_green
-            elseif percentage <= 10 then
-                icon = "󰁺"
-                color = beautiful.gh_red
-            elseif percentage <= 20 then
-                icon = "󰁻"
-                color = beautiful.gh_red
-            elseif percentage <= 30 then
-                icon = "󰁼"
-            elseif percentage <= 40 then
-                icon = "󰁽"
-            elseif percentage <= 50 then
-                icon = "󰁾"
-            elseif percentage <= 60 then
-                icon = "󰁿"
-            elseif percentage <= 70 then
-                icon = "󰂀"
-            elseif percentage <= 80 then
-                icon = "󰂁"
-            elseif percentage <= 90 then
-                icon = "󰂂"
-            else
-                icon = "󰁹"
-            end
-            
-            -- Update widget text with colorized output
-            battery_text.markup = '<span foreground="' .. color .. '">' .. icon .. ' </span>' ..
-                                  '<span foreground="' .. beautiful.fg_normal .. '">' .. percentage .. '%</span>'
-        end
-    )
-end
-
-widgets.battery_widget = create_widget_container(battery_text)
-
--- =====================================================
 -- Bluetooth widget
 -- =====================================================
 local bluetooth_text = wibox.widget {
@@ -448,7 +321,7 @@ local window_title_text = wibox.widget {
     ellipsize = "end",
     align = "center",
     valign = "center",
-    widget = wibox.widget.textbox,
+    widget = wibox.widget.textbox
 }
 
 local window_title = wibox.widget {
@@ -541,9 +414,9 @@ function widgets.create_taglist(s)
                     {
                         id = 'text_role',
                         font = config.font,
-                        widget = wibox.widget.textbox,
+                        widget = wibox.widget.textbox
                     },
-                    layout = wibox.layout.fixed.horizontal,
+                    layout = wibox.layout.fixed.horizontal
                 },
                 left = 8,
                 right = 8,
@@ -553,11 +426,10 @@ function widgets.create_taglist(s)
             },
             id = 'background_role',
             shape = rounded_shape,
-            widget = wibox.container.background,
-        },
+            widget = wibox.container.background
+        }
     }
 end
-}
 
 -- =====================================================
 -- Initialize all widgets
@@ -579,31 +451,10 @@ function widgets.init()
     }
     
     gears.timer {
-        timeout = config.update_interval.temp,
-        call_now = true,
-        autostart = true,
-        callback = update_temperature
-    }
-    
-    gears.timer {
         timeout = config.update_interval.vol,
         call_now = true,
         autostart = true,
         callback = update_volume
-    }
-    
-    gears.timer {
-        timeout = config.update_interval.vol,
-        call_now = true,
-        autostart = true,
-        callback = update_microphone
-    }
-    
-    gears.timer {
-        timeout = config.update_interval.battery,
-        call_now = true,
-        autostart = true,
-        callback = update_battery
     }
     
     gears.timer {
@@ -619,9 +470,8 @@ function widgets.init()
     -- Only register with vicious if it loaded successfully
     if vicious and not vicious_error then
         pcall(function()
-            -- You can still use vicious for some widgets if preferred
-            -- vicious.register(widgets.cpu_widget, vicious.widgets.cpu, " CPU: $1% ", 2)
-            -- vicious.register(widgets.mem_widget, vicious.widgets.mem, " RAM: $1% ", 15)
+            vicious.register(widgets.cpu_widget, vicious.widgets.cpu, " CPU: $1% ", 2)
+            vicious.register(widgets.mem_widget, vicious.widgets.mem, " RAM: $1% ", 15)
         end)
     end
 end

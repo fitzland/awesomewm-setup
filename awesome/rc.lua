@@ -1,6 +1,22 @@
 -- rc.lua
 -- AwesomeWM modular configuration
 
+-- Create a dummy naughty module that logs errors instead of showing notifications
+local dummy_naughty = {}
+dummy_naughty.notify = function(args) 
+  io.stderr:write("Error: " .. (args.title or "") .. " - " .. (args.text or "unknown error") .. "\n")
+end
+dummy_naughty.config = {presets = {critical = {}}}
+
+-- Replace naughty with our dummy implementation
+package.loaded["naughty"] = dummy_naughty
+package.loaded["naughty.dbus"] = {}
+
+-- Now continue with the rest of rc.lua
+-- AwesomeWM modular configuration
+-- Error handling should be loaded first
+local error_handling = require("modules.error_handling")
+
 -- Error handling should be loaded first
 local error_handling = require("modules.error_handling")
 error_handling.init()
@@ -42,7 +58,7 @@ local mousebindings = require("modules.mousebindings")
 mousebindings.init()
 
 -- local notifications = require("modules.notifications")
--- firstnotifications.init()
+-- notifications.init()
 
 -- User applications and startup
 local autostart = require("modules.autostart")

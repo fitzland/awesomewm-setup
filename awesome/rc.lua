@@ -1,5 +1,6 @@
 -- rc.lua
 -- AwesomeWM modular configuration
+os.execute("killall -q notification-daemon 2>/dev/null")
 
 -- Error handling should be loaded first
 local error_handling = require("modules.error_handling")

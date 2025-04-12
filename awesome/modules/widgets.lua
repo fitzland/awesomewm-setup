@@ -230,11 +230,12 @@ local vol_text = wibox.widget {
     widget = wibox.widget.textbox
 }
 
+-- Make the volume bar more compact
 local vol_bar = wibox.widget {
     max_value = 100,
     value = 0,
     forced_height = 2,
-    forced_width = 50,
+    forced_width = 35,  -- Reduced from 50 to 35
     color = beautiful.gh_blue,
     background_color = beautiful.bg_minimize .. "80",
     shape = gears.shape.rounded_bar,
@@ -270,7 +271,7 @@ local function update_volume()
     )
 end
 
--- Create the volume widget with vol_text and progress bar
+-- Create a more compact volume widget
 local vol_widget_content = wibox.widget {
     {
         vol_text,
@@ -284,7 +285,8 @@ local vol_widget_content = wibox.widget {
         bottom = 12,
         widget = wibox.container.margin
     },
-    layout = wibox.layout.fixed.horizontal
+    layout = wibox.layout.fixed.horizontal,
+    spacing = 2  -- Reduce spacing between text and bar
 }
 
 widgets.volume_widget = create_widget_container(vol_widget_content)
@@ -294,6 +296,42 @@ widgets.volume_widget:buttons(gears.table.join(
     awful.button({ }, 4, function() awful.spawn.with_shell("pamixer -i 5 || amixer -q set Master 5%+") end),
     awful.button({ }, 5, function() awful.spawn.with_shell("pamixer -d 5 || amixer -q set Master 5%-") end),
     awful.button({ }, 3, function() awful.spawn.with_shell("pamixer -t || amixer -q set Master toggle") end)
+))
+
+-- =====================================================
+-- Microphone widget
+-- =====================================================
+local mic_text = wibox.widget {
+    font = config.font,
+    widget = wibox.widget.textbox
+}
+
+local function update_microphone()
+    awful.spawn.easy_async_with_shell(
+        "pamixer --default-source --get-volume-human 2>/dev/null || amixer get Capture | grep -o '[0-9]\\+%\\|\\[on\\]\\|\\[off\\]' | tr '\\n' ' ' | awk '{print $1, $2}'",
+        function(stdout)
+            local volume = stdout:gsub("%%", ""):gsub("\n", "")
+            local level = tonumber(volume:match("%d+")) or 0
+            
+            local icon = ""  -- Default mic icon
+            local color = beautiful.gh_magenta
+            
+            if volume:find("off") or volume:find("muted") then
+                icon = ""   -- Muted mic icon
+                color = beautiful.gh_comment
+            end
+            
+            -- Update widget text with colorized output
+            mic_text.markup = '<span foreground="' .. color .. '">' .. icon .. '</span>'
+        end
+    )
+end
+
+widgets.mic_widget = create_widget_container(mic_text)
+
+-- Add microphone toggle control
+widgets.mic_widget:buttons(gears.table.join(
+    awful.button({ }, 1, function() awful.spawn.with_shell("pamixer --default-source -t || amixer -q set Capture toggle") end)
 ))
 
 -- =====================================================
@@ -540,6 +578,9 @@ end
 -- Initialize all widgets
 -- =====================================================
 function widgets.init()
+    -- Configure system tray icon size to match other widgets
+    wibox.widget.systray.set_base_size(18)  -- Adjust this value to match your icons
+    
     -- Start timers for widget updates
     gears.timer {
         timeout = config.update_interval.cpu,
@@ -567,6 +608,13 @@ function widgets.init()
         call_now = true,
         autostart = true,
         callback = update_volume
+    }
+    
+    gears.timer {
+        timeout = config.update_interval.vol,
+        call_now = true,
+        autostart = true,
+        callback = update_microphone
     }
     
     gears.timer {

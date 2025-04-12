@@ -5,9 +5,6 @@
 -- AwesomeWM modular configuration
 -- Error handling should be loaded first
 local error_handling = require("modules.error_handling")
-
--- Error handling should be loaded first
-local error_handling = require("modules.error_handling")
 error_handling.init()
 
 -- Core libraries and variables

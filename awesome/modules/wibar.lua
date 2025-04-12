@@ -70,9 +70,9 @@ local function setup_wibar(s)
             },
             widgets.cpu_widget,
             widgets.mem_widget,
+            widgets.clock_widget,
             widgets.volume_widget,
             widgets.bluetooth_widget,
-            widgets.clock_widget,
         },
     }
 end

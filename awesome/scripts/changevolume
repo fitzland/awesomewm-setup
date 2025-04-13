@@ -3,7 +3,7 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create a visual volume bar with thin character
+    # Create a visual volume bar with full block character
     bar_length=10
     filled_length=$(( $volume * $bar_length / 100 ))
     
@@ -14,11 +14,11 @@ function send_notification() {
     local bar_length = 10
     local filled_length = math.floor(volume * bar_length / 100)
     
-    -- Create the bar string with thin blocks (─)
+    -- Create the bar string with full blocks (█)
     local bar = '['
     for i = 1, bar_length do
         if i <= filled_length then
-            bar = bar .. '─'  -- Thin dash character
+            bar = bar .. '█'  -- Full block character
         else
             bar = bar .. ' '
         end
@@ -38,9 +38,8 @@ function send_notification() {
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,
         timeout = 2,
-        id = volume_notification_id,
-        bg = '#0d1117',
-        fg = '#3fb950'  -- GitHub green color
+        id = volume_notification_id
+        -- Using default foreground color by not specifying fg
     })
     
     -- Update the global ID for next time
@@ -82,8 +81,8 @@ mute)
             preset = naughty.config.presets.low,
             replaces_id = volume_notification_id,
             timeout = 2,
-            id = volume_notification_id,
-            fg = '#3fb950'  -- GitHub green color
+            id = volume_notification_id
+            -- Using default foreground color by not specifying fg
         })
         
         -- Update the global ID for next time

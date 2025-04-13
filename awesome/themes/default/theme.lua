@@ -62,25 +62,24 @@ theme.border_marked = theme.gh_magenta   -- Border color for marked windows
 --------------------------------------------------------------------------------
 -- Taglist Squares (small icons for workspaces)
 --------------------------------------------------------------------------------
--- No squares/indicators for tags
 theme.taglist_squares_sel = nil
 theme.taglist_squares_unsel = nil
 
--- Set taglist colors
-theme.taglist_fg_focus = theme.gh_fg       -- Active tag text color
-theme.taglist_bg_focus = "transparent"     -- Active tag background (transparent)
+-- Set taglist colors with enhanced contrast
+theme.taglist_fg_focus = theme.gh_highlight       -- Active tag text color (using highlight color for more contrast)
+theme.taglist_bg_focus = "transparent"            -- Active tag background (transparent)
 
-theme.taglist_fg_occupied = theme.gh_fg    -- Occupied tag text color
-theme.taglist_bg_occupied = "transparent"  -- Occupied tag background (transparent)
+theme.taglist_fg_occupied = theme.gh_fg           -- Occupied tag text color
+theme.taglist_bg_occupied = "transparent"         -- Occupied tag background (transparent)
 
-theme.taglist_fg_empty = theme.gh_comment  -- Empty tag text color
-theme.taglist_bg_empty = "transparent"     -- Empty tag background (transparent)
+theme.taglist_fg_empty = theme.gh_comment .. "80" -- Empty tag text color with 50% opacity for even lower visibility
+theme.taglist_bg_empty = "transparent"            -- Empty tag background (transparent)
 
 theme.taglist_fg_urgent = theme.gh_red     -- Urgent tag text color
 theme.taglist_bg_urgent = "transparent"    -- Urgent tag background (transparent)
 
--- Adjust spacing between tags
-theme.taglist_spacing = dpi(2)             -- Space between tags
+-- Keep the original spacing between tags
+theme.taglist_spacing = dpi(6)             -- Space between tags
 
 --------------------------------------------------------------------------------
 -- Menu Settings

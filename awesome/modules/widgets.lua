@@ -401,20 +401,39 @@ function widgets.create_taglist(s)
             awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
             awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
         ),
+        layout = {
+            spacing = 8,  -- Keep original wider spacing between tags
+            layout = wibox.layout.fixed.horizontal
+        },
         widget_template = {
             {
                 {
                     id = 'text_role',
+                    font = beautiful.font,
                     widget = wibox.widget.textbox,
                 },
-                margins = 4,
+                left = 8,    -- Add horizontal padding
+                right = 8,   -- Add horizontal padding
+                top = 4,     -- Add vertical padding
+                bottom = 4,  -- Add vertical padding
                 widget = wibox.container.margin
             },
             id = 'background_role',
             widget = wibox.container.background,
             -- Adding a create_callback to customize the appearance even further
             create_callback = function(self, t, index, tags)
-                -- You can add extra customization here if needed
+                -- You can add a bold font for the active tag
+                if t.selected then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                end
+            end,
+            update_callback = function(self, t, index, tags)
+                -- Update the font weight when tag state changes
+                if t.selected then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                else
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
+                end
             end,
         }
     }

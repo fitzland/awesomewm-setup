@@ -66,7 +66,7 @@ theme.taglist_squares_sel = nil
 theme.taglist_squares_unsel = nil
 
 -- Set taglist colors with enhanced contrast
-theme.taglist_fg_focus = theme.gh_highlight       -- Active tag text color (using highlight color for more contrast)
+theme.taglist_fg_focus = theme.gh_caret      -- Active tag text color (using highlight color for more contrast)
 theme.taglist_bg_focus = "transparent"            -- Active tag background (transparent)
 
 theme.taglist_fg_occupied = theme.gh_fg           -- Occupied tag text color

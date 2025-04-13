@@ -23,7 +23,7 @@ function notifications.init()
     naughty.config.defaults.bg = gh_bg
     naughty.config.defaults.fg = gh_fg
     naughty.config.defaults.border_width = 2  -- Thicker border
-    naughty.config.defaults.border_color = gh_blue
+    naughty.config.defaults.border_color = gh_green
     naughty.config.defaults.width = 500
     naughty.config.defaults.font = "JetBrainsMono Nerd Font 11"
     naughty.config.defaults.margin = 10

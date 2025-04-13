@@ -23,18 +23,39 @@ local rules = {
             keys = clientkeys,
             buttons = clientbuttons,
             screen = awful.screen.preferred,
-            placement = awful.placement.no_overlap + awful.placement.no_offscreen
+            placement = awful.placement.centered + awful.placement.no_overlap + awful.placement.no_offscreen,
+            size_hints_honor = false,
+            width = 1600,
+            height = 900
         }
     },
     -- Floating clients
     {
         rule_any = {
-            instance = { "DTA", "copyq", "pinentry" },
-            class = { "qimgv", "mpv", "st", "pulsemixer", "Galculator", "Lxappearance", "Pavucontrol", "Tilix" },
-            name = { "Event Tester" },
-            role = { "AlarmWindow", "ConfigManager", "pop-up" }
+            class = {
+                "qimgv",
+                "mpv",
+                "Xarchiver",
+                "Tilix",
+                "Galculator",
+                "Lxappearance",
+                "Pavucontrol"
+            }
         },
-        properties = { floating = true }
+        properties = { 
+            floating = true,
+            placement = awful.placement.centered
+        }
+    },
+    -- Galculator specific size
+    {
+        rule = { class = "Galculator" },
+        properties = { 
+            floating = true,
+            width = 900,
+            height = 600,
+            placement = awful.placement.centered
+        }
     },
     -- Disable titlebars by default for normal clients and dialogs
     {
@@ -43,12 +64,20 @@ local rules = {
     },
     -- Assign applications to specific tags
     {
+        rule = { class = "GitHub Desktop" },
+        properties = { screen = 1, tag = "2", switchtotag = true }
+    },
+    {
         rule = { class = "Gimp" },
-        properties = { screen = 1, tag = "7" }
+        properties = { screen = 1, tag = "9", switchtotag = true }
+    },
+    {
+        rule = { class = "obs" },
+        properties = { screen = 1, tag = "10", switchtotag = true }
     },
     {
         rule = { class = "discord" },
-        properties = { screen = 1, tag = "8" }
+        properties = { screen = 1, tag = "8", switchtotag = true }
     },
 }
 

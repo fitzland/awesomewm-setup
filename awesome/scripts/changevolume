@@ -3,22 +3,22 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create a visual volume bar with full blocks
-    bar_length=20  # Using fewer blocks since they're wider
+    # Create a visual volume bar with full block character
+    bar_length=10
     filled_length=$(( $volume * $bar_length / 100 ))
     
     # Create the Lua code that will generate a colored slider directly in Lua
     lua_command="
     local naughty = require('naughty')
     local volume = ${volume}
-    local bar_length = 20
+    local bar_length = 10
     local filled_length = math.floor(volume * bar_length / 100)
     
-    -- Create the bar string with full blocks
+    -- Create the bar string with full blocks (█)
     local bar = '['
     for i = 1, bar_length do
         if i <= filled_length then
-            bar = bar .. '█'
+            bar = bar .. '█'  -- Full block character
         else
             bar = bar .. ' '
         end
@@ -30,17 +30,16 @@ function send_notification() {
         volume_notification_id = 9993
     end
     
-    -- Create or update notification with colored text
+    -- Put everything in the title to ensure it's on one line
     local notification = naughty.notify({
-        title = 'Volume: ' .. volume .. '%',
-        text = bar,
+        title = 'Volume: ' .. volume .. '%    ' .. bar,  -- Extra spaces between
+        text = '',  -- No text, everything in title
         icon = 'volume-$1',
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,
         timeout = 2,
         id = volume_notification_id,
-        bg = '#0d1117',
-        fg = '#3fb950'  -- Use GitHub green color
+        fg = '#e6edf3'  -- Lighter color in the same family as #d0d7de
     })
     
     -- Update the global ID for next time
@@ -54,12 +53,12 @@ case $1 in
 up)
     # Set the volume on (if it was muted)
     pamixer -u
-    pamixer -i 5 --allow-boost
+    pamixer -i 5 --allow-boost  # Increase by 5% instead of 2%
     send_notification up
     ;;
 down)
     pamixer -u
-    pamixer -d 5 --allow-boost
+    pamixer -d 5 --allow-boost  # Decrease by 5% instead of 2%
     send_notification down
     ;;
 mute)
@@ -76,13 +75,14 @@ mute)
         
         -- Create or update notification
         local notification = naughty.notify({
-            title = 'Volume',
-            text = 'Muted',
+            title = 'Volume: Muted',
+            text = '',
             icon = 'volume-mute',
             preset = naughty.config.presets.low,
             replaces_id = volume_notification_id,
             timeout = 2,
-            id = volume_notification_id
+            id = volume_notification_id,
+            fg = '#e6edf3'  -- Lighter color in the same family as #d0d7de
         })
         
         -- Update the global ID for next time

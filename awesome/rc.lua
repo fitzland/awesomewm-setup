@@ -3,8 +3,8 @@
 -- Release naughty's hold on notifications D-Bus interface
 
 -- Error handling should be loaded first
--- local error_handling = require("modules.error_handling")
--- error_handling.init()
+local error_handling = require("modules.error_handling")
+error_handling.init()
 
 -- Core libraries and variables
 require("modules.libraries")
@@ -42,8 +42,8 @@ keybindings.init()
 local mousebindings = require("modules.mousebindings")
 mousebindings.init()
 
--- local notifications = require("modules.notifications")
--- notifications.init()
+local notifications = require("modules.notifications")
+notifications.init()
 
 -- User applications and startup
 local autostart = require("modules.autostart")

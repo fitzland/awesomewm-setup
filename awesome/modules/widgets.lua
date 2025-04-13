@@ -439,6 +439,279 @@ function widgets.create_taglist(s)
     }
 end
 
+-- Add this to your widgets.lua file
+
+-- =====================================================
+-- Taglist with Application Icons
+-- =====================================================
+function widgets.create_taglist_with_icons(s)
+    local update_margin_widgets = {}
+    
+    -- Function to create an icon for a client
+    local function create_client_icon(c, t, instance_number)
+        -- Create icon surface
+        local icon = gears.surface(c.icon)
+        
+        -- Create the base icon widget
+        local icon_widget = wibox.widget {
+            {
+                {
+                    image = icon,
+                    resize = true,
+                    forced_width = 16,
+                    forced_height = 16,
+                    widget = wibox.widget.imagebox,
+                },
+                -- If there's an instance number, add a small indicator
+                instance_number > 1 and {
+                    {
+                        text = tostring(instance_number),
+                        font = beautiful.font:gsub("%d+$", "7"), -- Smaller font
+                        align = "center",
+                        valign = "center",
+                        widget = wibox.widget.textbox
+                    },
+                    bg = beautiful.gh_blue,
+                    fg = beautiful.gh_bg,
+                    shape = gears.shape.circle,
+                    forced_width = 8,
+                    forced_height = 8,
+                    widget = wibox.container.background
+                } or nil,
+                layout = wibox.layout.stack
+            },
+            left = 2,
+            right = 2,
+            widget = wibox.container.margin
+        }
+        
+        -- Create tooltip with window title
+        local tooltip = awful.tooltip({
+            objects = { icon_widget },
+            timer_function = function()
+                if c.valid then
+                    return c.name
+                else
+                    return "Unknown"
+                end
+            end,
+            delay_show = 0.5
+        })
+        
+        -- Update icon appearance based on client state
+        local function update_icon()
+            if c.valid then
+                if client.focus == c then
+                    icon_widget.opacity = 1.0  -- Focused client: fully opaque
+                    -- Add subtle blue border to the focused client
+                    icon_widget.fg = beautiful.gh_blue
+                elseif c.minimized then
+                    icon_widget.opacity = 0.5  -- Minimized client: more transparent
+                    icon_widget.fg = nil
+                else
+                    icon_widget.opacity = 0.8  -- Normal client: slightly transparent
+                    icon_widget.fg = nil
+                end
+            end
+        end
+        
+        -- Connect signals for client state changes
+        c:connect_signal("focus", update_icon)
+        c:connect_signal("unfocus", update_icon)
+        c:connect_signal("property::minimized", update_icon)
+        c:connect_signal("property::name", function()
+            -- Update tooltip when window title changes
+            tooltip:timer_function()
+        end)
+        
+        -- Initial update
+        update_icon()
+        
+        -- Add click functionality
+        icon_widget:buttons(gears.table.join(
+            awful.button({}, 1, function()
+                -- Focus the tag if not already focused
+                if t.screen ~= awful.screen.focused() or not t.selected then
+                    t:view_only()
+                end
+                
+                -- Focus the client
+                if c.valid then
+                    if c.minimized then
+                        c.minimized = false
+                    end
+                    c:emit_signal("request::activate", "tasklist", {raise = true})
+                end
+            end)
+        ))
+        
+        return icon_widget
+    end
+    
+    -- Function to update client icons for a tag
+    local function update_client_icons(container, t)
+        local client_icons = wibox.layout.fixed.horizontal()
+        client_icons.spacing = 2
+        
+        -- Get all clients on this tag
+        local clients_on_tag = {}
+        for _, c in ipairs(client.get()) do
+            if c.first_tag == t and not c.skip_taskbar then
+                table.insert(clients_on_tag, c)
+            end
+        end
+        
+        -- Group clients by class to identify duplicates
+        local class_count = {}
+        for _, c in ipairs(clients_on_tag) do
+            class_count[c.class] = (class_count[c.class] or 0) + 1
+        end
+        
+        -- Track instance numbers within each class
+        local class_instances = {}
+        
+        -- Create icons for each client
+        for _, c in ipairs(clients_on_tag) do
+            -- Initialize instance counter for this class if needed
+            class_instances[c.class] = class_instances[c.class] or 0
+            -- Increment instance counter
+            class_instances[c.class] = class_instances[c.class] + 1
+            
+            -- Create icon with instance number (only pass number if > 1)
+            client_icons:add(create_client_icon(c, t, class_instances[c.class]))
+        end
+        
+        -- Update the container
+        container:set_widget(client_icons)
+    end
+    
+    -- Create the taglist
+    local taglist = awful.widget.taglist {
+        screen = s,
+        filter = awful.widget.taglist.filter.all,
+        buttons = gears.table.join(
+            awful.button({}, 1, function(t) t:view_only() end),
+            awful.button({}, 3, awful.tag.viewtoggle),
+            awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
+            awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
+        ),
+        style = {
+            shape = gears.shape.rounded_rect
+        },
+        layout = {
+            spacing = 8,  -- Spacing between tag widgets
+            layout = wibox.layout.fixed.horizontal
+        },
+        widget_template = {
+            {
+                {
+                    {
+                        id = 'text_role',
+                        widget = wibox.widget.textbox,
+                    },
+                    id = 'text_margin_role',
+                    left = 8,
+                    right = 8,
+                    top = 4,
+                    bottom = 4,
+                    widget = wibox.container.margin
+                },
+                {
+                    id = 'client_icons',
+                    layout = wibox.layout.fixed.horizontal
+                },
+                spacing = 4,  -- Space between tag number and app icons
+                layout = wibox.layout.fixed.horizontal
+            },
+            id = 'background_role',
+            widget = wibox.container.background,
+            create_callback = function(self, t, index, tags)
+                -- Store reference to the client icons container
+                local icons_container = self:get_children_by_id('client_icons')[1]
+                update_margin_widgets[t] = icons_container
+                
+                -- Initial update of client icons
+                update_client_icons(icons_container, t)
+                
+                -- Bold font for selected tag
+                if t.selected then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                end
+            end,
+            update_callback = function(self, t, index, tags)
+                -- Update client icons
+                local icons_container = self:get_children_by_id('client_icons')[1]
+                update_client_icons(icons_container, t)
+                
+                -- Update font weight based on selection
+                if t.selected then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                else
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
+                end
+            end
+        }
+    }
+    
+    -- Connect signals to update client icons when clients change
+    client.connect_signal("manage", function(c)
+        -- Update icons for the client's tag
+        if c.first_tag and update_margin_widgets[c.first_tag] then
+            update_client_icons(update_margin_widgets[c.first_tag], c.first_tag)
+        end
+    end)
+    
+    client.connect_signal("unmanage", function(c)
+        -- Update icons for all tags after a small delay 
+        -- (to ensure client list is updated)
+        gears.timer.start_new(0.1, function()
+            for t, container in pairs(update_margin_widgets) do
+                update_client_icons(container, t)
+            end
+            return false
+        end)
+    end)
+    
+    client.connect_signal("property::screen", function(c)
+        -- Update all tags when a client moves between screens
+        gears.timer.start_new(0.1, function()
+            for t, container in pairs(update_margin_widgets) do
+                update_client_icons(container, t)
+            end
+            return false
+        end)
+    end)
+    
+    tag.connect_signal("property::selected", function(t)
+        -- Update the tag when its selection state changes
+        if update_margin_widgets[t] then
+            update_client_icons(update_margin_widgets[t], t)
+        end
+    end)
+    
+    client.connect_signal("property::tag", function(c)
+        -- Update all tags when a client moves between tags
+        gears.timer.start_new(0.1, function()
+            for t, container in pairs(update_margin_widgets) do
+                update_client_icons(container, t)
+            end
+            return false
+        end)
+    end)
+    
+    -- Container for the taglist
+    local taglist_container = wibox.widget {
+        taglist,
+        left = 2,
+        right = 2,
+        top = 2,
+        bottom = 2,
+        widget = wibox.container.margin
+    }
+    
+    return taglist_container
+end
+
 -- =====================================================
 -- Initialize all widgets
 -- =====================================================

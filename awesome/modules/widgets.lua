@@ -402,8 +402,17 @@ function widgets.create_taglist(s)
             awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
         ),
         layout = {
-            spacing = 8,  -- Keep original wider spacing between tags
+            spacing = 8,
             layout = wibox.layout.fixed.horizontal
+        },
+        style = {
+            -- Explicitly override the background colors in the theme
+            bg_focus = beautiful.gh_blue,      -- Use blue background for selected tag
+            fg_focus = "#ffffff",              -- White text for selected tag
+            bg_occupied = "transparent",       -- Keep occupied tag background transparent
+            fg_occupied = beautiful.gh_fg,     -- Use theme's fg color for occupied tags 
+            bg_empty = "transparent",          -- Keep empty tag background transparent
+            fg_empty = beautiful.gh_comment .. "80", -- Use theme's dimmed comment color
         },
         widget_template = {
             {
@@ -412,31 +421,58 @@ function widgets.create_taglist(s)
                     font = beautiful.font,
                     widget = wibox.widget.textbox,
                 },
-                left = 8,    -- Add horizontal padding
-                right = 8,   -- Add horizontal padding
-                top = 4,     -- Add vertical padding
-                bottom = 4,  -- Add vertical padding
+                left = 8,
+                right = 8,
+                top = 4,
+                bottom = 4,
                 widget = wibox.container.margin
             },
             id = 'background_role',
-            widget = wibox.container.background,
-            -- Adding a create_callback to customize the appearance even further
-            create_callback = function(self, t, index, tags)
-                -- You can add a bold font for the active tag
-                if t.selected then
-                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                end
+            shape = function(cr, width, height)
+                gears.shape.rounded_rect(cr, width, height, config.corner_radius)
             end,
-            update_callback = function(self, t, index, tags)
-                -- Update the font weight when tag state changes
+            widget = wibox.container.background,
+            
+            create_callback = function(self, t, index, tags)
                 if t.selected then
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                    -- Force the background color for selected tag
+                    self.bg = beautiful.gh_blue
+                    self.fg = "#ffffff"
+                elseif #t:clients() > 0 then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
+                    -- Keep transparent background for occupied
+                    self.bg = "transparent"
+                    self.fg = beautiful.gh_fg
                 else
                     self:get_children_by_id('text_role')[1].font = beautiful.font
+                    -- Keep transparent background for empty
+                    self.bg = "transparent"
+                    self.fg = beautiful.gh_comment .. "80"
+                end
+            end,
+            
+            update_callback = function(self, t, index, tags)
+                if t.selected then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                    -- Force the background color for selected tag
+                    self.bg = beautiful.gh_blue
+                    self.fg = "#ffffff"
+                elseif #t:clients() > 0 then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
+                    -- Keep transparent background for occupied
+                    self.bg = "transparent"
+                    self.fg = beautiful.gh_fg
+                else
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
+                    -- Keep transparent background for empty
+                    self.bg = "transparent"
+                    self.fg = beautiful.gh_comment .. "80"
                 end
             end,
         }
     }
+end
 end
 
 -- =====================================================

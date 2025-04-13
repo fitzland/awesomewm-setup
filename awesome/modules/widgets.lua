@@ -359,38 +359,8 @@ widgets.window_title = window_title
 -- =====================================================
 -- Layout box widget
 -- =====================================================
-function widgets.create_layoutbox(s)
-    local layoutbox = awful.widget.layoutbox(s)
-    
-    -- Add buttons to change layout
-    layoutbox:buttons(gears.table.join(
-        awful.button({ }, 1, function () awful.layout.inc( 1) end),
-        awful.button({ }, 3, function () awful.layout.inc(-1) end),
-        awful.button({ }, 4, function () awful.layout.inc( 1) end),
-        awful.button({ }, 5, function () awful.layout.inc(-1) end)
-    ))
-    
-    -- Create container with same styling as other widgets
-    local layoutbox_container = wibox.widget {
-        {
-            layoutbox,
-            left = 8,
-            right = 8,
-            top = 4,
-            bottom = 4,
-            widget = wibox.container.margin
-        },
-        bg = beautiful.bg_minimize .. config.bg_opacity,
-        shape = rounded_shape,
-        widget = wibox.container.background
-    }
-    
-    return layoutbox_container
-end
+-- Find this function in your widgets.lua file and replace it with the code below:
 
--- =====================================================
--- Tag list (workspaces)
--- =====================================================
 function widgets.create_taglist(s)
     return awful.widget.taglist {
         screen = s,
@@ -419,27 +389,35 @@ function widgets.create_taglist(s)
                 widget = wibox.container.margin
             },
             id = 'background_role',
+            shape = rounded_shape,  -- Apply the rounded shape
             widget = wibox.container.background,
             -- Adding a create_callback to customize the appearance even further
             create_callback = function(self, t, index, tags)
                 -- You can add a bold font for the active tag
                 if t.selected then
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                    -- Set a distinct background color for the active tag
+                    self.bg = beautiful.gh_blue or beautiful.bg_focus
+                    self.fg = beautiful.bg_normal or "#ffffff"
                 end
             end,
             update_callback = function(self, t, index, tags)
-                -- Update the font weight when tag state changes
+                -- Update the font weight and colors when tag state changes
                 if t.selected then
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                    -- Set a distinct background color for the active tag
+                    self.bg = beautiful.gh_blue or beautiful.bg_focus
+                    self.fg = beautiful.bg_normal or "#ffffff"
                 else
                     self:get_children_by_id('text_role')[1].font = beautiful.font
+                    -- Reset background color for inactive tags
+                    self.bg = beautiful.bg_minimize .. config.bg_opacity
+                    self.fg = beautiful.fg_normal
                 end
             end,
         }
     }
 end
-
-
 
 -- =====================================================
 -- Initialize all widgets

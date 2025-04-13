@@ -473,7 +473,6 @@ function widgets.create_taglist(s)
         }
     }
 end
-end
 
 -- =====================================================
 -- Initialize all widgets

@@ -4,14 +4,14 @@ function send_notification() {
     volume=$(pamixer --get-volume)
     
     # Create a visual volume bar with full blocks
-    bar_length=20  # Using fewer blocks since they're wider
+    bar_length=15  # Using fewer blocks for inline layout
     filled_length=$(( $volume * $bar_length / 100 ))
     
     # Create the Lua code that will generate a colored slider directly in Lua
     lua_command="
     local naughty = require('naughty')
     local volume = ${volume}
-    local bar_length = 20
+    local bar_length = 15
     local filled_length = math.floor(volume * bar_length / 100)
     
     -- Create the bar string with full blocks
@@ -30,11 +30,10 @@ function send_notification() {
         volume_notification_id = 9993
     end
     
-    -- Create or update notification with colored text
-    -- Add a line break between title and bar for more spacing
+    -- Create or update notification with volume and bar inline
     local notification = naughty.notify({
-        title = 'Volume: ' .. volume .. '%',
-        text = '\\n' .. bar,  -- Add a line break for more spacing
+        title = 'Volume',
+        text = volume .. '%  ' .. bar,  -- Volume and bar on same line
         icon = 'volume-$1',
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,
@@ -78,7 +77,7 @@ mute)
         -- Create or update notification
         local notification = naughty.notify({
             title = 'Volume',
-            text = '\\nMuted',  -- Add a line break here too
+            text = 'Muted',
             icon = 'volume-mute',
             preset = naughty.config.presets.low,
             replaces_id = volume_notification_id,

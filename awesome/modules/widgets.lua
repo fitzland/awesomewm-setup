@@ -439,49 +439,7 @@ function widgets.create_taglist(s)
     }
 end
 
--- Add this to your widgets.lua file
 
--- =====================================================
--- Taglist with Application Icons (Simplified)
--- =====================================================
-function widgets.create_taglist_with_icons(s)
-    -- Create the taglist
-    local taglist = awful.widget.taglist {
-        screen = s,
-        filter = awful.widget.taglist.filter.all,
-        buttons = gears.table.join(
-            awful.button({}, 1, function(t) t:view_only() end),
-            awful.button({}, 3, awful.tag.viewtoggle),
-            awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
-            awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
-        ),
-        widget_template = {
-            {
-                {
-                    id = 'text_role',
-                    widget = wibox.widget.textbox,
-                },
-                left = 8,
-                right = 8,
-                top = 4,
-                bottom = 4,
-                widget = wibox.container.margin
-            },
-            id = 'background_role',
-            widget = wibox.container.background,
-            -- Update callback to style the taglist
-            update_callback = function(self, t, index, tags)
-                if t.selected then
-                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                else
-                    self:get_children_by_id('text_role')[1].font = beautiful.font
-                end
-            end
-        }
-    }
-    
-    return taglist
-end
 
 -- =====================================================
 -- Initialize all widgets

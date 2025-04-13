@@ -19,7 +19,7 @@ local config = {
 -- Setup wibar for each screen
 local function setup_wibar(s)
     -- Create taglist for this screen
-    local taglist = widgets.create_taglist_with_icons(s)
+    local taglist = widgets.create_taglist(s)
     
     -- Create layoutbox for this screen
     local layoutbox = widgets.create_layoutbox(s)

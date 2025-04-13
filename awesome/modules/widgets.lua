@@ -86,7 +86,7 @@ local clock_text = wibox.widget {
         widget = wibox.widget.textbox
     },
     {
-        format = "%I:%M %a %d",
+        format = "%I:%M %p %a %d",
         font = config.font,
         fg = beautiful.gh_bg,
         widget = wibox.widget.textclock

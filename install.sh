@@ -63,10 +63,47 @@ check_awesome() {
 # Move Config Files to ~/.config/awesome
 # ========================================
 setup_awesome_config() {
-    echo "Moving AwesomeWM configuration files..."
+    echo "Setting up AwesomeWM configuration directory..."
+    
+    # Create the config directory if it doesn't exist
     mkdir -p "$CONFIG_DIR"
-    cp -a "$CLONED_DIR/config/." "$CONFIG_DIR/" || echo "Warning: Failed to copy AwesomeWM config contents."
-    echo "AwesomeWM configuration files copied successfully."
+    
+    # Check if the cloned repository directory exists
+    if [ -d "$CLONED_DIR" ]; then
+        # Check if the config directory in the cloned repository exists
+        if [ -d "$CLONED_DIR/config" ]; then
+            # Copy all contents from the cloned repo's config directory to ~/.config/awesome
+            cp -a "$CLONED_DIR/config/." "$CONFIG_DIR/" || { 
+                echo "Error: Failed to copy AwesomeWM config contents from $CLONED_DIR/config/."
+                exit 1
+            }
+            echo "AwesomeWM configuration files copied successfully from $CLONED_DIR/config/."
+        # Alternative path - check if there's an awesome directory directly in the cloned repo
+        elif [ -d "$CLONED_DIR/awesome" ]; then
+            # Copy all contents from the cloned repo's awesome directory to ~/.config/awesome
+            cp -a "$CLONED_DIR/awesome/." "$CONFIG_DIR/" || {
+                echo "Error: Failed to copy AwesomeWM config contents from $CLONED_DIR/awesome/."
+                exit 1
+            }
+            echo "AwesomeWM configuration files copied successfully from $CLONED_DIR/awesome/."
+        # If no config directories are found, check if the repo itself contains the config files
+        elif [ -f "$CLONED_DIR/rc.lua" ]; then
+            # Copy all contents from the cloned repo directly to ~/.config/awesome
+            cp -a "$CLONED_DIR/." "$CONFIG_DIR/" || {
+                echo "Error: Failed to copy AwesomeWM config contents from $CLONED_DIR/."
+                exit 1
+            }
+            echo "AwesomeWM configuration files copied successfully from $CLONED_DIR/."
+        else
+            echo "Error: Could not find AwesomeWM configuration files in the cloned repository."
+            echo "Please check the structure of your repository and ensure it contains the necessary configuration files."
+            exit 1
+        fi
+    else
+        echo "Error: Cloned repository directory ($CLONED_DIR) not found."
+        echo "Please make sure you have cloned the repository to $CLONED_DIR before running this script."
+        exit 1
+    fi
 }
 
 # ========================================
@@ -188,19 +225,6 @@ gtk-cursor-theme-size=0
 EOF
     echo "GTK theming applied."
 }
-
-setup_awesome_config() {
-    echo "Setting up AwesomeWM configuration directory..."
-    
-    # Just create the directory but don't populate it
-    # This allows the user to add their personal config
-    mkdir -p "$CONFIG_DIR"
-    
-    echo "AwesomeWM configuration directory created."
-    echo "You can now copy your personal AwesomeWM config to $CONFIG_DIR/"
-}
-
-
 
 replace_bashrc() {
     echo "Replace your .bashrc with justaguylinux version? (y/n)"

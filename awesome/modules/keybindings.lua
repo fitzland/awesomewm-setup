@@ -109,30 +109,30 @@ function keybindings.init()
         awful.key({ modkey, "Control" }, "Up", function() awful.client.incwfact(-0.05) end,
                   {description = "decrease client height", group = "layout"}),
         
-        -- Focus control
-        awful.key({ modkey }, "Left", function() awful.client.focus.byidx(1) end,
-                  {description = "focus next by index", group = "client"}),
-        awful.key({ modkey }, "Right", function() awful.client.focus.byidx(-1) end,
-                  {description = "focus previous by index", group = "client"}),
-        awful.key({ modkey }, "Up", function() awful.client.focus.bydirection("up") end,
-                  {description = "focus window above", group = "client"}),
-        awful.key({ modkey }, "Down", function() awful.client.focus.bydirection("down") end,
-                  {description = "focus window below", group = "client"}),
+-- Focus control
+awful.key({ modkey }, "Left", function() awful.client.focus.byidx(1) end,
+          {description = "focus next by index", group = "client"}),
+awful.key({ modkey }, "Right", function() awful.client.focus.byidx(-1) end,
+          {description = "focus previous by index", group = "client"}),
+awful.key({ modkey }, "Up", function() awful.client.focus.bydirection("up") end,
+          {description = "focus window above", group = "client"}),
+awful.key({ modkey }, "Down", function() awful.client.focus.bydirection("down") end,
+          {description = "focus window below", group = "client"}),
 
-        -- Window movement (swap clients)
-        awful.key({ modkey, "Shift" }, "Left", function() 
-            if client.focus then awful.client.swap.byidx(1) end
-        end, {description = "swap with next client", group = "client"}),
-        awful.key({ modkey, "Shift" }, "Right", function() 
-            if client.focus then awful.client.swap.byidx(-1) end
-        end, {description = "swap with previous by index", group = "client"}),
-        awful.key({ modkey, "Shift" }, "Up", function() 
-            if client.focus then awful.client.swap.bydirection("up") end
-        end, {description = "swap with client above", group = "client"}),
-        awful.key({ modkey, "Shift" }, "Down", function() 
-            if client.focus then awful.client.swap.bydirection("down") end
-        end, {description = "swap with client below", group = "client"})
-    )
+-- Window movement (swap clients)
+awful.key({ modkey, "Shift" }, "Left", function() 
+    if client.focus then awful.client.swap.byidx(1) end
+end, {description = "swap with next client", group = "client"}),
+awful.key({ modkey, "Shift" }, "Right", function() 
+    if client.focus then awful.client.swap.byidx(-1) end
+end, {description = "swap with previous by index", group = "client"}),
+awful.key({ modkey, "Shift" }, "Up", function() 
+    if client.focus then awful.client.swap.bydirection("up") end
+end, {description = "swap with client above", group = "client"}),
+awful.key({ modkey, "Shift" }, "Down", function() 
+    if client.focus then awful.client.swap.bydirection("down") end
+end, {description = "swap with client below", group = "client"})
+)
     
     -- Tag navigation (1-9)
     for i = 1, 9 do
@@ -230,12 +230,7 @@ function keybindings.init()
                   {description = "enable redshift", group = "system"}),
                   
         awful.key({ modkey, "Mod1" }, "b", function() awful.spawn.with_shell("~/.config/awesome/scripts/redshift-off") end,
-                  {description = "disable redshift", group = "system"}),
-        
-        -- Add to your globalkeys table
-        awful.key({ variables.modkey }, "c", function() 
-            require("modules.control_center").toggle() 
-        end, {description = "toggle control center", group = "awesome"})
+                  {description = "disable redshift", group = "system"})
     )
     
     -- Set keys

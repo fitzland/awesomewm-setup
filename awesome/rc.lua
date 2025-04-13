@@ -25,10 +25,6 @@ widgets.init()
 local wibar = require("modules.wibar")
 wibar.init()
 
--- Initialize control center
-local control_center = require("modules.control_center")
-control_center.init()
-
 -- Window management
 local rules = require("modules.rules")
 rules.init()

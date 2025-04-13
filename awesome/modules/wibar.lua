@@ -73,7 +73,6 @@ local function setup_wibar(s)
             widgets.clock_widget,
             widgets.volume_widget,
             widgets.bluetooth_widget,
-            widgets.control_center_button, 
         },
     }
 end

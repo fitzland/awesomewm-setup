@@ -4,14 +4,14 @@ function send_notification() {
     volume=$(pamixer --get-volume)
     
     # Create a visual volume bar with full block character
-    bar_length=10
+    bar_length=20  # Longer bar
     filled_length=$(( $volume * $bar_length / 100 ))
     
     # Create the Lua code that will generate a colored slider directly in Lua
     lua_command="
     local naughty = require('naughty')
     local volume = ${volume}
-    local bar_length = 10
+    local bar_length = 20
     local filled_length = math.floor(volume * bar_length / 100)
     
     -- Create the bar string with full blocks (█)
@@ -30,10 +30,10 @@ function send_notification() {
         volume_notification_id = 9993
     end
     
-    -- Put everything in the title to ensure it's on one line
+    -- Use title and text for two distinct lines
     local notification = naughty.notify({
-        title = 'Volume: ' .. volume .. '%    ' .. bar,  -- Extra spaces between
-        text = '',  -- No text, everything in title
+        title = 'Volume: ' .. volume .. '%',
+        text = bar,  -- Bar on second line
         icon = 'volume-$1',
         preset = naughty.config.presets.low,
         replaces_id = volume_notification_id,

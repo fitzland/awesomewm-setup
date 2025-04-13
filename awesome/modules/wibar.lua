@@ -21,9 +21,6 @@ local function setup_wibar(s)
     -- Create taglist for this screen
     local taglist = widgets.create_taglist(s)
     
-    -- Create window icon list for this screen
-    local window_icons = widgets.create_window_icons_list(s)
-    
     -- Create layoutbox for this screen
     local layoutbox = widgets.create_layoutbox(s)
     
@@ -57,7 +54,7 @@ local function setup_wibar(s)
             layout = wibox.layout.align.horizontal,
             expand = "none",
             nil,
-            window_icons,
+            widgets.window_title,
             nil,
         },
         { -- Right widgets

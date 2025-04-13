@@ -359,7 +359,7 @@ widgets.window_title = window_title
 -- =====================================================
 -- Layout box widget
 -- =====================================================
--- Find this function in your widgets.lua file and replace it with the code below:
+-- Replace the create_taglist function in widgets.lua with this version:
 
 function widgets.create_taglist(s)
     return awful.widget.taglist {
@@ -389,30 +389,34 @@ function widgets.create_taglist(s)
                 widget = wibox.container.margin
             },
             id = 'background_role',
+            -- Use inline function for the shape to avoid scoping issues
             shape = function(cr, width, height)
                 gears.shape.rounded_rect(cr, width, height, config.corner_radius)
-            end,  -- Inline rounded shape function
+            end,
             widget = wibox.container.background,
             -- Adding a create_callback to customize the appearance even further
             create_callback = function(self, t, index, tags)
-                -- You can add a bold font for the active tag
+                -- Initial setup of tag appearance
+                self:get_children_by_id('text_role')[1].font = beautiful.font
+                
+                -- Set colors based on tag state
                 if t.selected then
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                    -- Set a distinct background color for the active tag
                     self.bg = beautiful.gh_blue or beautiful.bg_focus
                     self.fg = beautiful.bg_normal or "#ffffff"
+                else
+                    self.bg = beautiful.bg_minimize .. config.bg_opacity
+                    self.fg = beautiful.fg_normal
                 end
             end,
             update_callback = function(self, t, index, tags)
                 -- Update the font weight and colors when tag state changes
                 if t.selected then
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                    -- Set a distinct background color for the active tag
                     self.bg = beautiful.gh_blue or beautiful.bg_focus
                     self.fg = beautiful.bg_normal or "#ffffff"
                 else
                     self:get_children_by_id('text_role')[1].font = beautiful.font
-                    -- Reset background color for inactive tags
                     self.bg = beautiful.bg_minimize .. config.bg_opacity
                     self.fg = beautiful.fg_normal
                 end

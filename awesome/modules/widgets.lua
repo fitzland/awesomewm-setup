@@ -338,7 +338,7 @@ local window_title = wibox.widget {
 
 -- Function to update window title
 local function update_window_title(c)
-    if c and c.valid then
+    if c and c.valid and c.name then
         window_title_text:set_markup('<span foreground="' .. beautiful.fg_normal .. '">' .. c.name .. '</span>')
     else
         window_title_text:set_markup('<span foreground="' .. beautiful.gh_comment .. '">Desktop</span>')

@@ -389,7 +389,9 @@ function widgets.create_taglist(s)
                 widget = wibox.container.margin
             },
             id = 'background_role',
-            shape = rounded_shape,  -- Apply the rounded shape
+            shape = function(cr, width, height)
+                gears.shape.rounded_rect(cr, width, height, config.corner_radius)
+            end,  -- Inline rounded shape function
             widget = wibox.container.background,
             -- Adding a create_callback to customize the appearance even further
             create_callback = function(self, t, index, tags)

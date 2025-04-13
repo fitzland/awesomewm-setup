@@ -11,7 +11,7 @@ function send_notification() {
     lua_command="
     local naughty = require('naughty')
     local volume = ${volume}
-    local bar_length = 20
+    local bar_length = 40
     local filled_length = math.floor(volume * bar_length / 100)
     
     -- Create the bar string with full blocks (█)

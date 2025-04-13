@@ -1,11 +1,11 @@
 -- modules/control_center.lua
+-- A simplified version without rubato animations
 
 -- Load required libraries
 local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
-local rubato = require("mods.rubato") -- You'll need to install this library
 
 -- Create control_center table
 local control_center = {}
@@ -15,11 +15,9 @@ local config = {
     width = 420,
     height = 580,
     expanded_height = 715,
-    animation_duration = 0.33,
-    animation_intro = 0.14,
-    bg = beautiful.bg_normal,
+    bg = beautiful.bg_normal or "#000000",
     opacity = "E6", -- 90% opacity (in hex)
-    corner_radius = beautiful.corner_radius or 12
+    corner_radius = beautiful.border_radius or 12
 }
 
 -- Helper functions
@@ -52,7 +50,7 @@ local function create_service_button(args)
 
     -- Create widgets
     local icon_widget = wibox.widget{
-        font = "Roboto Mono Nerd Font 18",
+        font = beautiful.font_var or "sans 18",
         markup = helpers.colorize_text(icon, beautiful.fg_normal),
         widget = wibox.widget.textbox,
         valign = "center",
@@ -60,30 +58,21 @@ local function create_service_button(args)
     }
 
     local name_widget = wibox.widget{
-        font = "Roboto Mono Nerd Font 12",
+        font = beautiful.font_var or "sans 12",
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text(name, beautiful.fg_normal),
         valign = "center",
         align = "center"
     }
 
-    local circle_animate = wibox.widget{
+    -- Background for the active state
+    local bg_widget = wibox.widget{
         widget = wibox.container.background,
         shape = helpers.rrect(),
-        bg = beautiful.accent or beautiful.gh_blue,
+        bg = beautiful.accent or beautiful.fg_focus or "#1A73E8",
         forced_width = 110,
-    }
-
-    -- Animation
-    local animation_opacity = rubato.timed{
-        pos = 0,
-        rate = 60,
-        intro = 0.08,
-        duration = 0.3,
-        awestore_compat = true,
-        subscribed = function(pos)
-            circle_animate.opacity = pos
-        end
+        forced_height = 110,
+        opacity = state and 1 or 0
     }
 
     -- Update function
@@ -91,26 +80,18 @@ local function create_service_button(args)
         if state then
             icon_widget.markup = helpers.colorize_text(icon, beautiful.bg_normal)
             name_widget.markup = helpers.colorize_text(name, beautiful.bg_normal)
-            animation_opacity:set(1)
+            bg_widget.opacity = 1
         else
             icon_widget.markup = helpers.colorize_text(icon, beautiful.fg_normal)
             name_widget.markup = helpers.colorize_text(name, beautiful.fg_normal)
-            animation_opacity:set(0)
+            bg_widget.opacity = 0
         end
     end
 
     -- Create the button widget
     local button = wibox.widget{
         {
-            {
-                nil,
-                {
-                    circle_animate,
-                    layout = wibox.layout.fixed.horizontal
-                },
-                layout = wibox.layout.align.horizontal,
-                expand = "none"
-            },
+            bg_widget,
             {
                 nil,
                 {
@@ -126,10 +107,10 @@ local function create_service_button(args)
         },
         shape = helpers.rrect(),
         widget = wibox.container.background,
-        border_color = beautiful.fg_normal .. "33",
+        border_color = beautiful.border_focus .. "33" or "#FFFFFF33",
         forced_width = 110,
         forced_height = 110,
-        bg = beautiful.bg_minimize .. "BF"
+        bg = beautiful.bg_focus .. "BF" or "#3B4252BF"
     }
 
     -- Set initial appearance
@@ -182,7 +163,7 @@ local function create_slider(args)
     local icon_widget = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text(icon, icon_color),
-        font = "Roboto Mono Nerd Font 17",
+        font = beautiful.font_var or "sans 17",
         align = "center",
         valign = "center"
     }
@@ -190,7 +171,7 @@ local function create_slider(args)
     local value_widget = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("0%", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font 13",
+        font = beautiful.font_var or "sans 13",
         align = "center",
         valign = "center"
     }
@@ -204,12 +185,12 @@ local function create_slider(args)
         bar_shape = gears.shape.rounded_bar,
         bar_color = beautiful.fg_normal .. "33",
         bar_margins = {bottom = 18, top = 18},
-        bar_active_color = beautiful.accent or beautiful.gh_blue,
+        bar_active_color = beautiful.accent or beautiful.fg_focus or "#1A73E8",
         handle_width = 14,
         handle_shape = gears.shape.circle,
-        handle_color = beautiful.accent or beautiful.gh_blue,
+        handle_color = beautiful.accent or beautiful.fg_focus or "#1A73E8",
         handle_border_width = 3,
-        handle_border_color = beautiful.bg_minimize
+        handle_border_color = beautiful.bg_focus or "#3B4252"
     }
 
     -- Update function
@@ -256,7 +237,8 @@ local function create_profile_section()
     -- Profile image
     local profile_image = wibox.widget {
         {
-            image = beautiful.profile_image or "/usr/share/icons/Papirus/64x64/categories/preferences-desktop-user.svg",
+            image = beautiful.profile_image or "/usr/share/icons/Adwaita/scalable/emotes/face-cool-symbolic.svg",
+            resize = true,
             clip_shape = gears.shape.circle,
             widget = wibox.widget.imagebox
         },
@@ -272,7 +254,7 @@ local function create_profile_section()
     local username_widget = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text(username, beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font Medium 13",
+        font = beautiful.font_var or "sans medium 13",
         align = "left",
         valign = "center"
     }
@@ -281,7 +263,7 @@ local function create_profile_section()
     local hostname_widget = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text(hostname, beautiful.fg_normal .. "99"),
-        font = "Roboto Mono Nerd Font 11",
+        font = beautiful.font_var or "sans 11",
         align = "left",
         valign = "center"
     }
@@ -311,7 +293,7 @@ local function create_session_controls()
     local lock_button = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font 14",
+        font = beautiful.font_var or "sans 14",
         align = "center",
         valign = "center"
     }
@@ -320,7 +302,7 @@ local function create_session_controls()
     local power_button = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font 14",
+        font = beautiful.font_var or "sans 14",
         align = "center",
         valign = "center"
     }
@@ -333,7 +315,7 @@ local function create_session_controls()
                 margins = 10,
                 widget = wibox.container.margin
             },
-            bg = beautiful.bg_minimize .. "B3",
+            bg = beautiful.bg_focus .. "B3" or "#3B4252B3",
             shape = helpers.rrect(),
             border_width = 1,
             border_color = beautiful.fg_normal .. "33",
@@ -360,7 +342,7 @@ local function create_session_controls()
             -- Close control center
             control_center.toggle()
             -- Show power menu (replace with your preferred power menu)
-            awful.spawn.with_shell("rofi -show power-menu -modi power-menu:~/.local/bin/rofi-power-menu")
+            awful.spawn.with_shell("rofi -show power-menu -modi power-menu:~/.local/bin/rofi-power-menu || rofi -show powermenu -modi powermenu:~/.config/rofi/scripts/powermenu.sh")
         end)
     ))
 
@@ -389,7 +371,7 @@ local function create_music_player()
         clip_shape = helpers.rrect(),
         forced_height = 85,
         forced_width = 85,
-        image = beautiful.album_art or "/usr/share/icons/Papirus/64x64/categories/applications-multimedia.svg",
+        image = beautiful.album_art or "/usr/share/icons/Adwaita/scalable/devices/multimedia-player-symbolic.svg",
         border_color = beautiful.fg_normal .. "33",
         border_width = 1
     }
@@ -398,7 +380,7 @@ local function create_music_player()
     local song_artist = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("Unknown", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font 11",
+        font = beautiful.font_var or "sans 11",
         align = "left",
         valign = "center"
     }
@@ -407,7 +389,7 @@ local function create_music_player()
     local song_name = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("Not playing", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font Bold 12",
+        font = beautiful.font_var or "sans bold 12",
         align = "left",
         valign = "center"
     }
@@ -416,7 +398,7 @@ local function create_music_player()
     local toggle_button = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font 22",
+        font = beautiful.font_var or "sans 22",
         align = "right",
         valign = "center"
     }
@@ -424,7 +406,7 @@ local function create_music_player()
     local next_button = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font 18",
+        font = beautiful.font_var or "sans 18",
         align = "right",
         valign = "center"
     }
@@ -432,7 +414,7 @@ local function create_music_player()
     local prev_button = wibox.widget{
         widget = wibox.widget.textbox,
         markup = helpers.colorize_text("", beautiful.fg_normal),
-        font = "Roboto Mono Nerd Font 18",
+        font = beautiful.font_var or "sans 18",
         align = "right",
         valign = "center"
     }
@@ -459,11 +441,11 @@ local function create_music_player()
     -- Update widgets based on player status
     local update_player_info = function()
         awful.spawn.easy_async_with_shell(
-            "playerctl metadata --format '{{artist}}|{{title}}|{{status}}'",
+            "playerctl metadata --format '{{artist}}|{{title}}|{{status}}' 2>/dev/null || echo 'Unknown|Not playing|Stopped'",
             function(stdout)
                 local artist, title, status = stdout:match("(.+)|(.+)|(.+)")
                 
-                if artist and title then
+                if artist and title and artist ~= "Unknown" and title ~= "Not playing" then
                     song_artist:set_markup_silently(helpers.colorize_text(artist, beautiful.fg_normal))
                     song_name:set_markup_silently(helpers.colorize_text(title, beautiful.fg_normal))
                 else
@@ -491,7 +473,7 @@ local function create_music_player()
                         album_art:set_image(gears.surface.load_uncached(file_path))
                     end
                 else
-                    album_art:set_image(beautiful.album_art or "/usr/share/icons/Papirus/64x64/categories/applications-multimedia.svg")
+                    album_art:set_image(beautiful.album_art or "/usr/share/icons/Adwaita/scalable/devices/multimedia-player-symbolic.svg")
                 end
             end
         )
@@ -514,20 +496,8 @@ local function create_music_player()
                     {
                         nil,
                         {
-                            {
-                                step_function = wibox.container.scroll.step_functions.waiting_nonlinear_back_and_forth,
-                                widget = wibox.container.scroll.horizontal,
-                                forced_width = 158,
-                                speed = 30,
-                                song_name,
-                            },
-                            {
-                                step_function = wibox.container.scroll.step_functions.waiting_nonlinear_back_and_forth,
-                                widget = wibox.container.scroll.horizontal,
-                                forced_width = 158,
-                                speed = 30,
-                                song_artist,
-                            },
+                            song_name,
+                            song_artist,
                             spacing = 5,
                             layout = wibox.layout.fixed.vertical,
                         },
@@ -552,7 +522,7 @@ local function create_music_player()
         },
         widget = wibox.container.background,
         forced_height = 110,
-        bg = beautiful.bg_minimize .. "99",
+        bg = beautiful.bg_focus .. "99" or "#3B425299",
         border_color = beautiful.fg_normal .. "33",
         shape = helpers.rrect()
     }
@@ -562,15 +532,15 @@ end
 local function create_statusbar()
     -- Battery widget
     local bat_icon = wibox.widget{
-        markup = helpers.colorize_text("", beautiful.gh_green),
-        font = "Roboto Mono Nerd Font 11",
+        markup = helpers.colorize_text("", beautiful.green or "#26A65B"),
+        font = beautiful.font_var or "sans 11",
         align = "center",
         valign = "center",
         widget = wibox.widget.textbox
     }
 
     local battery_progress = wibox.widget{
-        color = beautiful.gh_green,
+        color = beautiful.green or "#26A65B",
         background_color = "#00000000",
         forced_width = 30,
         border_width = 1,
@@ -586,7 +556,7 @@ local function create_statusbar()
     local bat_txt = wibox.widget{
         widget = wibox.widget.textbox,
         markup = "100%",
-        font = "Roboto Mono Nerd Font Medium 11",
+        font = beautiful.font_var or "sans medium 11",
         valign = "center",
         align = "center"
     }
@@ -594,7 +564,7 @@ local function create_statusbar()
     -- Update battery status
     local function update_battery()
         awful.spawn.easy_async_with_shell(
-            "acpi -b | grep -oP '[0-9]+%' | tr -d '%'",
+            "acpi -b | grep -oP '[0-9]+%' | tr -d '%' || echo 100",
             function(stdout)
                 local value = tonumber(stdout) or 0
                 battery_progress.value = value
@@ -602,7 +572,7 @@ local function create_statusbar()
                 
                 -- Check if charging
                 awful.spawn.easy_async_with_shell(
-                    "acpi -b | grep -c 'Charging'",
+                    "acpi -b | grep -c 'Charging' || echo 0",
                     function(stdout)
                         local charging = tonumber(stdout) > 0
                         bat_icon.visible = charging
@@ -625,21 +595,7 @@ local function create_statusbar()
         {
             {
                 bat_icon,
-                {
-                    battery_progress,
-                    {
-                        wibox.widget.textbox,
-                        widget = wibox.container.background,
-                        bg = beautiful.fg_normal .. "A6",
-                        forced_width = 8.2,
-                        forced_height = 8.2,
-                        shape = function(cr, width, height)
-                            gears.shape.pie(cr, width, height, 0, math.pi)
-                        end
-                    },
-                    layout = wibox.layout.fixed.horizontal,
-                    spacing = -1.6
-                },
+                battery_progress,
                 layout = wibox.layout.fixed.horizontal,
                 spacing = 1
             },
@@ -655,7 +611,7 @@ local function create_statusbar()
     local clock = wibox.widget{
         widget = wibox.widget.textclock,
         format = "%a, %d %b",
-        font = "Roboto Mono Nerd Font Medium 13",
+        font = beautiful.font_var or "sans medium 13",
         valign = "center",
         align = "center"
     }
@@ -664,7 +620,7 @@ local function create_statusbar()
     local extras = wibox.widget{
         widget = wibox.widget.textbox,
         markup = "",
-        font = "Roboto Mono Nerd Font Bold 16",
+        font = beautiful.font_var or "sans bold 16",
         valign = "center",
         align = "center"
     }
@@ -689,8 +645,10 @@ end
 -- Set up the control center
 function control_center.init()
     -- State variables
-    local screen_backup = 1
-    local extra_shown = false
+    local state = {
+        visible = false,
+        expanded = false
+    }
 
     -- Create wibox for each screen
     awful.screen.connect_for_each_screen(function(s)
@@ -698,15 +656,15 @@ function control_center.init()
         local brightness_slider = create_slider({
             icon = "",
             command = "brightnessctl set %d%% || light -S %d",
-            get_cmd = "brightnessctl get | grep -o '[0-9]\\+%' | tr -d '%'",
-            icon_color = beautiful.gh_yellow or beautiful.fg_normal
+            get_cmd = "brightnessctl get | grep -o '[0-9]\\+%' | tr -d '%' || echo 50",
+            icon_color = beautiful.yellow or beautiful.fg_normal
         })
 
         local volume_slider = create_slider({
             icon = "",
             command = "pamixer --set-volume %d || amixer -D pulse set Master %d%%",
-            get_cmd = "pamixer --get-volume || amixer -D pulse get Master | grep -o '[0-9]\\+%' | tr -d '%' | head -1",
-            icon_color = beautiful.gh_blue or beautiful.fg_normal
+            get_cmd = "pamixer --get-volume || amixer -D pulse get Master | grep -o '[0-9]\\+%' | tr -d '%' | head -1 || echo 50",
+            icon_color = beautiful.blue or beautiful.fg_normal
         })
 
         -- Create service buttons
@@ -741,8 +699,8 @@ function control_center.init()
             name = "Dark Mode",
             icon = "",
             -- Replace these with commands that actually switch your theme
-            on_cmd = "touch ~/.config/awesome/dark_mode",
-            off_cmd = "rm -f ~/.config/awesome/dark_mode",
+            on_cmd = "touch ~/.config/awesome/dark_mode && echo 'Switched to dark mode'",
+            off_cmd = "rm -f ~/.config/awesome/dark_mode && echo 'Switched to light mode'",
             check_cmd = "test -f ~/.config/awesome/dark_mode && echo 'on' || echo 'off'",
             check_pattern = "on"
         })
@@ -781,14 +739,14 @@ function control_center.init()
             mic_button,
             layout = wibox.layout.fixed.horizontal,
             spacing = 22,
-            visible = extra_shown
+            visible = state.expanded
         }
 
         -- Create services section
         local services = wibox.widget{
             primary_services,
             extra_services,
-            spacing = extra_shown and 22 or 0,
+            spacing = state.expanded and 22 or 0,
             layout = wibox.layout.fixed.vertical
         }
 
@@ -806,7 +764,7 @@ function control_center.init()
             },
             widget = wibox.container.background,
             forced_height = 120,
-            bg = beautiful.bg_minimize .. "99",
+            bg = beautiful.bg_focus .. "99" or "#3B425299",
             border_color = beautiful.fg_normal .. "33",
             shape = helpers.rrect()
         }
@@ -816,20 +774,17 @@ function control_center.init()
 
         -- Function to toggle extra services
         local function toggle_extras()
-            extra_shown = not extra_shown
-            extra_services.visible = extra_shown
-            services.spacing = extra_shown and 22 or 0
+            state.expanded = not state.expanded
+            extra_services.visible = state.expanded
+            services.spacing = state.expanded and 22 or 0
             
-            if extra_shown then
+            if state.expanded then
                 extras_button.markup = ""
                 s.control_center.height = config.expanded_height
             else
                 extras_button.markup = ""
                 s.control_center.height = config.height
             end
-            
-            -- Update position
-            control_center.slide_animation.target = s.geometry.height - (s.control_center.height + beautiful.useless_gap * 2)
         end
 
         -- Add button functionality to extras button
@@ -876,25 +831,9 @@ function control_center.init()
             layout = wibox.layout.fixed.vertical,
         }
 
-        -- Set up animation
-        control_center.slide_animation = rubato.timed{
-            pos = s.geometry.height,
-            rate = 60,
-            intro = config.animation_intro,
-            duration = config.animation_duration,
-            subscribed = function(pos) 
-                s.control_center.y = s.geometry.y + pos 
-            end
-        }
-
-        -- Set up close timer
-        control_center.close_timer = gears.timer({
-            single_shot = true,
-            timeout = config.animation_duration + 0.08,
-            callback = function()
-                s.control_center.visible = false
-            end,
-        })
+        -- Position the control center initially (will be updated on toggle)
+        s.control_center.x = s.geometry.x + (beautiful.useless_gap or 0) * 4
+        s.control_center.y = s.geometry.height - (s.control_center.height + (beautiful.useless_gap or 0) * 2)
     end)
 
     -- Toggle function
@@ -903,19 +842,12 @@ function control_center.init()
         local s = screen or awful.screen.focused()
         
         -- Position the control center
-        s.control_center.x = s.geometry.x + (beautiful.useless_gap * 4)
+        s.control_center.x = s.geometry.x + (beautiful.useless_gap or 0) * 4
+        s.control_center.y = s.geometry.height - (s.control_center.height + (beautiful.useless_gap or 0) * 2)
         
         -- Toggle visibility
-        if s.control_center.visible then
-            control_center.close_timer:again()
-            control_center.slide_animation.target = s.geometry.height
-        else
-            control_center.slide_animation.target = s.geometry.height - (s.control_center.height + beautiful.useless_gap * 2)
-            s.control_center.visible = true
-        end
-        
-        -- Update screen backup
-        screen_backup = s.index
+        s.control_center.visible = not s.control_center.visible
+        state.visible = s.control_center.visible
     end
 end
 

@@ -3,7 +3,7 @@
 function send_notification() {
     volume=$(pamixer --get-volume)
     
-    # Create a visual volume bar with medium-thickness character
+    # Create a visual volume bar with thin character
     bar_length=10
     filled_length=$(( $volume * $bar_length / 100 ))
     
@@ -14,11 +14,11 @@ function send_notification() {
     local bar_length = 10
     local filled_length = math.floor(volume * bar_length / 100)
     
-    -- Create the bar string with medium-thickness blocks (▬)
+    -- Create the bar string with thin blocks (─)
     local bar = '['
     for i = 1, bar_length do
         if i <= filled_length then
-            bar = bar .. '▬'  -- Medium-thickness block
+            bar = bar .. '─'  -- Thin dash character
         else
             bar = bar .. ' '
         end
@@ -54,12 +54,12 @@ case $1 in
 up)
     # Set the volume on (if it was muted)
     pamixer -u
-    pamixer -i 2 --allow-boost
+    pamixer -i 5 --allow-boost  # Increase by 5% instead of 2%
     send_notification up
     ;;
 down)
     pamixer -u
-    pamixer -d 2 --allow-boost
+    pamixer -d 5 --allow-boost  # Decrease by 5% instead of 2%
     send_notification down
     ;;
 mute)

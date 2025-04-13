@@ -10,7 +10,10 @@ Features GitHub-themed styling, smart keybindings, and a comprehensive widget sy
 ## 🚀 Installation
 
 ```bash
-git clone https://github.com/yourusername/awesome-wm-config.git ~/.config/awesome
+blah
+
+
+
 ```
 
 Log out and select AwesomeWM at your login screen.

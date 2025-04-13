@@ -43,9 +43,11 @@ local rules = {
             }
         },
         properties = { 
-            floating = true,
-            placement = awful.placement.centered
-        }
+            floating = true
+        },
+        callback = function(c)
+            awful.placement.centered(c)
+        end
     },
     -- Galculator specific size
     {
@@ -53,9 +55,11 @@ local rules = {
         properties = { 
             floating = true,
             width = 900,
-            height = 600,
-            placement = awful.placement.centered
-        }
+            height = 600
+        },
+        callback = function(c)
+            awful.placement.centered(c)
+        end
     },
     -- Disable titlebars by default for normal clients and dialogs
     {

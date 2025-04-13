@@ -360,7 +360,6 @@ widgets.window_title = window_title
 -- Layout box widget
 -- =====================================================
 -- Replace the create_taglist function in widgets.lua with this version:
-
 function widgets.create_taglist(s)
     return awful.widget.taglist {
         screen = s,
@@ -372,7 +371,7 @@ function widgets.create_taglist(s)
             awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
         ),
         layout = {
-            spacing = 8,  -- Keep original wider spacing between tags
+            spacing = 8,
             layout = wibox.layout.fixed.horizontal
         },
         widget_template = {
@@ -382,43 +381,58 @@ function widgets.create_taglist(s)
                     font = beautiful.font,
                     widget = wibox.widget.textbox,
                 },
-                left = 8,    -- Add horizontal padding
-                right = 8,   -- Add horizontal padding
-                top = 4,     -- Add vertical padding
-                bottom = 4,  -- Add vertical padding
+                left = 8,
+                right = 8,
+                top = 4,
+                bottom = 4,
                 widget = wibox.container.margin
             },
             id = 'background_role',
-            -- Use inline function for the shape to avoid scoping issues
             shape = function(cr, width, height)
                 gears.shape.rounded_rect(cr, width, height, config.corner_radius)
             end,
             widget = wibox.container.background,
-            -- Adding a create_callback to customize the appearance even further
+            
+            -- Force a minimum width to ensure the background is visible
+            forced_width = 40,
+            
             create_callback = function(self, t, index, tags)
                 -- Initial setup of tag appearance
-                self:get_children_by_id('text_role')[1].font = beautiful.font
-                
-                -- Set colors based on tag state
                 if t.selected then
+                    -- Debug: Print that we're setting the background
+                    print("Setting active tag background to: " .. (beautiful.gh_blue or "#3584e4"))
+                    
+                    -- Use a direct color value for testing
+                    self.bg = "#3584e4"  -- A bright blue that should be very visible
+                    self.fg = "#ffffff"  -- White text for contrast
+                    
+                    -- Make the font bold
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                    self.bg = beautiful.gh_blue or beautiful.bg_focus
-                    self.fg = beautiful.bg_normal or "#ffffff"
                 else
+                    -- For inactive tags
                     self.bg = beautiful.bg_minimize .. config.bg_opacity
                     self.fg = beautiful.fg_normal
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
                 end
             end,
+            
             update_callback = function(self, t, index, tags)
-                -- Update the font weight and colors when tag state changes
+                -- This function is called when the tag state changes
                 if t.selected then
+                    -- Debug: Print that we're updating the background
+                    print("Updating active tag background to: " .. (beautiful.gh_blue or "#3584e4"))
+                    
+                    -- Use a direct color value for testing
+                    self.bg = "#3584e4"  -- Same bright blue
+                    self.fg = "#ffffff"  -- White text
+                    
+                    -- Make the font bold
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                    self.bg = beautiful.gh_blue or beautiful.bg_focus
-                    self.fg = beautiful.bg_normal or "#ffffff"
                 else
-                    self:get_children_by_id('text_role')[1].font = beautiful.font
+                    -- For inactive tags
                     self.bg = beautiful.bg_minimize .. config.bg_opacity
                     self.fg = beautiful.fg_normal
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
                 end
             end,
         }

@@ -359,105 +359,6 @@ widgets.window_title = window_title
 -- =====================================================
 -- Layout box widget
 -- =====================================================
-function widgets.create_taglist(s)
-    -- Create a standard taglist
-    local taglist = awful.widget.taglist {
-        screen = s,
-        filter = awful.widget.taglist.filter.all,
-        buttons = gears.table.join(
-            awful.button({}, 1, function(t) t:view_only() end),
-            awful.button({}, 3, awful.tag.viewtoggle),
-            awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
-            awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
-        ),
-        layout = {
-            spacing = 8,
-            layout = wibox.layout.fixed.horizontal
-        },
-        widget_template = {
-            {
-                {
-                    id = 'text_role',
-                    font = beautiful.font,
-                    widget = wibox.widget.textbox,
-                },
-                id = 'margin_role',
-                left = 8,
-                right = 8,
-                top = 4,
-                bottom = 4,
-                widget = wibox.container.margin
-            },
-            id = 'background_role',
-            shape = function(cr, width, height)
-                gears.shape.rounded_rect(cr, width, height, config.corner_radius)
-            end,
-            widget = wibox.container.background,
-            
-            -- Only use create_callback to set up initial state
-            create_callback = function(self, t, index, tags)
-                -- Store a reference to this widget in the tag
-                t.widget = self
-                
-                -- Initial setup
-                if t.selected then
-                    self.bg = "#FF00FF"  -- Very visible magenta
-                    self.fg = "#FFFFFF"
-                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                else
-                    self.bg = beautiful.bg_minimize .. config.bg_opacity
-                    self.fg = beautiful.fg_normal
-                    self:get_children_by_id('text_role')[1].font = beautiful.font
-                end
-            end
-        }
-    }
-    
-    -- Connect to tag property signals to force styling updates
-    for _, tag in ipairs(s.tags) do
-        -- When a tag becomes selected
-        tag:connect_signal("property::selected", function(t)
-            if not t.widget then return end
-            
-            if t.selected then
-                -- Active tag styling
-                print("TAG " .. t.name .. " SELECTED - Setting background to MAGENTA")
-                t.widget.bg = "#FF00FF"  -- Magenta for active tag
-                t.widget.fg = "#FFFFFF"  -- White text
-                
-                -- Get the text widget and make it bold
-                local text_widget = t.widget:get_children_by_id('text_role')[1]
-                if text_widget then
-                    text_widget.font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                end
-            else
-                -- Inactive tag styling
-                print("TAG " .. t.name .. " UNSELECTED - Setting background to default")
-                t.widget.bg = beautiful.bg_minimize .. config.bg_opacity
-                t.widget.fg = beautiful.fg_normal
-                
-                -- Get the text widget and restore regular font
-                local text_widget = t.widget:get_children_by_id('text_role')[1]
-                if text_widget then
-                    text_widget.font = beautiful.font
-                end
-            end
-        end)
-    end
-    
-    -- Force update all tags after a delay to ensure everything is initialized
-    gears.timer.start_new(0.1, function()
-        for _, tag in ipairs(s.tags) do
-            if tag.selected then
-                tag:emit_signal("property::selected")
-            end
-        end
-        return false  -- Don't repeat
-    end)
-    
-    return taglist
-end
-
 function widgets.create_layoutbox(s)
     local layoutbox = awful.widget.layoutbox(s)
     
@@ -480,14 +381,62 @@ function widgets.create_layoutbox(s)
             widget = wibox.container.margin
         },
         bg = beautiful.bg_minimize .. config.bg_opacity,
-        -- Use inline shape function instead of the local rounded_shape function
-        shape = function(cr, width, height)
-            gears.shape.rounded_rect(cr, width, height, config.corner_radius)
-        end,
+        shape = rounded_shape,
         widget = wibox.container.background
     }
     
     return layoutbox_container
+end
+
+-- =====================================================
+-- Tag list (workspaces)
+-- =====================================================
+function widgets.create_taglist(s)
+    return awful.widget.taglist {
+        screen = s,
+        filter = awful.widget.taglist.filter.all,
+        buttons = gears.table.join(
+            awful.button({}, 1, function(t) t:view_only() end),
+            awful.button({}, 3, awful.tag.viewtoggle),
+            awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
+            awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
+        ),
+        layout = {
+            spacing = 8,  -- Keep original wider spacing between tags
+            layout = wibox.layout.fixed.horizontal
+        },
+        widget_template = {
+            {
+                {
+                    id = 'text_role',
+                    font = beautiful.font,
+                    widget = wibox.widget.textbox,
+                },
+                left = 8,    -- Add horizontal padding
+                right = 8,   -- Add horizontal padding
+                top = 4,     -- Add vertical padding
+                bottom = 4,  -- Add vertical padding
+                widget = wibox.container.margin
+            },
+            id = 'background_role',
+            widget = wibox.container.background,
+            -- Adding a create_callback to customize the appearance even further
+            create_callback = function(self, t, index, tags)
+                -- You can add a bold font for the active tag
+                if t.selected then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                end
+            end,
+            update_callback = function(self, t, index, tags)
+                -- Update the font weight when tag state changes
+                if t.selected then
+                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                else
+                    self:get_children_by_id('text_role')[1].font = beautiful.font
+                end
+            end,
+        }
+    }
 end
 
 -- =====================================================

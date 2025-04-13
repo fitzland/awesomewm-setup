@@ -425,6 +425,38 @@ function widgets.create_taglist(s)
     }
 end
 
+function widgets.create_layoutbox(s)
+    local layoutbox = awful.widget.layoutbox(s)
+    
+    -- Add buttons to change layout
+    layoutbox:buttons(gears.table.join(
+        awful.button({ }, 1, function () awful.layout.inc( 1) end),
+        awful.button({ }, 3, function () awful.layout.inc(-1) end),
+        awful.button({ }, 4, function () awful.layout.inc( 1) end),
+        awful.button({ }, 5, function () awful.layout.inc(-1) end)
+    ))
+    
+    -- Create container with same styling as other widgets
+    local layoutbox_container = wibox.widget {
+        {
+            layoutbox,
+            left = 8,
+            right = 8,
+            top = 4,
+            bottom = 4,
+            widget = wibox.container.margin
+        },
+        bg = beautiful.bg_minimize .. config.bg_opacity,
+        -- Use inline shape function instead of the local rounded_shape function
+        shape = function(cr, width, height)
+            gears.shape.rounded_rect(cr, width, height, config.corner_radius)
+        end,
+        widget = wibox.container.background
+    }
+    
+    return layoutbox_container
+end
+
 -- =====================================================
 -- Initialize all widgets
 -- =====================================================

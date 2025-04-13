@@ -413,6 +413,9 @@ function widgets.create_taglist(s)
             fg_occupied = beautiful.gh_fg,     -- Use theme's fg color for occupied tags 
             bg_empty = "transparent",          -- Keep empty tag background transparent
             fg_empty = beautiful.gh_comment .. "80", -- Use theme's dimmed comment color
+            shape = function(cr, width, height)
+                gears.shape.rounded_rect(cr, width, height, config.corner_radius)
+            end,
         },
         widget_template = {
             {
@@ -436,32 +439,44 @@ function widgets.create_taglist(s)
             create_callback = function(self, t, index, tags)
                 if t.selected then
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                    -- Force the background color for selected tag
+                    -- Force the background color for selected tag with rounded corners
                     self.bg = beautiful.gh_blue
                     self.fg = "#ffffff"
+                    -- Ensure the shape is applied
+                    self.shape = function(cr, width, height)
+                        gears.shape.rounded_rect(cr, width, height, config.corner_radius)
+                    end
                 elseif #t:clients() > 0 then
                     self:get_children_by_id('text_role')[1].font = beautiful.font
-                    -- Keep transparent background for occupied
-                    self.bg = "transparent"
+                    -- For occupied tags, add a subtle background
+                    self.bg = beautiful.bg_minimize .. "20"  -- Very subtle background
                     self.fg = beautiful.gh_fg
+                    -- Ensure the shape is applied
+                    self.shape = function(cr, width, height)
+                        gears.shape.rounded_rect(cr, width, height, config.corner_radius)
+                    end
                 else
                     self:get_children_by_id('text_role')[1].font = beautiful.font
                     -- Keep transparent background for empty
                     self.bg = "transparent"
                     self.fg = beautiful.gh_comment .. "80"
+                    -- Ensure the shape is applied
+                    self.shape = function(cr, width, height)
+                        gears.shape.rounded_rect(cr, width, height, config.corner_radius)
+                    end
                 end
             end,
             
             update_callback = function(self, t, index, tags)
                 if t.selected then
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                    -- Force the background color for selected tag
+                    -- Force the background color for selected tag with rounded corners
                     self.bg = beautiful.gh_blue
                     self.fg = "#ffffff"
                 elseif #t:clients() > 0 then
                     self:get_children_by_id('text_role')[1].font = beautiful.font
-                    -- Keep transparent background for occupied
-                    self.bg = "transparent"
+                    -- For occupied tags, add a subtle background
+                    self.bg = beautiful.bg_minimize .. "20"  -- Very subtle background
                     self.fg = beautiful.gh_fg
                 else
                     self:get_children_by_id('text_role')[1].font = beautiful.font

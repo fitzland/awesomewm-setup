@@ -401,32 +401,21 @@ function widgets.create_taglist(s)
             awful.button({}, 4, function(t) awful.tag.viewnext(t.screen) end),
             awful.button({}, 5, function(t) awful.tag.viewprev(t.screen) end)
         ),
-        style = {
-            shape = rounded_shape
-        },
-        layout = {
-            spacing = 3,
-            layout = wibox.layout.fixed.horizontal
-        },
         widget_template = {
             {
                 {
-                    {
-                        id = 'text_role',
-                        font = config.font,
-                        widget = wibox.widget.textbox
-                    },
-                    layout = wibox.layout.fixed.horizontal
+                    id = 'text_role',
+                    widget = wibox.widget.textbox,
                 },
-                left = 8,
-                right = 8,
-                top = 4,
-                bottom = 4,
+                margins = 4,
                 widget = wibox.container.margin
             },
             id = 'background_role',
-            shape = rounded_shape,
-            widget = wibox.container.background
+            widget = wibox.container.background,
+            -- Adding a create_callback to customize the appearance even further
+            create_callback = function(self, t, index, tags)
+                -- You can add extra customization here if needed
+            end,
         }
     }
 end

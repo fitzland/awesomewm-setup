@@ -59,9 +59,28 @@ theme.border_marked = theme.gh_magenta   -- Border color for marked windows
 --------------------------------------------------------------------------------
 -- Taglist Squares (small icons for workspaces)
 --------------------------------------------------------------------------------
-local taglist_square_size = dpi(4)
-theme.taglist_squares_sel   = theme_assets.taglist_squares_sel(taglist_square_size, theme.gh_fg)
-theme.taglist_squares_unsel = theme_assets.taglist_squares_unsel(taglist_square_size, theme.gh_fg)
+--------------------------------------------------------------------------------
+-- Taglist Squares (small icons for workspaces)
+--------------------------------------------------------------------------------
+-- No squares/indicators for tags
+theme.taglist_squares_sel = nil
+theme.taglist_squares_unsel = nil
+
+-- Set taglist colors
+theme.taglist_fg_focus = theme.gh_fg       -- Active tag text color
+theme.taglist_bg_focus = "transparent"     -- Active tag background (transparent)
+
+theme.taglist_fg_occupied = theme.gh_fg    -- Occupied tag text color
+theme.taglist_bg_occupied = "transparent"  -- Occupied tag background (transparent)
+
+theme.taglist_fg_empty = theme.gh_comment  -- Empty tag text color
+theme.taglist_bg_empty = "transparent"     -- Empty tag background (transparent)
+
+theme.taglist_fg_urgent = theme.gh_red     -- Urgent tag text color
+theme.taglist_bg_urgent = "transparent"    -- Urgent tag background (transparent)
+
+-- Adjust spacing between tags
+theme.taglist_spacing = dpi(2)             -- Space between tags
 
 --------------------------------------------------------------------------------
 -- Menu Settings

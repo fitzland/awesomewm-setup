@@ -230,7 +230,12 @@ end, {description = "swap with client below", group = "client"})
                   {description = "enable redshift", group = "system"}),
                   
         awful.key({ modkey, "Mod1" }, "b", function() awful.spawn.with_shell("~/.config/awesome/scripts/redshift-off") end,
-                  {description = "disable redshift", group = "system"})
+                  {description = "disable redshift", group = "system"}),
+        
+        -- Add to your globalkeys table
+		awful.key({ variables.modkey }, "c", function() 
+		require("modules.control_center").toggle() 
+		end, {description = "toggle control center", group = "awesome"}),
     )
     
     -- Set keys

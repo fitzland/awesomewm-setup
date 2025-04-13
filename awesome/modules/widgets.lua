@@ -72,6 +72,34 @@ end
 -- Simple systray without any special container
 widgets.systray = wibox.widget.systray()
 
+-- Control center toggle button
+widgets.control_center_button = wibox.widget {
+    {
+        {
+            markup = '<span foreground="' .. beautiful.fg_normal .. '"></span>',
+            font = beautiful.font .. " 14",
+            align = "center",
+            valign = "center",
+            widget = wibox.widget.textbox
+        },
+        margins = 4,
+        widget = wibox.container.margin
+    },
+    bg = beautiful.bg_minimize .. "40",
+    shape = function(cr, width, height)
+        gears.shape.rounded_rect(cr, width, height, 8)
+    end,
+    widget = wibox.container.background
+}
+
+-- Add button functionality
+widgets.control_center_button:buttons(gears.table.join(
+    awful.button({}, 1, function() 
+        require("modules.control_center").toggle()
+    end)
+))
+
+
 -- =====================================================
 -- Clock widgets
 -- =====================================================

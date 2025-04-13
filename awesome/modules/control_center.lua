@@ -5,7 +5,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local gears = require("gears")
 local beautiful = require("beautiful")
-local rubato = require("rubato") -- You'll need to install this library
+local rubato = require("mods.rubato") -- You'll need to install this library
 
 -- Create control_center table
 local control_center = {}

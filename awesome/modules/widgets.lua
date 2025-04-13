@@ -407,11 +407,11 @@ function widgets.create_taglist(s)
         },
         style = {
             -- Explicitly override the background colors in the theme
-            bg_focus = beautiful.gh_blue,      -- Use blue background for selected tag
-            fg_focus = "#ffffff",              -- White text for selected tag
-            bg_occupied = "transparent",       -- Keep occupied tag background transparent
-            fg_occupied = beautiful.gh_fg,     -- Use theme's fg color for occupied tags 
-            bg_empty = "transparent",          -- Keep empty tag background transparent
+            bg_focus = beautiful.gh_blue,  -- Use blue background for selected tag
+            fg_focus = beautiful.gh_bg,    -- Dark text (matching clock widget)
+            bg_occupied = "transparent",   -- Keep occupied tag background transparent
+            fg_occupied = beautiful.gh_fg, -- Use theme's fg color for occupied tags 
+            bg_empty = "transparent",      -- Keep empty tag background transparent
             fg_empty = beautiful.gh_comment .. "80", -- Use theme's dimmed comment color
             shape = function(cr, width, height)
                 gears.shape.rounded_rect(cr, width, height, config.corner_radius)
@@ -441,7 +441,7 @@ function widgets.create_taglist(s)
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
                     -- Force the background color for selected tag with rounded corners
                     self.bg = beautiful.gh_blue
-                    self.fg = "#ffffff"
+                    self.fg = beautiful.gh_bg  -- Dark text color matching clock widget
                     -- Ensure the shape is applied
                     self.shape = function(cr, width, height)
                         gears.shape.rounded_rect(cr, width, height, config.corner_radius)
@@ -472,7 +472,7 @@ function widgets.create_taglist(s)
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
                     -- Force the background color for selected tag with rounded corners
                     self.bg = beautiful.gh_blue
-                    self.fg = "#ffffff"
+                    self.fg = beautiful.gh_bg  -- Dark text color matching clock widget
                 elseif #t:clients() > 0 then
                     self:get_children_by_id('text_role')[1].font = beautiful.font
                     -- For occupied tags, add a subtle background

@@ -16,7 +16,6 @@ blah
 
 ```
 
-Log out and select AwesomeWM at your login screen.
 
 ---
 

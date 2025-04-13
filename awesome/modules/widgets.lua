@@ -359,9 +359,9 @@ widgets.window_title = window_title
 -- =====================================================
 -- Layout box widget
 -- =====================================================
--- Replace the create_taglist function in widgets.lua with this version:
 function widgets.create_taglist(s)
-    return awful.widget.taglist {
+    -- Create a standard taglist
+    local taglist = awful.widget.taglist {
         screen = s,
         filter = awful.widget.taglist.filter.all,
         buttons = gears.table.join(
@@ -381,6 +381,7 @@ function widgets.create_taglist(s)
                     font = beautiful.font,
                     widget = wibox.widget.textbox,
                 },
+                id = 'margin_role',
                 left = 8,
                 right = 8,
                 top = 4,
@@ -393,50 +394,68 @@ function widgets.create_taglist(s)
             end,
             widget = wibox.container.background,
             
-            -- Force a minimum width to ensure the background is visible
-            forced_width = 40,
-            
+            -- Only use create_callback to set up initial state
             create_callback = function(self, t, index, tags)
-                -- Initial setup of tag appearance
+                -- Store a reference to this widget in the tag
+                t.widget = self
+                
+                -- Initial setup
                 if t.selected then
-                    -- Debug: Print that we're setting the background
-                    print("Setting active tag background to: " .. (beautiful.gh_blue or "#3584e4"))
-                    
-                    -- Use a direct color value for testing
-                    self.bg = "#3584e4"  -- A bright blue that should be very visible
-                    self.fg = "#ffffff"  -- White text for contrast
-                    
-                    -- Make the font bold
+                    self.bg = "#FF00FF"  -- Very visible magenta
+                    self.fg = "#FFFFFF"
                     self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
                 else
-                    -- For inactive tags
                     self.bg = beautiful.bg_minimize .. config.bg_opacity
                     self.fg = beautiful.fg_normal
                     self:get_children_by_id('text_role')[1].font = beautiful.font
                 end
-            end,
-            
-            update_callback = function(self, t, index, tags)
-                -- This function is called when the tag state changes
-                if t.selected then
-                    -- Debug: Print that we're updating the background
-                    print("Updating active tag background to: " .. (beautiful.gh_blue or "#3584e4"))
-                    
-                    -- Use a direct color value for testing
-                    self.bg = "#3584e4"  -- Same bright blue
-                    self.fg = "#ffffff"  -- White text
-                    
-                    -- Make the font bold
-                    self:get_children_by_id('text_role')[1].font = beautiful.font:gsub("%s%d+$", " Bold 12")
-                else
-                    -- For inactive tags
-                    self.bg = beautiful.bg_minimize .. config.bg_opacity
-                    self.fg = beautiful.fg_normal
-                    self:get_children_by_id('text_role')[1].font = beautiful.font
-                end
-            end,
+            end
         }
     }
+    
+    -- Connect to tag property signals to force styling updates
+    for _, tag in ipairs(s.tags) do
+        -- When a tag becomes selected
+        tag:connect_signal("property::selected", function(t)
+            if not t.widget then return end
+            
+            if t.selected then
+                -- Active tag styling
+                print("TAG " .. t.name .. " SELECTED - Setting background to MAGENTA")
+                t.widget.bg = "#FF00FF"  -- Magenta for active tag
+                t.widget.fg = "#FFFFFF"  -- White text
+                
+                -- Get the text widget and make it bold
+                local text_widget = t.widget:get_children_by_id('text_role')[1]
+                if text_widget then
+                    text_widget.font = beautiful.font:gsub("%s%d+$", " Bold 12")
+                end
+            else
+                -- Inactive tag styling
+                print("TAG " .. t.name .. " UNSELECTED - Setting background to default")
+                t.widget.bg = beautiful.bg_minimize .. config.bg_opacity
+                t.widget.fg = beautiful.fg_normal
+                
+                -- Get the text widget and restore regular font
+                local text_widget = t.widget:get_children_by_id('text_role')[1]
+                if text_widget then
+                    text_widget.font = beautiful.font
+                end
+            end
+        end)
+    end
+    
+    -- Force update all tags after a delay to ensure everything is initialized
+    gears.timer.start_new(0.1, function()
+        for _, tag in ipairs(s.tags) do
+            if tag.selected then
+                tag:emit_signal("property::selected")
+            end
+        end
+        return false  -- Don't repeat
+    end)
+    
+    return taglist
 end
 
 function widgets.create_layoutbox(s)

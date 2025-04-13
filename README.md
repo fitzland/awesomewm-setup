@@ -3,7 +3,8 @@
 A modular, organized AwesomeWM configuration with clean separation of components.  
 Features GitHub-themed styling, smart keybindings, and a comprehensive widget system — ready to use out of the box.
 
-![AwesomeWM Screenshot Here]
+![2025-04-13_17-38](https://github.com/user-attachments/assets/d141527d-a163-4c5e-85b9-d56c00c03365)
+
 
 ---
 

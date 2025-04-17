@@ -11,12 +11,13 @@ Features GitHub-themed styling, smart keybindings, and a comprehensive widget sy
 ## 🚀 Installation
 
 ```bash
-blah
-
-
-
+git clone https://github.com/drewgrif/awesome-setup.git
+cd awesome-setup
+chmod +x install.sh
+./install.sh
 ```
 
+This script assumes a fresh Debian or Debian-based install with `sudo` access.
 
 ---
 

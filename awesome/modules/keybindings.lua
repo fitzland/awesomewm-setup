@@ -191,7 +191,7 @@ end, {description = "swap with client below", group = "client"})
         awful.key({ modkey }, "f", function() awful.util.spawn(variables.file_manager) end,
                   {description = "open file manager", group = "launcher"}), 
                   
-        awful.key({ modkey }, "space", function() awful.util.spawn("rofi -show drun -modi drun -line-padding 4 -hide-scrollbar -show-icons") end,
+        awful.key({ modkey }, "space", function() awful.util.spawn("rofi -show drun -modi drun -line-padding 4 -hide-scrollbar -show-icons -theme ~/.config/awesome/rofi/config.rasi") end,
                   {description = "rofi menu", group = "launcher"}),
                   
         -- Removed default Print binding as it's now defined below

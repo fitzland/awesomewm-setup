@@ -12,7 +12,7 @@ echo "
  +-+-+-+-+-+-+-+-+-+-+-+-+-+                                                                             
 "
 
-CLONED_DIR="$HOME/awesomewm-setup"
+CLONED_DIR="$HOME/git/fitzland/awesomewm-setup"
 CONFIG_DIR="$HOME/.config/awesome"
 INSTALL_DIR="$HOME/installation"
 GTK_THEME="https://github.com/vinceliuice/Orchis-theme.git"
@@ -111,7 +111,7 @@ setup_awesome_config() {
 # ========================================
 install_packages() {
     echo "Installing required packages..."
-    sudo apt-get install -y awesome awesome-extra awesome-doc xorg xorg-dev xbacklight xbindkeys xvkbd xinput build-essential network-manager-gnome pamixer thunar thunar-archive-plugin thunar-volman lxappearance dialog mtools avahi-daemon acpi acpid gvfs-backends xfce4-power-manager pavucontrol pulsemixer tilix feh fonts-recommended fonts-font-awesome fonts-terminus exa suckless-tools redshift flameshot qimgv rofi libnotify-bin xdotool unzip libnotify-dev firefox-esr geany geany-plugin-addons geany-plugin-git-changebar geany-plugin-spellcheck geany-plugin-treebrowser geany-plugin-markdown geany-plugin-insertnum geany-plugin-lineoperations geany-plugin-automark pipewire-audio nala micro xdg-user-dirs-gtk lightdm lua-check || echo "Warning: Package installation failed."
+    sudo apt-get install -y awesome awesome-extra awesome-doc xorg xorg-dev xbacklight xbindkeys xvkbd xinput build-essential network-manager-gnome pamixer thunar thunar-archive-plugin thunar-volman lxappearance dialog mtools avahi-daemon acpi acpid gvfs-backends xfce4-power-manager pavucontrol pulsemixer alacritty feh fonts-recommended fonts-font-awesome fonts-terminus exa suckless-tools redshift flameshot viewnior rofi libnotify-bin xdotool unzip libnotify-dev pipewire-audio nala micro xdg-user-dirs-gtk lightdm lua-check || echo "Warning: Package installation failed."
     echo "Package installation completed."
 }
 
@@ -164,18 +164,6 @@ install_fastfetch() {
     echo "Setting up Fastfetch config..."
     mkdir -p "$HOME/.config/fastfetch"
     wget -O "$HOME/.config/fastfetch/config.jsonc" "https://raw.githubusercontent.com/drewgrif/jag_dots/main/.config/fastfetch/config.jsonc" || echo "Warning: Failed to download config.jsonc"
-}
-
-install_wezterm() {
-    if command_exists wezterm; then
-        echo "Wezterm is already installed. Skipping."
-        return
-    fi
-    WEZTERM_URL="https://github.com/wezterm/wezterm/releases/download/20240203-110809-5046fc22/wezterm-20240203-110809-5046fc22.Debian12.deb"
-    TMP_DEB="/tmp/wezterm.deb"
-    wget -O "$TMP_DEB" "$WEZTERM_URL" && sudo apt install -y "$TMP_DEB" && rm -f "$TMP_DEB"
-    mkdir -p "$HOME/.config/wezterm"
-    wget -O "$HOME/.config/wezterm/wezterm.lua" "https://raw.githubusercontent.com/drewgrif/jag_dots/main/.config/wezterm/wezterm.lua" || die "Failed to download wezterm config."
 }
 
 install_fonts() {

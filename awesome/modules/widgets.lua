@@ -22,7 +22,7 @@ local widgets = {}
 
 -- Widget configuration
 local config = {
-    font = beautiful.font or "Roboto Mono Nerd Font 12",
+    font = beautiful.font or "IosevkaTerm Nerd Font 12",
     corner_radius = 8,
     bg_opacity = "40",  -- 40% opacity for backgrounds
     update_interval = {
@@ -104,8 +104,8 @@ widgets.clock_widget = wibox.widget {
         bottom = 4,
         widget = wibox.container.margin
     },
-    bg = beautiful.gh_caret,
-    fg = beautiful.gh_bg,
+    bg = beautiful.gh_bg,
+    fg = beautiful.gh_magenta,
     shape = rounded_shape,
     widget = wibox.container.background
 }
@@ -407,8 +407,8 @@ function widgets.create_taglist(s)
         },
         style = {
             -- Explicitly override the background colors in the theme
-            bg_focus = beautiful.gh_blue,  -- Use blue background for selected tag
-            fg_focus = beautiful.gh_bg,    -- Dark text (matching clock widget)
+            bg_focus = beautiful.gh_bg,  -- Use background for selected tag
+            fg_focus = beautiful.gh_green,    -- Dark text (matching clock widget)
             bg_occupied = "transparent",   -- Keep occupied tag background transparent
             fg_occupied = beautiful.gh_fg, -- Use theme's fg color for occupied tags 
             bg_empty = "transparent",      -- Keep empty tag background transparent

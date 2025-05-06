@@ -17,7 +17,7 @@ local theme = {}
 --------------------------------------------------------------------------------
 -- Fonts and Colors
 --------------------------------------------------------------------------------
-theme.font          = "Roboto Mono Nerd Font 12"
+theme.font          = "IosevkaTerm Nerd Font 12"
 
 -- GitHub theme colors
 theme.gh_fg        = "#d0d7de"   -- Foreground text
@@ -36,7 +36,7 @@ theme.gh_invisibles = "#2f363d"  -- Invisible characters
 
 -- Background colors for different UI elements (using GitHub colors)
 theme.bg_normal     = theme.gh_bg        -- Normal background
-theme.bg_focus      = theme.gh_blue      -- Focused elements
+theme.bg_focus      = theme.gh_green      -- Focused elements
 theme.bg_urgent     = theme.gh_red       -- Urgent (alert) background
 theme.bg_minimize   = theme.gh_invisibles -- Minimized window background
 theme.bg_systray    = theme.gh_bg        -- System tray background
@@ -51,9 +51,9 @@ theme.fg_minimize   = theme.gh_comment   -- Minimized text color
 -- Window Borders and Gaps
 --------------------------------------------------------------------------------
 theme.useless_gap   = dpi(8)             -- Gap between windows
-theme.border_width  = dpi(4)             -- Border width for windows
+theme.border_width  = dpi(2)             -- Border width for windows
 theme.border_normal = theme.gh_invisibles -- Border color for inactive windows
-theme.border_focus  = theme.gh_blue      -- Border color for focused windows
+theme.border_focus  = theme.gh_green      -- Border color for focused windows
 theme.border_marked = theme.gh_magenta   -- Border color for marked windows
 
 --------------------------------------------------------------------------------

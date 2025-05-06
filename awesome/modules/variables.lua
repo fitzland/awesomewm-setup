@@ -2,10 +2,10 @@
 -- Global variables for AwesomeWM configuration
 
 -- Default applications
-terminal = "wezterm"
+terminal = "alacritty"
 editor = os.getenv("EDITOR") or "nano"
 editor_cmd = terminal .. " -e " .. editor
-browser = "firefox"
+browser = "firefox-devedition"
 file_manager = "thunar"
 
 -- Modifier key (Mod4 is usually the 'Super' or 'Windows' key)
@@ -25,7 +25,7 @@ theme_path = config_dir .. "themes/" .. theme_name .. "/theme.lua"
 default_layout = awful.layout.suit.tile
 
 -- Tag names (workspaces)
-tags = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }
+tags = { "1:term", "2:code", "3:docs", "4:grfx", "5:web", "6:web", "7:file", "8:util", "9:music", "10:util", "11", "12" }
 
 -- Media keys
 volume_up_cmd = "pactl set-sink-volume @DEFAULT_SINK@ +5%"

@@ -8,6 +8,29 @@ local variables = require("modules.variables")
 
 local screens = {}
 
+-- Detailed screen debugging
+-- This will show the screen index, geometry, and work area for each screen
+-- This is useful for understanding how your screens are set up
+-- and can help with debugging layout issues
+-- You can remove this section if you don't need it
+for s in screen do
+    local primary = s == screen.primary and " (PRIMARY)" or ""
+    local geo = s.geometry
+    
+    naughty.notify({ 
+        title = "Screen " .. s.index .. primary,
+        text = string.format(
+            "Resolution: %d x %d\nPosition: %d, %d\nWork area: %d x %d",
+            geo.width, geo.height,
+            geo.x, geo.y,
+            s.workarea.width, s.workarea.height
+        ),
+        timeout = 15
+    })
+end
+
+-- Rest of your screens.lua file...
+
 -- Function to set wallpaper
 local function set_wallpaper(s)
     -- Wallpaper

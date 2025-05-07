@@ -50,7 +50,7 @@ theme.fg_minimize   = theme.gh_comment   -- Minimized text color
 --------------------------------------------------------------------------------
 -- Window Borders and Gaps
 --------------------------------------------------------------------------------
-theme.useless_gap   = dpi(8)             -- Gap between windows
+theme.useless_gap   = dpi(4)             -- Gap between windows
 theme.border_width  = dpi(2)             -- Border width for windows
 theme.border_normal = theme.gh_invisibles -- Border color for inactive windows
 theme.border_focus  = theme.gh_green      -- Border color for focused windows

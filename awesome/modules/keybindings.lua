@@ -137,145 +137,137 @@ awful.key({ modkey, "Shift" }, "Down", function()
     if client.focus then awful.client.swap.bydirection("down") end
 end, {description = "swap with client below", group = "client"})
 )
-    
---[[
-    -- Tag navigation (1-9)
-    for i = 1, 9 do
-        globalkeys = gears.table.join(globalkeys,
-            awful.key({ modkey }, "#" .. i + 9, function()
-                local tag = awful.screen.focused().tags[i]
-                if tag then tag:view_only() end
-            end, {description = "view tag #"..i, group = "tag"}),
-            
-            awful.key({ modkey, "Control" }, "#" .. i + 9, function()
-                if client.focus then
-                    local tag = client.focus.screen.tags[i]
-                    if tag then client.focus:move_to_tag(tag) tag:view_only() end
-                end
-            end, {description = "move client to tag #"..i.." and view", group = "tag"}),
-            
-            awful.key({ modkey, "Shift" }, "#" .. i + 9, function()
-                if client.focus then
-                    local tag = client.focus.screen.tags[i]
-                    if tag then client.focus:move_to_tag(tag) end
-                end
-            end, {description = "move client to tag #"..i, group = "tag"})
-        )
-    end
-    
-    -- Tags 10-12 on keys 0, -, =
-    local extra_tags = { [10] = "0", [11] = "-", [12] = "=" }
-    for i, key in pairs(extra_tags) do
-        globalkeys = gears.table.join(globalkeys,
-            awful.key({ modkey }, key, function()
-                local tag = awful.screen.focused().tags[i]
-                if tag then tag:view_only() end
-            end, {description = "view tag #" .. i, group = "tag"}),
-            
-            awful.key({ modkey, "Control" }, key, function()
-                if client.focus then
-                    local tag = client.focus.screen.tags[i]
-                    if tag then client.focus:move_to_tag(tag) tag:view_only() end
-                end
-            end, {description = "move client to tag #" .. i .. " and view", group = "tag"}),
-            
-            awful.key({ modkey, "Shift" }, key, function()
-                if client.focus then
-                    local tag = client.focus.screen.tags[i]
-                    if tag then client.focus:move_to_tag(tag) end
-                end
-            end, {description = "move client to tag #" .. i, group = "tag"})
-        )
-    end
-]]
 
 -- Tag navigation (1-5) on primary screen and (6-10) on secondary screen
 -- This section handles the tag navigation and client movement for both screens
 -- The first 5 tags are on the primary screen (index 1) and the next 5 are on the secondary screen (index 2)
--- The tags are accessed using the screen index and the tag index
--- For primary screen tags (1-5)
+
+-- Define which physical keys map to which logical tag number (1-10)
+-- This is a mapping of logical tag numbers to their corresponding physical keys
+-- The main number row keys are represented by "#10" to "#19" (which are the keysym values for "1" to "0")
+-- The keypad keys are represented by "KP_1" to "KP_0"
+-- The logical tag numbers are 1-10, and the physical keys are defined in the tag_key_mappings table
+local tag_key_mappings = {
+    -- Logical Tag 1
+    { main = "#10", kp = {"KP_End", "KP_1"} },        -- #10 is keysym for "1"
+    -- Logical Tag 2
+    { main = "#11", kp = {"KP_Down", "KP_2"} },       -- #11 is keysym for "2"
+    -- Logical Tag 3
+    { main = "#12", kp = {"KP_Page_Down", "KP_3"} },  -- #12 is keysym for "3"
+    -- Logical Tag 4
+    { main = "#13", kp = {"KP_Left", "KP_4"} },       -- #13 is keysym for "4"
+    -- Logical Tag 5
+    { main = "#14", kp = {"KP_Begin", "KP_5"} },      -- #14 is keysym for "5" (KP_Begin is often KP_5 on numlock off)
+    -- Logical Tag 6
+    { main = "#15", kp = {"KP_Right", "KP_6"} },      -- #15 is keysym for "6"
+    -- Logical Tag 7
+    { main = "#16", kp = {"KP_Home", "KP_7"} },       -- #16 is keysym for "7"
+    -- Logical Tag 8
+    { main = "#17", kp = {"KP_Up", "KP_8"} },         -- #17 is keysym for "8"
+    -- Logical Tag 9
+    { main = "#18", kp = {"KP_Page_Up", "KP_9"} },    -- #18 is keysym for "9"
+    -- Logical Tag 10 (often represented by "0" on the main keyboard)
+    { main = "#19", kp = {"KP_Insert", "KP_0"} }      -- #19 is keysym for "0" (KP_Insert is often KP_0 on numlock off)
+}
+
+-- Loop through logical tag numbers 1 to 10
 for i = 1, 10 do
-    globalkeys = gears.table.join(globalkeys,
-        -- View tag only (standard behavior for tags 1-5 on primary screen)
-        awful.key({ modkey }, "#" .. i + 9, function ()
-            local screen_index = 1
-            local tag_index = i
+    local keys_for_this_tag = {}
+    -- Add the main number row key
+    table.insert(keys_for_this_tag, tag_key_mappings[i].main)
+    -- Add all associated keypad keys
+    for _, kp_key in ipairs(tag_key_mappings[i].kp) do
+        table.insert(keys_for_this_tag, kp_key)
+    end
 
-            -- For tags 6-10, use second screen (index 2)
-            if i >= 6 then
-                screen_index = 2
-                tag_index = i - 5  -- Convert tag index for second screen (6→1, 7→2, etc.)
-            end
-
-            local screen = screen[screen_index]
-            local tag = screen.tags[tag_index]
-            if tag then
-                tag:view_only()
-                awful.screen.focus(screen)
-            end
-        end,
-        {description = "view tag #"..i, group = "tag"}),
-        
-        -- Toggle tag display
-        awful.key({ modkey, "Control" }, "#" .. i + 9, function ()
-            local screen_index = 1
-            local tag_index = i
-            
-            if i >= 6 then
-                screen_index = 2
-                tag_index = i - 5
-            end
-            
-            local screen = screen[screen_index]
-            local tag = screen.tags[tag_index]
-            if tag then
-                awful.tag.viewtoggle(tag)
-            end
-        end,
-        {description = "toggle tag #" .. i, group = "tag"}),
-        
-        -- Move client to tag
-        awful.key({ modkey, "Shift" }, "#" .. i + 9, function ()
-            if client.focus then
+    -- Now, for each physical key identified for logical tag 'i', create the bindings
+    for _, key_to_bind in ipairs(keys_for_this_tag) do
+        globalkeys = gears.table.join(globalkeys,
+            -- View tag only
+            awful.key({ modkey }, key_to_bind, function ()
                 local screen_index = 1
-                local tag_index = i
-                
+                local tag_index_on_screen = i -- Use 'i' for logical tag index
+
                 if i >= 6 then
                     screen_index = 2
-                    tag_index = i - 5
+                    tag_index_on_screen = i - 5
                 end
-                
-                local screen = screen[screen_index]
-                local tag = screen.tags[tag_index]
+
+                local s = screen[screen_index]
+                if not s then return end -- Check if screen exists
+                local tag = s.tags[tag_index_on_screen]
                 if tag then
-                    client.focus:move_to_tag(tag)
                     tag:view_only()
-                    awful.screen.focus(screen)
+                    awful.screen.focus(s) -- Focus the screen where the tag is
                 end
-            end
-        end,
-        {description = "move focused client to tag #"..i, group = "tag"}),
-        
-        -- Toggle tag on focused client
-        awful.key({ modkey, "Control", "Shift" }, "#" .. i + 9, function ()
-            if client.focus then
+            end,
+            {description = "view tag #"..i.." ("..key_to_bind..")", group = "tag"}),
+
+            -- Toggle tag display
+            awful.key({ modkey, "Control" }, key_to_bind, function ()
                 local screen_index = 1
-                local tag_index = i
-                
+                local tag_index_on_screen = i
+
                 if i >= 6 then
                     screen_index = 2
-                    tag_index = i - 5
+                    tag_index_on_screen = i - 5
                 end
-                
-                local screen = screen[screen_index]
-                local tag = screen.tags[tag_index]
+
+                local s = screen[screen_index]
+                if not s then return end
+                local tag = s.tags[tag_index_on_screen]
                 if tag then
-                    client.focus:toggle_tag(tag)
+                    awful.tag.viewtoggle(tag)
                 end
-            end
-        end,
-        {description = "toggle focused client on tag #" .. i, group = "tag"})
-    )
+            end,
+            {description = "toggle tag #"..i.." ("..key_to_bind..")", group = "tag"}),
+
+            -- Move client to tag
+            awful.key({ modkey, "Shift" }, key_to_bind, function ()
+                if client.focus then
+                    local screen_index = 1
+                    local tag_index_on_screen = i
+
+                    if i >= 6 then
+                        screen_index = 2
+                        tag_index_on_screen = i - 5
+                    end
+
+                    local s = screen[screen_index]
+                    if not s then return end
+                    local tag = s.tags[tag_index_on_screen]
+                    if tag then
+                        client.focus:move_to_tag(tag)
+                        -- Optional: also view the tag after moving the client
+                        tag:view_only()
+                        awful.screen.focus(s)
+                    end
+                end
+            end,
+            {description = "move focused client to tag #"..i.." ("..key_to_bind..")", group = "tag"}),
+
+            -- Toggle tag on focused client
+            awful.key({ modkey, "Control", "Shift" }, key_to_bind, function ()
+                if client.focus then
+                    local screen_index = 1
+                    local tag_index_on_screen = i
+
+                    if i >= 6 then
+                        screen_index = 2
+                        tag_index_on_screen = i - 5
+                    end
+
+                    local s = screen[screen_index]
+                    if not s then return end
+                    local tag = s.tags[tag_index_on_screen]
+                    if tag then
+                        client.focus:toggle_tag(tag)
+                    end
+                end
+            end,
+            {description = "toggle focused client on tag #"..i.." ("..key_to_bind..")", group = "tag"})
+        )
+    end
 end
 
 -- Application keybindings

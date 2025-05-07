@@ -11,6 +11,73 @@ local signals = {}
 
 -- Function to set up client signals
 local function setup_client_signals()
+
+    -- Enhanced window debugging to show screen/tag assignment
+    client.connect_signal("manage", function(c)
+    -- Short delay to allow rules to be applied first
+        gears.timer.start_new(0.1, function()
+            local screen_index = c.screen and c.screen.index or "unknown"
+            local current_tag = "none"
+            
+            -- Get the current tag name if available
+            if c.first_tag then
+                current_tag = c.first_tag.name or c.first_tag.index or "unknown"
+            end
+            
+            -- Find which rule matched this client (if any)
+            local matched_rule = "No matching rule found"
+            for i, rule in ipairs(awful.rules.rules) do
+                local rule_class = rule.rule and rule.rule.class or nil
+                local rule_any_class = rule.rule_any and rule.rule_any.class or nil
+                
+                -- Check if this rule matched the client
+                if (rule_class and c.class and c.class:match(rule_class)) or
+                (rule_any_class and c.class and table.concat(rule_any_class, " "):match(c.class)) then
+                    local tag_prop = rule.properties and rule.properties.tag or "default"
+                    local screen_prop = rule.properties and rule.properties.screen or "default"
+                    matched_rule = string.format("Rule #%d - Target: screen %s, tag %s", 
+                                            i, tostring(screen_prop), tostring(tag_prop))
+                    break
+                end
+            end
+            
+            naughty.notify({ 
+                title = "Window Placement Debug",
+                text = string.format(
+                    "Class: %s\nName: %s\nActual placement: Screen %s, Tag %s\n%s",
+                    c.class or "unknown",
+                    c.name or "unknown",
+                    screen_index,
+                    current_tag,
+                    matched_rule
+                ),
+                timeout = 20
+            })
+            
+            return false -- Don't repeat the timer
+        end)
+    end)
+
+--[[
+    -- Signal function to execute when a new client appears
+    -- Show a notification with window details
+    -- This is useful for debugging or understanding the window properties
+    client.connect_signal("manage", function(c)
+        naughty.notify({ 
+            title = "Window Details",
+            text = string.format(
+                "Class: %s\nName: %s\nType: %s\nInstance: %s\nRole: %s",
+                c.class or "unknown",
+                c.name or "unknown",
+                c.type or "unknown",
+                c.instance or "unknown",
+                c.role or "unknown"
+            ),
+            timeout = 8
+        })
+    end)
+]]
+
     -- Signal function to execute when a new client appears
     client.connect_signal("manage", function(c)
         -- Set the windows at the slave (not master)

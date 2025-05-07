@@ -25,8 +25,8 @@ local rules = {
             screen = awful.screen.preferred,
             placement = awful.placement.centered + awful.placement.no_overlap + awful.placement.no_offscreen,
             size_hints_honor = false,
-            width = 1600,
-            height = 900
+            -- width = 1600,
+            -- height = 900
         }
     },
     -- Floating clients
@@ -72,17 +72,55 @@ local rules = {
         properties = { screen = 1, tag = "2", switchtotag = true }
     },
     {
-        rule = { class = "Gimp" },
-        properties = { screen = 1, tag = "9", switchtotag = true }
+        rule_any = { class = "alacritty", "Alacritty" },
+        properties = { screen = 1, tag = "1", switchtotag = true }
+    },
+    {
+        rule_any = { class = "code", "Code" },
+        properties = { screen = 1, tag = "2", switchtotag = true }
     },
     {
         rule = { class = "obs" },
-        properties = { screen = 1, tag = "10", switchtotag = true }
+        properties = { screen = 2, tag = "5", switchtotag = true }
+    },
+    -- LibreOffice needs special handling
+    {
+        rule_any = { 
+            class = { 
+                "libreoffice", 
+                "LibreOffice", 
+                "libreoffice-writer",
+                "libreoffice-calc",
+                "libreoffice-impress"
+            }
+        },
+        properties = { screen = 1, tag = "3", floating = false, switchtotag = true }
+    },    
+    {
+        rule_any = { class = "inkscape", "Inkscape" },
+        properties = { screen = 1, tag = "4", floating = false, switchtotag = true }
     },
     {
-        rule = { class = "discord" },
-        properties = { screen = 1, tag = "8", switchtotag = true }
+        rule_any = { class = "gimp", "Gimp" },
+        properties = { screen = 1, tag = "4", floating = false, switchtotag = true }
     },
+    {
+        rule = { class = "Google-chrome" },
+        properties = { screen = 2, tag = "1", switchtotag = true }
+    },
+    {
+        rule_any = { class = "thunar", "Thunar" },
+        properties = { screen = 2, tag = "2", switchtotag = true }
+    },
+    {
+        rule_any = { class = "spotify", "Spotify" },
+        properties = { screen = 2, tag = "4", switchtotag = true }
+    },
+    {
+        rule = { class = "Keepassxc" },
+        properties = { screen = 2, tag = "5", switchtotag = true }
+    },
+
 }
 
 -- Initialize function

@@ -72,7 +72,7 @@ local function setup_wibar(s)
             widgets.mem_widget,
             widgets.clock_widget,
             widgets.volume_widget,
-            widgets.bluetooth_widget,
+            -- widgets.bluetooth_widget,  -- using blueman-applet instead
         },
     }
 end

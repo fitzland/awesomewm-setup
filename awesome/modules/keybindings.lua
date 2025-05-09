@@ -6,6 +6,26 @@ local variables = require("modules.variables")
 
 local keybindings = {}
 
+-- Helper function to switch to a tag and launch an application
+local function launch_on_tag(app_command, screen_idx, tag_idx)
+    local s = screen[screen_idx]
+    if not s then
+        naughty.notify({ preset = naughty.config.presets.critical, title = "Error", text = "Screen " .. screen_idx .. " not found." })
+        return
+    end
+
+    if not s.tags[tag_idx] then
+        naughty.notify({ preset = naughty.config.presets.critical, title = "Error", text = "Tag " .. tag_idx .. " on screen " .. screen_idx .. " not found." })
+        return
+    end
+
+    local tag_to_view = s.tags[tag_idx]
+
+    tag_to_view:view_only()
+    awful.screen.focus(s)
+    awful.util.spawn(app_command)
+end
+
 -- Define client keybindings at the module level so they're accessible to rules.lua
 keybindings.clientkeys = gears.table.join(
     -- Close window with Super+Q
@@ -287,7 +307,7 @@ globalkeys = gears.table.join(globalkeys,
     awful.key({ modkey }, "e", function() awful.util.spawn("code") end,
                 {description = "open visual studio code", group = "launcher"}),
                 
-    awful.key({ modkey, "Shift" }, "Return", function() awful.util.spawn("kitty") end,
+    awful.key({ modkey, "Shift" }, "Return", function() launch_on_tag("kitty", 1, 1) end,
                 {description = "open kitty", group = "launcher"}),
                 
     awful.key({ modkey, "Shift" }, "b", function() awful.util.spawn("firefox-devedition --private-window") end,
@@ -323,55 +343,55 @@ globalkeys = gears.table.join(globalkeys,
     awful.key({ modkey }, "F1", function() awful.util.spawn("catfish") end,
                 {description = "open catfish", group = "function keys"}),
 
-    awful.key({ modkey }, "F2", function() awful.util.spawn("code") end,
+    awful.key({ modkey }, "F2", function() launch_on_tag("code", 1, 2) end,
                 {description = "open visual studio code", group = "function keys"}),
 
-    awful.key({ modkey, "Shift" }, "F2", function() awful.util.spawn("xed") end,
+    awful.key({ modkey, "Shift" }, "F2", function() launch_on_tag("xed", 1, 2) end,
                 {description = "open visual studio code", group = "function keys"}),
 
-    awful.key({ modkey }, "F3", function() awful.util.spawn("lowriter") end,
+    awful.key({ modkey }, "F3", function() launch_on_tag("lowriter", 1, 3) end,
                 {description = "open lowriter", group = "function keys"}),
 
-    awful.key({ modkey, "Shift" }, "F3", function() awful.util.spawn("localc") end,
+    awful.key({ modkey, "Shift" }, "F3", function() launch_on_tag("localc", 1, 3) end,
                 {description = "open localc", group = "function keys"}),
 
-    awful.key({ modkey }, "F4", function() awful.util.spawn("inkscape") end,
+    awful.key({ modkey }, "F4", function() launch_on_tag("inkscape", 1, 4) end,
                 {description = "open inkscape", group = "function keys"}),
 
-    awful.key({ modkey, "Shift" }, "F4", function() awful.util.spawn("gimp") end,
+    awful.key({ modkey, "Shift" }, "F4", function() launch_on_tag("gimp", 1, 4) end,
                 {description = "open gimp", group = "function keys"}),
 
-    awful.key({ modkey }, "F5", function() awful.util.spawn("spotify") end,
+    awful.key({ modkey }, "F5", function() launch_on_tag("spotify", 2, 4) end,
                 {description = "open spotify-client", group = "function keys"}),
 
-    awful.key({ modkey }, "F7", function() awful.util.spawn("keepassxc ~/Dropbox/journal/home.kdbx") end,
+    awful.key({ modkey }, "F7", function() launch_on_tag("keepassxc ~/Dropbox/journal/home.kdbx", 2, 5) end,
                 {description = "open keepassxc home", group = "function keys"}),
 
-    awful.key({ modkey, "Shift" }, "F7", function() awful.util.spawn("keepassxc ~/Dropbox/journal/work.kdbx") end,
+    awful.key({ modkey, "Shift" }, "F7", function() launch_on_tag("keepassxc ~/Dropbox/journal/work.kdbx", 2, 5) end,
                 {description = "open keepassxc work", group = "function keys"}),
 
-    awful.key({ modkey }, "F8", function() awful.util.spawn("thunar") end,
+    awful.key({ modkey }, "F8", function() launch_on_tag("thunar", 2, 2) end,
                 {description = "open thunar", group = "function keys"}),
     
-    awful.key({ modkey, "Shift" }, "F8", function() awful.util.spawn("meld") end,
+    awful.key({ modkey, "Shift" }, "F8", function() launch_on_tag("meld", 1, 2) end,
                 {description = "open meld", group = "function keys"}),
     
-    awful.key({ modkey }, "F10", function() awful.util.spawn("firefox-devedition") end,
+    awful.key({ modkey }, "F10", function() launch_on_tag("firefox-devedition", 1, 5) end,
                 {description = "open firefox-devedition", group = "function keys"}),
     
-    awful.key({ modkey, "Shift" }, "F10", function() awful.util.spawn("firefox-devedition --private-window") end,
+    awful.key({ modkey, "Shift" }, "F10", function() launch_on_tag("firefox-devedition --private-window", 1, 5) end,
                 {description = "open firefox-devedition private", group = "function keys"}),
 
-    awful.key({ modkey }, "F11", function() awful.util.spawn("microsoft-edge-stable --profile-directory='Profile 1'") end,
+    awful.key({ modkey }, "F11", function() launch_on_tag("microsoft-edge-stable --profile-directory='Profile 1'", 1, 5) end,
                 {description = "open edge home", group = "function keys"}),
 
-    awful.key({ modkey, "Shift" }, "F11", function() awful.util.spawn("microsoft-edge-stable --profile-directory='Default'") end,
+    awful.key({ modkey, "Shift" }, "F11", function() launch_on_tag("microsoft-edge-stable --profile-directory='Default'", 1, 5) end,
                 {description = "open edge work", group = "function keys"}),
 
-    awful.key({ modkey }, "F12", function() awful.util.spawn("google-chrome-stable --profile-directory='Default'") end,
+    awful.key({ modkey }, "F12", function() launch_on_tag("google-chrome-stable --profile-directory='Default'", 1, 5) end,
                 {description = "open chrome work", group = "function keys"}),
 
-    awful.key({ modkey, "Shift" }, "F12", function() awful.util.spawn("google-chrome-stable --profile-directory='Profile 1'") end,
+    awful.key({ modkey, "Shift" }, "F12", function() launch_on_tag("google-chrome-stable --profile-directory='Profile 1'", 1, 5) end,
                 {description = "open chrome work", group = "function keys"})
 
 )

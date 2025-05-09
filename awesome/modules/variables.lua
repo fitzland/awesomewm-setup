@@ -25,7 +25,7 @@ theme_path = config_dir .. "themes/" .. theme_name .. "/theme.lua"
 default_layout = awful.layout.suit.tile
 
 -- Tag names (workspaces)
-tags = { "1:term", "2:code", "3:docs", "4:grfx", "5:web", "6:web", "7:file", "8:util", "9:music", "10:util", "11", "12" }
+tags = { "term", "code", "docs", "grfx", "tool", "web", "misc", "file", "music", "util", "11", "12" }
 
 -- Media keys
 volume_up_cmd = "pactl set-sink-volume @DEFAULT_SINK@ +5%"

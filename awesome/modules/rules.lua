@@ -10,6 +10,34 @@ local keys = require("modules.keybindings")
 local clientkeys = keys.clientkeys
 local clientbuttons = keys.clientbuttons
 
+-- Helper function to find tag by name
+local function find_tag_by_name(name)
+    for _, t in ipairs(root.tags()) do
+        if t.name == name then
+            return t
+        end
+    end
+    return nil
+end
+-- Helper function to find screen by index
+local function find_screen_by_index(index)
+    for _, s in ipairs(screen) do
+        if s.index == index then
+            return s
+        end
+    end
+    return nil
+end
+-- Helper function to find screen by name   
+local function find_screen_by_name(name)
+    for _, s in ipairs(screen) do
+        if s.name == name then
+            return s
+        end
+    end
+    return nil
+end
+
 -- Define rules
 local rules = {
     -- Default rule for all clients
@@ -73,11 +101,11 @@ local rules = {
     },
     {
         rule_any = { class = "alacritty", "Alacritty" },
-        properties = { screen = 1, tag = "1", switchtotag = true }
+        properties = { screen = 1, tag = find_tag_by_name("term"), switchtotag = true }
     },
     {
         rule_any = { class = "code", "Code" },
-        properties = { screen = 1, tag = "2", switchtotag = true }
+        properties = { screen = 1, tag = find_tag_by_name("code"), switchtotag = true }
     },
     {
         rule = { class = "obs" },
@@ -94,31 +122,31 @@ local rules = {
                 "libreoffice-impress"
             }
         },
-        properties = { screen = 1, tag = "3", floating = false, switchtotag = true }
+        properties = { screen = 1, tag = find_tag_by_name("docs"), floating = false, switchtotag = true }
     },    
     {
         rule_any = { class = "inkscape", "Inkscape" },
-        properties = { screen = 1, tag = "4", floating = false, switchtotag = true }
+        properties = { screen = 1, tag = find_tag_by_name("grfx"), floating = false, switchtotag = true }
     },
     {
         rule_any = { class = "gimp", "Gimp" },
-        properties = { screen = 1, tag = "4", floating = false, switchtotag = true }
+        properties = { screen = 1, tag = find_tag_by_name("grfx"), floating = false, switchtotag = true }
     },
     {
         rule = { class = "Google-chrome" },
-        properties = { screen = 2, tag = "1", switchtotag = true }
+        properties = { screen = 2, tag = find_tag_by_name("web"), switchtotag = true }
     },
     {
         rule_any = { class = "thunar", "Thunar" },
-        properties = { screen = 2, tag = "2", switchtotag = true }
+        properties = { screen = 2, tag = find_tag_by_name("file"), switchtotag = true }
     },
     {
         rule_any = { class = "spotify", "Spotify" },
-        properties = { screen = 2, tag = "4", switchtotag = true }
+        properties = { screen = 2, tag = find_tag_by_name("music"), switchtotag = true }
     },
     {
         rule = { class = "Keepassxc" },
-        properties = { screen = 2, tag = "5", switchtotag = true }
+        properties = { screen = 2, tag = find_tag_by_name("tool"), switchtotag = true }
     },
 
 }

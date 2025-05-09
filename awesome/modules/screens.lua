@@ -96,6 +96,17 @@ function screens.init()
     
     -- Re-set wallpaper when a screen's geometry changes
     screen.connect_signal("property::geometry", set_wallpaper)
+
+    -- Add a simple delayed restart on initial startup
+    -- This will only run once when awesome starts, not on restarts
+    -- I'm not sure this is working as intended
+    if not awesome.startup_done then
+        gears.timer.start_new(2, function()
+            awesome.emit_signal("restart")
+            awesome.startup_done = true
+            return false -- Don't repeat
+        end)
+    end
 end
 
 return screens

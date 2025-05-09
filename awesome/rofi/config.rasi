@@ -1,6 +1,7 @@
+@import "colors.rasi"
+
   * {
-        bg: #161616;
-        background-color: @bg;
+        background-color: @background;
     }
 
     configuration {
@@ -15,7 +16,7 @@
 	    width: 45%;
 	    transparency: "real";
 	    orientation: vertical;
-	    border-color: #DBC704;
+	    border-color: @highlight;
         border-radius: 10px;
     }
 
@@ -29,13 +30,13 @@
 
     element {
 	    padding: 4 12;
-	    text-color: #161616;
+	    text-color: @background;
         border-radius: 5px;
     }
 
     element selected {
-	    text-color: #ffffff;
-	    background-color: #DBC704;
+	    text-color: @foreground;
+	    background-color: @background;
     }
 
     element-text {
@@ -51,41 +52,41 @@
     }
 
 	element.selected.active {
-		background-color: #161616;
-		text-color: #F2F4F8;
+		background-color: @background;
+		text-color: @foreground;
 	}
  
 	element.alternate.normal {
-		background-color: #161616;
-		text-color: #F2F4F8;
+		background-color: @background;
+		text-color: @foreground;
 	}
 
  
 	element.alternate.active {
-		background-color: #ff8f40;
-		text-color: #F2F4F8;
+		background-color: @selected;
+		text-color: @foreground;
 	}
 
 	element.selected.normal {
-		background-color: #ff8f40;
-		text-color: #161616;
+		background-color: @selected;
+		text-color: @background;
 	}
  
 
 	element.normal.active {
-		background-color: #161616;
-		text-color: #F2F4F8;
+		background-color: @background;
+		text-color: @foreground;
 	}
  
 
 	element.normal.normal {
-		background-color: #161616;
-		text-color: #F2F4F8;
+		background-color: @background;
+		text-color: @foreground;
 	}
  
 	element.normal.urgent {
-		background-color: #f25d78;
-		text-color: #161616;
+		background-color: @urgent;
+		text-color: @background;
 	}
 
 	
@@ -104,7 +105,7 @@
     //------------------------------------------------
 
     entry {
-	    text-color: #f27893;
+	    text-color: @off;
 	    padding: 10 10 0 0;
 	    margin: 0 -2 0 0;
     }
@@ -115,7 +116,7 @@
     } 
 
     prompt {
-	    text-color: #78a9ff;
+	    text-color: @selected;
 	    padding: 10 6 0 10;
 	    margin: 0 -2 0 0;
     }

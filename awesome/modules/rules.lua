@@ -53,8 +53,6 @@ local rules = {
             screen = awful.screen.preferred,
             placement = awful.placement.centered + awful.placement.no_overlap + awful.placement.no_offscreen,
             size_hints_honor = false,
-            -- width = 1600,
-            -- height = 900
         }
     },
     -- Floating clients
@@ -100,11 +98,11 @@ local rules = {
         properties = { screen = 1, tag = "2", switchtotag = true }
     },
     {
-        rule_any = { class = "alacritty", "Alacritty" },
+        rule = { class = "Alacritty" },
         properties = { screen = 1, tag = find_tag_by_name("term"), switchtotag = true }
     },
     {
-        rule_any = { class = "code", "Code" },
+        rule = { class = "Code" },
         properties = { screen = 1, tag = find_tag_by_name("code"), switchtotag = true }
     },
     {
@@ -137,7 +135,7 @@ local rules = {
         properties = { screen = 2, tag = find_tag_by_name("web"), switchtotag = true }
     },
     {
-        rule_any = { class = "thunar", "Thunar" },
+        rule = { class = "Thunar" },
         properties = { screen = 2, tag = find_tag_by_name("file"), switchtotag = true }
     },
     {

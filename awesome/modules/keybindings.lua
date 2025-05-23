@@ -370,7 +370,7 @@ globalkeys = gears.table.join(globalkeys,
     awful.key({ modkey, "Shift" }, "F7", function() launch_on_tag("keepassxc ~/Dropbox/journal/work.kdbx", 2, 5) end,
                 {description = "open keepassxc work", group = "function keys"}),
 
-    awful.key({ modkey }, "F8", function() launch_on_tag("thunar", 2, 2) end,
+    awful.key({ modkey }, "F8", function() launch_on_tag("thunar", 2, 3) end,
                 {description = "open thunar", group = "function keys"}),
     
     awful.key({ modkey, "Shift" }, "F8", function() launch_on_tag("meld", 1, 2) end,

@@ -15,8 +15,8 @@ echo "
 CLONED_DIR="$HOME/git/fitzland/awesomewm-setup"
 CONFIG_DIR="$HOME/.config/awesome"
 INSTALL_DIR="$HOME/installation"
-GTK_THEME="https://github.com/vinceliuice/Orchis-theme.git"
-ICON_THEME="https://github.com/vinceliuice/Colloid-icon-theme.git"
+GTK_THEME="https://github.com/vinceliuice/Matcha-gtk-theme.git"
+ICON_THEME="https://github.com/vinceliuice/Qogir-icon-theme.git"
 
 # ========================================
 # User Confirmation Before Proceeding
@@ -35,11 +35,13 @@ sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get clean
 # ========================================
 mkdir -p "$INSTALL_DIR" || { echo "Failed to create installation directory."; exit 1; }
 
+# Cleanup function
 cleanup() {
     rm -rf "$INSTALL_DIR"
     echo "Installation directory removed."
 }
 trap cleanup EXIT
+
 
 # ========================================
 # Check for Existing AwesomeWM Configuration
@@ -50,7 +52,7 @@ check_awesome() {
         read -p "Would you like to back it up before proceeding? (y/n) " response
         if [[ "$response" =~ ^[Yy]$ ]]; then
             timestamp=$(date +"%Y-%m-%d_%H-%M-%S")
-            backup_dir="$HOME/.config/awesome_backup_$timestamp"
+            backup_dir="$HOME/.config/awesome_bak_$timestamp"
             mv "$CONFIG_DIR" "$backup_dir"
             echo "Backup created at $backup_dir"
         else
@@ -107,14 +109,22 @@ setup_awesome_config() {
 }
 
 # ========================================
-# Install Packages
+# Package Installation Section
 # ========================================
+# Install required packages
 install_packages() {
     echo "Installing required packages..."
     sudo apt-get install -y awesome awesome-extra awesome-doc xorg xorg-dev xbacklight xbindkeys xvkbd xinput build-essential network-manager-gnome pamixer thunar thunar-archive-plugin thunar-volman lxappearance dialog mtools avahi-daemon acpi acpid gvfs-backends xfce4-power-manager pavucontrol pulsemixer alacritty feh fonts-recommended fonts-font-awesome fonts-terminus exa suckless-tools redshift flameshot viewnior rofi libnotify-bin xdotool unzip libnotify-dev pipewire-audio nala micro xdg-user-dirs-gtk lightdm lua-check || echo "Warning: Package installation failed."
     echo "Package installation completed."
 }
 
+# ========================================
+# Enabling Required Services
+# ========================================
+# Enables system services such as Avahi and ACPI
+# ------------------------------------------------
+# This section ensures that necessary services like Avahi (for network discovery)
+# and ACPI (for power management) are enabled on the system for proper operation.
 enable_services() {
     echo "Enabling required services..."
     sudo systemctl enable avahi-daemon || echo "Warning: Failed to enable avahi-daemon."
@@ -122,13 +132,24 @@ enable_services() {
     echo "Services enabled."
 }
 
+# ========================================
+# User Directory Setup
+# ========================================
+# Sets up user directories (e.g., Downloads, Music, Pictures) and creates
+# a Screenshots folder for easy screenshot management
+# ---------------------------------------------------------------
+# This section updates the user directories (such as `Downloads` or `Documents`) 
+# using the `xdg-user-dirs-update` utility. It also ensures a `Screenshots` 
+# directory exists in the user's home directory for managing screenshots.
 setup_user_dirs() {
     echo "Updating user directories..."
     xdg-user-dirs-update || echo "Warning: Failed to update user directories."
     mkdir -p ~/Screenshots/ || echo "Warning: Failed to create Screenshots directory."
     echo "User directories updated."
 }
-
+# ========================================
+# Utility Functions
+# ========================================
 command_exists() {
     command -v "$1" &>/dev/null
 }
@@ -138,6 +159,9 @@ install_reqs() {
     sudo apt-get install -y cmake meson ninja-build curl pkg-config || { echo "Package installation failed."; exit 1; }
 }
 
+# ========================================
+# Picom Installation
+# ========================================
 install_ftlabs_picom() {
     if command_exists picom; then
         echo "Picom is already installed. Skipping."
@@ -151,6 +175,9 @@ install_ftlabs_picom() {
     sudo ninja -C build install
 }
 
+# ========================================
+# Fastfetch Installation
+# ========================================
 install_fastfetch() {
     if command_exists fastfetch; then
         echo "Fastfetch is already installed. Skipping."
@@ -169,7 +196,9 @@ install_fastfetch() {
 install_fonts() {
     echo "Installing fonts..."
     mkdir -p ~/.local/share/fonts
-    fonts=("FiraCode" "Hack" "JetBrainsMono" "RobotoMono" "SourceCodePro" "UbuntuMono")
+
+    fonts=( "FiraCode" "Hack" "JetBrainsMono" "RobotoMono" "SourceCodePro" "UbuntuMono" )
+
     for font in "${fonts[@]}"; do
         if ! ls ~/.local/share/fonts/$font/*.ttf &>/dev/null; then
             wget -q "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/$font.zip" -P /tmp && unzip -q /tmp/$font.zip -d ~/.local/share/fonts/$font/ && rm /tmp/$font.zip
@@ -235,7 +264,6 @@ setup_user_dirs
 install_reqs
 install_ftlabs_picom
 install_fastfetch
-install_wezterm
 install_fonts
 install_theming
 setup_awesome_config
